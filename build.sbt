@@ -32,21 +32,30 @@ inThisBuild(
   )
 )
 
-// val root =
-//   project
-//     .in(file("."))
-//     .settings(commonSettings: _*)
-//     .aggregate(facade)
-//     .settings(
-//       name := "root",
-//       // No, SBT, we don't want any artifacts for root.
-//       // No, not even an empty jar.
-//       publish := {},
-//       publishLocal := {},
-//       publishArtifact := false,
-//       Keys.`package` := file("")
-//     )
-//
+def copyAndReplace(srcFiles: Seq[File], destinationDir: File): Seq[File] = {
+  // Copy a directory and return the list of files
+  def copyDirectory(
+    source:               File,
+    target:               File,
+    overwrite:            Boolean = false,
+    preserveLastModified: Boolean = false
+  ): Set[File] =
+    IO.copy(PathFinder(source).allPaths.pair(Path.rebase(source, target)).toTraversable,
+            overwrite,
+            preserveLastModified,
+            false)
+  def replacements(line: String): String =
+    line
+      .replaceAll("../aladin/", "@cquiroz/aladin-lite/lib/")
+
+  // Visit each file and read the content replacing key strings
+  println(srcFiles)
+  srcFiles.foreach { f =>
+    val replacedLines = IO.readLines(f).map(replacements)
+    IO.writeLines(f, replacedLines)
+  }
+  srcFiles
+}
 lazy val facade =
   project
     .in(file("."))
@@ -58,7 +67,7 @@ lazy val facade =
       npmDependencies in Compile ++= Seq(
         "react" -> reactJS,
         "react-dom" -> reactJS,
-        "@cquiroz/aladin-lite" -> "0.0.13"
+        "@cquiroz/aladin-lite" -> "0.1.0"
       ),
       // Requires the DOM for tests
       requireJsDomEnv in Test := true,
@@ -74,15 +83,17 @@ lazy val facade =
         "com.github.japgolly.scalajs-react" %%% "test" % scalaJsReact % Test,
         "io.github.cquiroz.react" %%% "common" % "0.7.1",
         "com.lihaoyi" %%% "utest" % "0.7.4" % Test
-
-        // "org.scalameta" %%% "munit" % "0.7.2" % Test
       ),
-      // testFrameworks += new TestFramework("munit.Framework")
-      testFrameworks += new TestFramework("utest.runner.Framework")
+      testFrameworks += new TestFramework("utest.runner.Framework"),
+      Compile / sourceGenerators += Def.task {
+        val srcDirs        = (Compile / unmanagedSources).value
+        val destinationDir = (Compile / sourceManaged).value
+        copyAndReplace(srcDirs, destinationDir)
+      }.taskValue
     )
 
 lazy val commonSettings = Seq(
-  scalaVersion := "2.13.1",
+  scalaVersion := "2.13.2",
   organization := "io.github.cquiroz.react",
   sonatypeProfileName := "io.github.cquiroz",
   description := "react component for aladin",
