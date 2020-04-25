@@ -49,7 +49,6 @@ def copyAndReplace(srcFiles: Seq[File], destinationDir: File): Seq[File] = {
       .replaceAll("../aladin/", "@cquiroz/aladin-lite/lib/")
 
   // Visit each file and read the content replacing key strings
-  println(srcFiles)
   srcFiles.foreach { f =>
     val replacedLines = IO.readLines(f).map(replacements)
     IO.writeLines(f, replacedLines)
@@ -64,6 +63,9 @@ lazy val facade =
     .settings(commonSettings: _*)
     .settings(
       name := "react-aladin",
+      Test / npmDevDependencies ++= Seq(
+        "raf" -> "3.4.1"
+      ),
       npmDependencies in Compile ++= Seq(
         "react" -> reactJS,
         "react-dom" -> reactJS,
