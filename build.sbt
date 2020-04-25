@@ -63,13 +63,10 @@ lazy val facade =
     .settings(commonSettings: _*)
     .settings(
       name := "react-aladin",
-      Test / npmDevDependencies ++= Seq(
-        "raf" -> "3.4.1"
-      ),
       npmDependencies in Compile ++= Seq(
         "react" -> reactJS,
         "react-dom" -> reactJS,
-        "@cquiroz/aladin-lite" -> "0.1.0"
+        "@cquiroz/aladin-lite" -> "0.1.1"
       ),
       // Requires the DOM for tests
       requireJsDomEnv in Test := true,
