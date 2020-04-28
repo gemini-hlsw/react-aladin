@@ -103,5 +103,6 @@ lazy val commonSettings = Seq(
       "-Wdead-code",
       "-Wunused:params"
     )
-  ))
+  )),
+  scalacOptions += "-P:scalajs:sjsDefinedByDefault"
 )

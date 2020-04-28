@@ -127,6 +127,15 @@ object AladinOverlay {
   type Shapes = AladinCircle | AladinFootprint | AladinPolyline
 }
 
+class GoToObjectCallback(succ: (JsNumber, JsNumber) => Callback, e: Callback) extends js.Object {
+  val success = (raDec: js.Array[JsNumber]) => {
+    println(succ)
+    println(raDec)
+    succ(raDec(0), raDec(1)).runNow()
+  }
+  val error = () => e.runNow()
+}
+
 @js.native
 @JSImport("@cquiroz/aladin-lite/lib/js/Aladin", JSImport.Namespace)
 class JsAladin extends js.Object {
@@ -147,7 +156,7 @@ class JsAladin extends js.Object {
   def addOverlay(c: AladinOverlay): Unit = js.native
   def gotoRaDec(ra: JsNumber, dec: JsNumber): Unit = js.native
   def getRaDec(): js.Array[JsNumber] = js.native
-  def gotoObject(q:      String, cb:    js.Function1[js.Array[Double], Unit]): Unit = js.native
+  def gotoObject(q:      String, cb:    GoToObjectCallback): Unit = js.native
   def animateToRaDec(ra: JsNumber, dec: JsNumber, time: JsNumber): Unit = js.native
 }
 
@@ -250,8 +259,8 @@ object Aladin {
     def getRaDec: CallbackTo[Option[(JsNumber, JsNumber)]] = runOnAladinOpt(_.getRaDec()).map {
       _.map(a => (a(0), a(1)))
     }
-    def gotoObject(q: String, cb: (JsNumber, JsNumber) => Callback): Callback =
-      runOnAladin(_.gotoObject(q, a => cb(a(0), a(1)).runNow))
+    def gotoObject(q: String, cb: (JsNumber, JsNumber) => Callback, er: Callback): Callback =
+      Callback.log(s"r $q") *> runOnAladin(_.gotoObject(q, new GoToObjectCallback(cb, er)))
   }
 
   // Say this is the Scala component you want to share
@@ -262,10 +271,21 @@ object Aladin {
     .componentDidMount { b =>
       for {
         aladin <- CallbackTo[JsAladin](A.aladin(".react-aladin", fromProps(b.props)))
-        _      <- Callback(b.props.imageSurvey.toOption.map(aladin.setImageSurvey))
-        _      <- Callback(b.props.baseImageLayer.toOption.map(aladin.setBaseImageLayer))
-        _      <- Callback(b.props.customize.toOption.map(_(aladin)))
-        _      <- b.setState(State(Some(aladin)))
+        _ <- Callback {
+          try {
+            aladin.gotoObject("M1",
+                              new GoToObjectCallback((a, b) => Callback.log(s"$a $b"),
+                                                     Callback.log("error")))
+          } catch {
+            case e: Throwable =>
+              e.printStackTrace()
+              Callback.error(e)
+          }
+        }
+        _ <- Callback(b.props.imageSurvey.toOption.map(aladin.setImageSurvey))
+        _ <- Callback(b.props.baseImageLayer.toOption.map(aladin.setBaseImageLayer))
+        _ <- Callback(b.props.customize.toOption.map(_(aladin)))
+        _ <- b.setState(State(Some(aladin)))
       } yield ()
     }
     .build
