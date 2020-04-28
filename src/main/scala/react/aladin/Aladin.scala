@@ -143,9 +143,11 @@ class JsAladin extends js.Object {
     maxOrder: JsNumber,
     options:  js.Object
   ): HpxImageSurvey = js.native
-  def addCatalog(c:      AladinCatalog): Unit = js.native
-  def addOverlay(c:      AladinOverlay): Unit = js.native
-  def gotoRaDec(ra:      JsNumber, dec: JsNumber): Unit = js.native
+  def addCatalog(c: AladinCatalog): Unit = js.native
+  def addOverlay(c: AladinOverlay): Unit = js.native
+  def gotoRaDec(ra: JsNumber, dec: JsNumber): Unit = js.native
+  def getRaDec(): js.Array[JsNumber] = js.native
+  def gotoObject(q:      String, cb:    js.Function1[js.Array[Double], Unit]): Unit = js.native
   def animateToRaDec(ra: JsNumber, dec: JsNumber, time: JsNumber): Unit = js.native
 }
 
@@ -233,6 +235,11 @@ object Aladin {
 
   final case class State(a: Option[JsAladin])
   class Backend(bs:         BackendScope[Aladin, State]) {
+    private def runOnAladinOpt[A](f: JsAladin => A): CallbackTo[Option[A]] =
+      bs.state.flatMap {
+        case State(Some(a)) => CallbackTo(Some(f(a)))
+        case _              => CallbackTo(None)
+      }
     private def runOnAladin[A](f: JsAladin => A): Callback =
       bs.state.flatMap {
         case State(Some(a)) => CallbackTo(f(a)).void
@@ -240,6 +247,11 @@ object Aladin {
       }
     def render: VdomElement = <.div(^.cls := "react-aladin")
     def gotoRaDec(ra: JsNumber, dec: JsNumber): Callback = runOnAladin(_.gotoRaDec(ra, dec))
+    def getRaDec: CallbackTo[Option[(JsNumber, JsNumber)]] = runOnAladinOpt(_.getRaDec()).map {
+      _.map(a => (a(0), a(1)))
+    }
+    def gotoObject(q: String, cb: (JsNumber, JsNumber) => Callback): Callback =
+      runOnAladin(_.gotoObject(q, a => cb(a(0), a(1)).runNow))
   }
 
   // Say this is the Scala component you want to share
