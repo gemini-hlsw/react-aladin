@@ -128,13 +128,10 @@ object AladinOverlay {
 }
 
 class GoToObjectCallback(succ: (JsNumber, JsNumber) => Callback, e: Callback) extends js.Object {
-  val success = (raDec: js.Array[JsNumber]) => {
-    println("suecc")
-    println(succ)
-    println(raDec)
+  val success: js.Function1[js.Array[JsNumber], Unit] = (raDec: js.Array[JsNumber]) => {
     succ(raDec(0), raDec(1)).runNow()
   }
-  val error = () => e.runNow()
+  val error: js.Function0[Unit] = () => e.runNow()
 }
 
 @js.native
@@ -272,21 +269,10 @@ object Aladin {
     .componentDidMount { b =>
       for {
         aladin <- CallbackTo[JsAladin](A.aladin(".react-aladin", fromProps(b.props)))
-        _ <- Callback {
-          try {
-            aladin.gotoObject("M1",
-                              new GoToObjectCallback((a, b) => Callback.log(s"$a $b"),
-                                                     Callback.log("error")))
-          } catch {
-            case e: Throwable =>
-              e.printStackTrace()
-              Callback.error(e)
-          }
-        }
-        _ <- Callback(b.props.imageSurvey.toOption.map(aladin.setImageSurvey))
-        _ <- Callback(b.props.baseImageLayer.toOption.map(aladin.setBaseImageLayer))
-        _ <- Callback(b.props.customize.toOption.map(_(aladin)))
-        _ <- b.setState(State(Some(aladin)))
+        _      <- Callback(b.props.imageSurvey.toOption.map(aladin.setImageSurvey))
+        _      <- Callback(b.props.baseImageLayer.toOption.map(aladin.setBaseImageLayer))
+        _      <- Callback(b.props.customize.toOption.map(_(aladin)))
+        _      <- b.setState(State(Some(aladin)))
       } yield ()
     }
     .build
