@@ -129,6 +129,7 @@ object AladinOverlay {
 
 class GoToObjectCallback(succ: (JsNumber, JsNumber) => Callback, e: Callback) extends js.Object {
   val success = (raDec: js.Array[JsNumber]) => {
+    println("suecc")
     println(succ)
     println(raDec)
     succ(raDec(0), raDec(1)).runNow()
