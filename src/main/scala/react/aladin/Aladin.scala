@@ -126,14 +126,6 @@ class AladinOverlay extends js.Object {
 object AladinOverlay {
   type Shapes = AladinCircle | AladinFootprint | AladinPolyline
 }
-
-class GoToObjectCallback(succ: (JsNumber, JsNumber) => Callback, e: Callback) extends js.Object {
-  val success: js.Function1[js.Array[JsNumber], Unit] = (raDec: js.Array[JsNumber]) => {
-    succ(raDec(0), raDec(1)).runNow()
-  }
-  val error: js.Function0[Unit] = () => e.runNow()
-}
-
 @js.native
 @JSImport("@cquiroz/aladin-lite/lib/js/Aladin", JSImport.Namespace)
 class JsAladin extends js.Object {
@@ -258,7 +250,7 @@ object Aladin {
       _.map(a => (a(0), a(1)))
     }
     def gotoObject(q: String, cb: (JsNumber, JsNumber) => Callback, er: Callback): Callback =
-      Callback.log(s"r $q") *> runOnAladin(_.gotoObject(q, new GoToObjectCallback(cb, er)))
+      runOnAladin(_.gotoObject(q, new GoToObjectCallback(cb, er)))
   }
 
   // Say this is the Scala component you want to share
