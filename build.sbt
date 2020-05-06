@@ -66,7 +66,7 @@ lazy val facade =
       npmDependencies in Compile ++= Seq(
         "react" -> reactJS,
         "react-dom" -> reactJS,
-        "@cquiroz/aladin-lite" -> "0.1.4"
+        "@cquiroz/aladin-lite" -> "0.1.5"
       ),
       // Requires the DOM for tests
       requireJsDomEnv in Test := true,

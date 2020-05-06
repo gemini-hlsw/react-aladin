@@ -148,6 +148,7 @@ class JsAladin extends js.Object {
   def getRaDec(): js.Array[JsNumber] = js.native
   def gotoObject(q:      String, cb:    GoToObjectCallback): Unit = js.native
   def animateToRaDec(ra: JsNumber, dec: JsNumber, time: JsNumber): Unit = js.native
+  def recalculateView(): Unit = js.native
 }
 
 @js.native
