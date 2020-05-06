@@ -252,6 +252,7 @@ object Aladin {
     }
     def gotoObject(q: String, cb: (JsNumber, JsNumber) => Callback, er: Callback): Callback =
       runOnAladin(_.gotoObject(q, new GoToObjectCallback(cb, er)))
+    def recalculateView: Callback = runOnAladin(_.recalculateView())
   }
 
   // Say this is the Scala component you want to share
