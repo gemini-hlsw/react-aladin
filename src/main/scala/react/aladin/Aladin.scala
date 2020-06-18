@@ -9,6 +9,7 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 import japgolly.scalajs.react.raw.JsNumber
 import react.common._
+import org.scalajs.dom.raw.Element
 
 // This will be the props object used from JS-land
 @js.native
@@ -80,7 +81,7 @@ object PolylineOptions {
 }
 
 @js.native
-@JSImport("@cquiroz/aladin-lite/lib/js/Source", JSImport.Namespace)
+@JSImport("~resources/aladin-lite/js/Source", JSImport.Namespace)
 class AladinSource extends js.Object {
   val x: Double       = js.native
   val y: Double       = js.native
@@ -88,36 +89,36 @@ class AladinSource extends js.Object {
 }
 
 @js.native
-@JSImport("@cquiroz/aladin-lite/lib/js/Color", JSImport.Namespace)
+@JSImport("~resources/aladin-lite/js/Color", JSImport.Namespace)
 class AladinColor extends js.Object {}
 
 @js.native
-@JSImport("@cquiroz/aladin-lite/lib/js/ColorMap", JSImport.Namespace)
+@JSImport("~resources/aladin-lite/js/ColorMap", JSImport.Namespace)
 class ColorMap extends js.Object {
   def update(a: String): Unit = js.native
 }
 
 @js.native
-@JSImport("@cquiroz/aladin-lite/lib/js/Footprint", JSImport.Namespace)
+@JSImport("~resources/aladin-lite/js/Footprint", JSImport.Namespace)
 class AladinFootprint extends js.Object {}
 
 @js.native
-@JSImport("@cquiroz/aladin-lite/lib/js/Polyline", JSImport.Namespace)
+@JSImport("~resources/aladin-lite/js/Polyline", JSImport.Namespace)
 class AladinPolyline extends js.Object {}
 
 @js.native
-@JSImport("@cquiroz/aladin-lite/lib/js/Circle", JSImport.Namespace)
+@JSImport("~resources/aladin-lite/js/Circle", JSImport.Namespace)
 class AladinCircle extends js.Object {}
 
 @js.native
-@JSImport("@cquiroz/aladin-lite/lib/js/HpxImageSurvey", JSImport.Namespace)
+@JSImport("~resources/aladin-lite/js/HpxImageSurvey", JSImport.Namespace)
 class HpxImageSurvey extends js.Object {
   def setAlpha(a: JsNumber): Unit = js.native
   def getColorMap(): ColorMap = js.native
 }
 
 @js.native
-@JSImport("@cquiroz/aladin-lite/lib/js/Overlay", JSImport.Namespace)
+@JSImport("~resources/aladin-lite/js/Overlay", JSImport.Namespace)
 class AladinOverlay extends js.Object {
   def addFootprints(s: js.Array[AladinOverlay.Shapes]): Unit = js.native
   def add(s:           AladinOverlay.Shapes): Unit           = js.native
@@ -127,7 +128,7 @@ object AladinOverlay {
   type Shapes = AladinCircle | AladinFootprint | AladinPolyline
 }
 @js.native
-@JSImport("@cquiroz/aladin-lite/lib/js/Aladin", JSImport.Namespace)
+@JSImport("js/Aladin", JSImport.Namespace)
 class JsAladin extends js.Object {
   def setImageSurvey(s:    String): Unit = js.native
   def setBaseImageLayer(s: String): Unit = js.native
@@ -149,10 +150,11 @@ class JsAladin extends js.Object {
   def gotoObject(q:      String, cb:    GoToObjectCallback): Unit = js.native
   def animateToRaDec(ra: JsNumber, dec: JsNumber, time: JsNumber): Unit = js.native
   def recalculateView(): Unit = js.native
+  def getParentDiv(): Element = js.native
 }
 
 @js.native
-@JSImport("@cquiroz/aladin-lite/lib/js/A", JSImport.Namespace)
+@JSImport("js/A", JSImport.Namespace)
 object A extends js.Object {
   def aladin(divSelector: String, options: AladinProps): JsAladin = js.native
   def catalog(c:          CatalogOptions): AladinCatalog = js.native

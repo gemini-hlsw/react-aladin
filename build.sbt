@@ -32,6 +32,79 @@ inThisBuild(
   )
 )
 
+addCommandAlias(
+  "restartWDS",
+  "; demo/fastOptJS::stopWebpackDevServer; demo/fastOptJS::startWebpackDevServer; ~demo/fastOptJS"
+)
+
+val demo =
+  project
+    .in(file("demo"))
+    .enablePlugins(ScalaJSBundlerPlugin)
+    .settings(commonSettings: _*)
+    .settings(
+      version in webpack := "4.43.0",
+      version in startWebpackDevServer := "3.11.0",
+      webpackConfigFile in fastOptJS := Some(
+        baseDirectory.value / "webpack" / "dev.webpack.config.js"
+      ),
+      webpackConfigFile in fullOptJS := Some(
+        baseDirectory.value / "webpack" / "prod.webpack.config.js"
+      ),
+      webpackMonitoredDirectories += (resourceDirectory in Compile).value,
+      webpackResources := (baseDirectory.value / "webpack") * "*.js",
+      includeFilter in webpackMonitoredFiles := "*",
+      webpackExtraArgs := Seq("--progress"),
+      // webpackExtraArgs                       := Seq("--progress", "--display", "verbose"),
+      useYarn := true,
+      webpackBundlingMode in fastOptJS := BundlingMode.LibraryOnly(),
+      webpackBundlingMode in fullOptJS := BundlingMode.Application,
+      test := {},
+      scalaJSLinkerConfig in (Compile, fastOptJS) ~= { _.withSourceMap(false) },
+      scalaJSLinkerConfig in (Compile, fullOptJS) ~= { _.withSourceMap(false) },
+      // NPM libs for development, mostly to let webpack do its magic
+      npmDevDependencies in Compile ++= Seq(
+        "postcss-loader" -> "3.0.0",
+        "autoprefixer" -> "9.7.6",
+        "url-loader" -> "4.1.0",
+        "file-loader" -> "6.0.0",
+        "css-loader" -> "3.5.3",
+        "style-loader" -> "1.2.1",
+        "less" -> "3.11.1",
+        "less-loader" -> "6.1.0",
+        "webpack-merge" -> "4.2.2",
+        "mini-css-extract-plugin" -> "0.9.0",
+        "webpack-dev-server-status-bar" -> "1.1.2",
+        "cssnano" -> "4.1.10",
+        "uglifyjs-webpack-plugin" -> "2.2.0",
+        "html-webpack-plugin" -> "4.3.0",
+        "optimize-css-assets-webpack-plugin" -> "5.0.3",
+        "favicons-webpack-plugin" -> "3.0.1",
+        "why-did-you-update" -> "1.0.8",
+        "svg-inline-loader" -> "0.8.2",
+        "babel-loader" -> "8.1.0",
+        "@babel/core" -> "7.10.2",
+        "@babel/preset-env" -> "7.10.2"
+      ),
+      npmDependencies in Compile ++= Seq(
+        "react" -> reactJS,
+        "react-dom" -> reactJS,
+        "jquery" -> "1.12.4",
+        "raf" -> "3.4.1",
+        "stats.js" -> "0.17.0"
+      ),
+      libraryDependencies ++= Seq(
+        "edu.gemini" %%% "gsp-math" % "0.2.2",
+        "edu.gemini" %%% "gsp-core-model" % "0.2.3"
+      ),
+      // don't publish the demo
+      publish := {},
+      publishLocal := {},
+      publishArtifact := false,
+      Keys.`package` := file("")
+    )
+    .dependsOn(facade)
+
 def copyAndReplace(srcFiles: Seq[File], destinationDir: File): Seq[File] = {
   // Copy a directory and return the list of files
   def copyDirectory(
@@ -65,8 +138,8 @@ lazy val facade =
       name := "react-aladin",
       npmDependencies in Compile ++= Seq(
         "react" -> reactJS,
-        "react-dom" -> reactJS,
-        "@cquiroz/aladin-lite" -> "0.1.6"
+        "react-dom" -> reactJS
+        // "@cquiroz/aladin-lite" -> "0.1.6"
       ),
       // Requires the DOM for tests
       requireJsDomEnv in Test := true,
@@ -83,12 +156,12 @@ lazy val facade =
         "io.github.cquiroz.react" %%% "common" % "0.9.1",
         "com.lihaoyi" %%% "utest" % "0.7.4" % Test
       ),
-      testFrameworks += new TestFramework("utest.runner.Framework"),
-      Compile / sourceGenerators += Def.task {
-        val srcDirs        = (Compile / unmanagedSources).value
-        val destinationDir = (Compile / sourceManaged).value
-        copyAndReplace(srcDirs, destinationDir)
-      }.taskValue
+      testFrameworks += new TestFramework("utest.runner.Framework")
+      // Compile / sourceGenerators += Def.task {
+      //   val srcDirs        = (Compile / unmanagedSources).value
+      //   val destinationDir = (Compile / sourceManaged).value
+      //   copyAndReplace(srcDirs, destinationDir)
+      // }.taskValue
     )
 
 lazy val commonSettings = Seq(
