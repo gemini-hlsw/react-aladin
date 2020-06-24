@@ -146,11 +146,15 @@ class JsAladin extends js.Object {
   def addCatalog(c: AladinCatalog): Unit = js.native
   def addOverlay(c: AladinOverlay): Unit = js.native
   def gotoRaDec(ra: JsNumber, dec: JsNumber): Unit = js.native
-  def getRaDec(): js.Array[JsNumber] = js.native
+  def getRaDec(): js.Array[Double] = js.native
   def gotoObject(q:      String, cb:    GoToObjectCallback): Unit = js.native
   def animateToRaDec(ra: JsNumber, dec: JsNumber, time: JsNumber): Unit = js.native
-  def recalculateView(): Unit = js.native
-  def getParentDiv(): Element = js.native
+  def recalculateView(): Unit     = js.native
+  def getParentDiv(): Element     = js.native
+  def getSize(): js.Array[Double] = js.native
+  def getFov(): js.Array[Double]  = js.native
+  def pix2world(x: Double, y: Double): js.Array[Double] = js.native
+  def world2pix(x: Double, y: Double): js.Array[Double] = js.native
 }
 
 @js.native
@@ -159,9 +163,9 @@ object A extends js.Object {
   def aladin(divSelector: String, options: AladinProps): JsAladin = js.native
   def catalog(c:          CatalogOptions): AladinCatalog = js.native
   def graphicOverlay(c:   OverlayOptions): AladinOverlay = js.native
-  def polygon(raDecArray: js.Array[js.Array[JsNumber]]): AladinFootprint = js.native
+  def polygon(raDecArray: js.Array[js.Array[Double]]): AladinFootprint = js.native
   def polyline(
-    raDecArray: js.Array[js.Array[JsNumber]],
+    raDecArray: js.Array[js.Array[Double]],
     o:          js.UndefOr[PolylineOptions]
   ): AladinPolyline = js.native
   def circle(
@@ -249,7 +253,7 @@ object Aladin {
       }
     def render: VdomElement = <.div(^.cls := "react-aladin")
     def gotoRaDec(ra: JsNumber, dec: JsNumber): Callback = runOnAladin(_.gotoRaDec(ra, dec))
-    def getRaDec: CallbackTo[Option[(JsNumber, JsNumber)]] = runOnAladinOpt(_.getRaDec()).map {
+    def getRaDec: CallbackTo[Option[(Double, Double)]] = runOnAladinOpt(_.getRaDec()).map {
       _.map(a => (a(0), a(1)))
     }
     def gotoObject(q: String, cb: (JsNumber, JsNumber) => Callback, er: Callback): Callback =

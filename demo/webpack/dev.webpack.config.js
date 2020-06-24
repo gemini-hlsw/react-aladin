@@ -50,7 +50,7 @@ const Web = Merge(
     // Custom dev server for the demo as we need a ws proxy
     devServer: {
       host: "0.0.0.0",
-      port: 7070,
+      port: 8000,
       hot: true,
       contentBase: [__dirname, parts.rootDir],
       historyApiFallback: true,

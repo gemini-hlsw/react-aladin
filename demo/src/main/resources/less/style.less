@@ -19,3 +19,41 @@ body {
   z-index: 10;
   position: absolute;
 }
+svg {
+  // width: 720px;
+  // height: 720px;
+  // position: absolute;
+  pointer-events: none;
+}
+
+.jts {
+  z-index: 10;
+  position: absolute;
+  transform: scale(1, -1);
+}
+
+.jts-polygon {
+  stroke: gray;
+  stroke-width: 1px;
+  fill: lightgray;
+  fill-opacity: 0.3;
+  position: absolute;
+  vector-effect: non-scaling-stroke;
+}
+
+#probe {
+  stroke: green;
+  z-index: 1;
+  fill-opacity: 0.8;
+}
+
+#patrol-field {
+  stroke: red;
+}
+
+#science-area polygon {
+  stroke: purple;
+  fill: black;
+  fill-opacity: 1;
+}
+

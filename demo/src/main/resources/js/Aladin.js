@@ -894,7 +894,6 @@ const Aladin = (function() {
         this.view.setOverlayImageSurvey(imageSurvey, callback);
     };
 
-
     Aladin.prototype.increaseZoom = function(step) {
         if (!step) {
             step = 5;
@@ -913,7 +912,6 @@ const Aladin = (function() {
     Aladin.prototype.createCatalog = function(options) {
         return A.catalog(options);
     };
-
 
     Aladin.prototype.createProgressiveCatalog = function(url, frame, maxOrder, options) {
         return new ProgressiveCat(url, frame, maxOrder, options);
@@ -977,11 +975,6 @@ const Aladin = (function() {
                  this.boxes[k].hide();
              }
          }
-     };
-
-     // ?
-     Aladin.prototype.updateCM = function() {
-
      };
 
      // TODO : LayerBox (or Stack?) must be extracted as a separate object
