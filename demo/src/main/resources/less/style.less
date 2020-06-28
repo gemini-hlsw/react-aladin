@@ -29,7 +29,8 @@ svg {
 .jts {
   z-index: 10;
   position: absolute;
-  transform: scale(1, -1);
+  // transform: scale(0.3, -0.3);
+  // transform: translate(0, 0)
 }
 
 .jts-polygon {
@@ -48,12 +49,23 @@ svg {
 }
 
 #patrol-field {
-  stroke: red;
+stroke: red;
+  stroke-dasharray: 10;
 }
 
 #science-area polygon {
   stroke: purple;
   fill: black;
   fill-opacity: 1;
+}
+
+#science-ccd-offset polygon {
+  stroke: blue;
+  fill-opacity: 0.1;
+}
+
+#science-ccd polygon {
+  stroke: green;
+  fill-opacity: 0.1;
 }
 

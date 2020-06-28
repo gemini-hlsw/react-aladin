@@ -1149,14 +1149,14 @@ const Aladin = (function() {
 
      };
 
-     Aladin.prototype.layerByName = function(name) {
-         var c = this.view.allOverlayLayers;
-         for (var k=0; k<c.length; k++) {
-             if (name===c[k].name) {
-                 return c[k];
-             }
+     Aladin.prototype.layerByName = function (name) {
+       var c = this.view.allOverlayLayers;
+       for (var k = 0; k < c.length; k++) {
+         if (name === c[k].name) {
+           return c[k];
          }
-         return null;
+       }
+       return null;
      };
 
      // TODO : integrate somehow into API ?
