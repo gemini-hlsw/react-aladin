@@ -94,7 +94,6 @@ val demo =
         "stats.js" -> "0.17.0"
       ),
       libraryDependencies ++= Seq(
-        "edu.gemini" %%% "gsp-math" % "0.2.2",
         "edu.gemini" %%% "gsp-core-model" % "0.2.3"
       ),
       // don't publish the demo
@@ -151,6 +150,7 @@ lazy val facade =
       // Compile tests to JS using fast-optimisation
       scalaJSStage in Test := FastOptStage,
       libraryDependencies ++= Seq(
+        "edu.gemini" %%% "gsp-math" % "0.2.2",
         "com.github.japgolly.scalajs-react" %%% "core" % scalaJsReact,
         "com.github.japgolly.scalajs-react" %%% "test" % scalaJsReact % Test,
         "io.github.cquiroz.react" %%% "common" % "0.9.1",

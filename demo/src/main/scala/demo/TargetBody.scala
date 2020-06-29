@@ -40,34 +40,7 @@ object SourceData {
 
 }
 
-/**
-  * ALadin field of view angles horizontally and vertically
-  *
-  * @param x Horizontal (RA) field of view
-  * @param y Vertical (Dec) field of view
-  */
-final case class Fov(x:        Angle, y:  Angle)
-
-/**
-  * Aladin pixel scala in degrees per pixel
-  *
-  * @param x
-  * @param y
-  */
-final case class PixelScale(x: Double, y: Double)
-
 object TargetBody {
-  // @js.native
-  // @JSImport("star.svg", JSImport.Default)
-  // val strSvg: String = js.native
-  implicit class JsAladinOps(val a: JsAladin) extends AnyVal {
-    def size: Size = Size(a.getSize()(0), a.getSize()(1))
-    def fov: Fov =
-      Fov(Angle.fromDoubleDegrees(a.getFov()(0)), Angle.fromDoubleDegrees(a.getFov()(1)))
-    def pixelScale: PixelScale =
-      PixelScale(a.getSize()(0) / a.getFov()(0), a.getSize()(1) / a.getFov()(1))
-  }
-
   type Props = TargetBody
 
   protected implicit val propsReuse: Reusability[Props] = Reusability.derive
@@ -92,7 +65,7 @@ object TargetBody {
           canvasCtx.lineWidth = 3
           // println(v.size)
           // println(v.getFov)
-          println(v.pixelScale)
+          // println(v.pixelScale)
           // println("fov")
           // println(v.getFov()(0))
           // println(v.getFov()(1))
@@ -119,9 +92,9 @@ object TargetBody {
             //                       coords(1) - gmosArea.toDoubleDegrees * decCorrection)
             // canvasCtx.strokeRect(pix1(0), pixC
             // canvasCtx.strokeRect(0, 1, pix(0), pix(1))
-            println("coords")
-            println(s"corner: ${pix1(0)}, ${pix1(1)}")
-            println(s"size: ${pix(0) - pix1(0)}, ${pix(1) - pix1(1)}")
+            // println("coords")
+            // println(s"corner: ${pix1(0)}, ${pix1(1)}")
+            // println(s"size: ${pix(0) - pix1(0)}, ${pix(1) - pix1(1)}")
             canvasCtx.strokeRect(pix1(0), pix1(1), pix(0) - pix1(0), pix(1) - pix1(1))
 
           }
@@ -160,7 +133,11 @@ object TargetBody {
           ^.cls := "check",
           AladinComp.withRef(ref) {
             // Aladin(target          = "0:00:00 0:00:00",
-            Aladin(target = "M51", fov = 0.25, showGotoControl = false, customize = includeSvg _)
+            Aladin(showReticle     = false,
+                   target          = "M51",
+                   fov             = 0.25,
+                   showGotoControl = false,
+                   customize       = includeSvg _)
           }
         )
         // <.div(

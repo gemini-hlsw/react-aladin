@@ -24,6 +24,7 @@ import gpp.svgdotjs.svgdotjsSvgJs.mod.Polygon
 import gpp.svgdotjs.svgdotjsSvgJs.mod.G
 import gpp.svgdotjs.svgdotjsSvgJs.mod.Container
 import react.common._
+import react.aladin.PixelScale
 import gpp.svgdotjs.svgdotjsSvgJs.mod.Matrix
 import scala.math._
 
@@ -87,15 +88,16 @@ object GeomSvgDemo {
       .toSvg(svg, pp, scalingFn = scalingFn)
     // Viewbox size
     val (h, w) = (svg.viewbox().height_Box, svg.viewbox().width_Box)
+    val (x, y) = (svg.viewbox().x2_Box, svg.viewbox().y_Box)
     // Angular size of the geometry
-    // val hAngle = Angle.fromMicroarcseconds((h.toLong * ScaleFactor).toLong)
-    // val wAngle = Angle.fromMicroarcseconds((w.toLong * ScaleFactor).toLong)
+    val hAngle = Angle.fromMicroarcseconds((h.toLong * ScaleFactor).toLong)
+    val wAngle = Angle.fromMicroarcseconds((w.toLong * ScaleFactor).toLong)
     // Deltas to calculate the size of the svg on aladin scale
     val ps = pixelScale.x //min(pixelScale.x, pixelScale.y)
-    val dy = h * ScaleFactor * 2.7777776630942e-10 * ps
-    val dx = w * ScaleFactor * 2.7777776630942e-10 * ps //(wAngle.toDoubleDegrees * ps)
-    // val dy1 = (hAngle.toDoubleDegrees * ps)
-    // val dx1 = (wAngle.toDoubleDegrees * ps)
+    // val dy = h * ScaleFactor * 2.7777776630942e-10 * ps
+    // val dx = w * ScaleFactor * 2.7777776630942e-10 * ps //(wAngle.toDoubleDegrees * ps)
+    val dy = (hAngle.toDoubleDegrees * ps)
+    val dx = (wAngle.toDoubleDegrees * ps)
 
     println("dim")
     println(h)
@@ -110,33 +112,34 @@ object GeomSvgDemo {
     //   .fromMicroarcseconds((w.toLong - scala.math.abs(svg.viewbox().x_Box.toLong)) * ScaleFactor)
     //   .toDoubleDegrees * pixelScale.x
     // println(abs(svg.viewbox().x_Box * ScaleFactor) / w)
-    val tx = Angle
+    val tx = abs(dx * x / w)
     // .fromMicroarcseconds((abs(svg.viewbox().x_Box)).toLong * ScaleFactor)
-      .fromMicroarcseconds((abs(w)).toLong * ScaleFactor)
-      .toDoubleDegrees * ps
+    // .fromMicroarcseconds((abs(w)).toLong * ScaleFactor)
+    // .toDoubleDegrees * ps
 
     val svgSize = Size(dy, dx)
-    val ty =
-      Angle
-        .fromMicroarcseconds((abs(svg.viewbox().y_Box.toLong)) * ScaleFactor)
-        .toDoubleDegrees * ps
+    val ty      = abs(dy * y / w)
+    // Angle
+    //// .fromMicroarcseconds((abs(svg.viewbox().y_Box.toLong)) * ScaleFactor)
+    //// .toDoubleDegrees * ps
     println("trans")
     println(tx)
     println(ty)
     svg
       .line(-10 * dx, -10 * dy, 10 * dx, 10 * dy)
-      .stroke("red")
-      .attr("stroke-width", "1px")
-      .attr("vector-effect", "non-scaling-stroke")
+      .attr("class", "jts-svg-center")
     svg
       .line(-10 * dx, 10 * dy, 10 * dx, -10 * dy)
-      .stroke("red")
-      .attr("stroke-width", "1px")
-      .attr("vector-effect", "non-scaling-stroke")
-    // svg.transform(new Matrix().translate(10, -134).scale(1, -1))
+      .attr("class", "jts-svg-center")
+    // border
+    svg
+      .rect(w, h)
+      .translate(-x, y)
+      .fill("none")
+      .attr("class", "jts-svg-border")
     svg.transform(
       new Matrix()
-        .translate(s.width.toDouble / 2 - dx / 2, -(s.height.toDouble - dy) / 2)
+        .translate(s.width.toDouble / 2 - tx, -s.height.toDouble / 2 + ty)
         .scale(1, -1)
     )
     svg.size(svgSize)

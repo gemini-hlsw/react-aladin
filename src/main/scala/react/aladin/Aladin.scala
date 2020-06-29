@@ -3,7 +3,6 @@ package react.aladin
 import scala.scalajs.js
 import scala.scalajs.js.annotation._
 import scala.scalajs.js.JSConverters._
-import scala.scalajs.js.|
 import org.scalajs.dom.ext._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
@@ -117,16 +116,6 @@ class HpxImageSurvey extends js.Object {
   def getColorMap(): ColorMap = js.native
 }
 
-@js.native
-@JSImport("~resources/aladin-lite/js/Overlay", JSImport.Namespace)
-class AladinOverlay extends js.Object {
-  def addFootprints(s: js.Array[AladinOverlay.Shapes]): Unit = js.native
-  def add(s:           AladinOverlay.Shapes): Unit           = js.native
-}
-
-object AladinOverlay {
-  type Shapes = AladinCircle | AladinFootprint | AladinPolyline
-}
 @js.native
 @JSImport("js/Aladin", JSImport.Namespace)
 class JsAladin extends js.Object {
