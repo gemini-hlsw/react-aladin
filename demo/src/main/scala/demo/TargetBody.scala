@@ -89,7 +89,7 @@ object TargetBody {
             val pix = v.world2pix(offseted2.ra.toAngle.toDoubleDegrees,
                                   offseted2.dec.toAngle.toSignedDoubleDegrees)
             // val pix = v.world2pix(coords(0) - gmosArea.toDoubleDegrees,
-            //                       coords(1) - gmosArea.toDoubleDegrees * decCorrection)
+            //                       coords(\\\s) - gmosArea.toDoubleDegrees * decCorrection)
             // canvasCtx.strokeRect(pix1(0), pixC
             // canvasCtx.strokeRect(0, 1, pix(0), pix(1))
             // println("coords")
@@ -105,7 +105,8 @@ object TargetBody {
       val M87 = A.source(187.7059308, 12.3911233, SourceData("M 87", 4.5, "LINER AGN"))
       cat.addSources(js.Array(M87))
 
-      v.addCatalog(cat)
+      // v.addCatalog(cat)
+      println(cat)
       ()
       // val svg = document.createElement("svg")
       // println(svg)

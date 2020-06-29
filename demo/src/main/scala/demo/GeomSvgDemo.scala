@@ -9,7 +9,7 @@ import gsp.math.geom.svg2.implicits._
 import gsp.math.geom.ShapeExpression
 import gem.geom.GmosScienceAreaGeometry
 // import gem.geom.GmosOiwfsProbeArm
-// import gsp.math.geom.syntax.shapeexpression._
+import gsp.math.geom.syntax.shapeexpression._
 import gsp.math.geom.jts.JtsShape
 import gsp.math.syntax.int._
 import gsp.math.Angle
@@ -40,7 +40,7 @@ object GeomSvgDemo {
     Offset(170543999.µas.p, -24177003.µas.q)
 
   val offsetPos: Offset =
-    Offset(60.arcsec.p, 60.arcsec.q)
+    Offset(-60.arcsec.p, 60.arcsec.q)
 
   val fpu: Option[Either[GmosNorthFpu, GmosSouthFpu]] =
     Some(Right(GmosSouthFpu.LongSlit_5_00))
@@ -48,6 +48,7 @@ object GeomSvgDemo {
   val port: PortDisposition =
     PortDisposition.Side
 
+  println(GmosScienceAreaGeometry.imaging ↗ offsetPos)
   // Shape to display
   val shapes: NonEmptyList[(String, ShapeExpression)] =
     NonEmptyList.of(
@@ -55,7 +56,10 @@ object GeomSvgDemo {
       // ("patrol-field", GmosOiwfsProbeArm.patrolFieldAt(posAngle, offsetPos, fpu, port)),
       // ("science-area", GmosScienceAreaGeometry.shapeAt(posAngle, offsetPos, fpu)),
       // ("science-ccd", GmosScienceAreaGeometry.imaging ⟲ posAngle),
-      ("science-ccd-offset", GmosScienceAreaGeometry.imaging) // ↗ offsetPos)
+      // ("science-ccd-offset", GmosScienceAreaGeometry.imaging ⟲ posAngle) // ↗ offsetPos)
+      ("science-ccd", GmosScienceAreaGeometry.imaging), // viewBox="-165170 -165170 330340 330340"
+      ("science-ccd-offset",
+       GmosScienceAreaGeometry.imaging ↗ offsetPos) // viewBox="-165170 -105170 330340 330340"
     )
 
   // Scale
@@ -88,7 +92,7 @@ object GeomSvgDemo {
       .toSvg(svg, pp, scalingFn = scalingFn)
     // Viewbox size
     val (h, w) = (svg.viewbox().height_Box, svg.viewbox().width_Box)
-    val (x, y) = (svg.viewbox().x2_Box, svg.viewbox().y_Box)
+    val (x, y) = (svg.viewbox().x_Box, svg.viewbox().y_Box)
     // Angular size of the geometry
     val hAngle = Angle.fromMicroarcseconds((h.toLong * ScaleFactor).toLong)
     val wAngle = Angle.fromMicroarcseconds((w.toLong * ScaleFactor).toLong)
@@ -102,9 +106,12 @@ object GeomSvgDemo {
     println("dim")
     println(h)
     println(w)
-    println("pixelScale")
-    println(pixelScale.x)
-    println(pixelScale.y)
+    println("pos")
+    println(x)
+    println(y)
+    // println("pixelScale")
+    // println(pixelScale.x)
+    // println(pixelScale.y)
     println("deltas")
     println(dx)
     println(dy)
@@ -118,7 +125,7 @@ object GeomSvgDemo {
     // .toDoubleDegrees * ps
 
     val svgSize = Size(dy, dx)
-    val ty      = abs(dy * y / w)
+    val ty      = abs(dy * y / h)
     // Angle
     //// .fromMicroarcseconds((abs(svg.viewbox().y_Box.toLong)) * ScaleFactor)
     //// .toDoubleDegrees * ps
@@ -134,13 +141,20 @@ object GeomSvgDemo {
     // border
     svg
       .rect(w, h)
-      .translate(-x, y)
+      .translate(x, y)
       .fill("none")
       .attr("class", "jts-svg-border")
+    // Rotation reference point. It is a bit surprising but it is in screen coordinates
+    val ry = ty - dy / 2
     svg.transform(
       new Matrix()
+      // .scale(1, -1)
+      // .scale(1, -1, 0, 0) //ty)
+      // .scale(1, -1, 0, y) //ty - dy)
         .translate(s.width.toDouble / 2 - tx, -s.height.toDouble / 2 + ty)
-        .scale(1, -1)
+        // .flip("y", ry)
+        .scale(1, -1, 0, ry)
+      // .rotate(180)
     )
     svg.size(svgSize)
     svg
