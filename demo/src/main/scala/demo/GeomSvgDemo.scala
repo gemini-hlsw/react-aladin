@@ -8,7 +8,7 @@ import gsp.math.geom.svg2._
 import gsp.math.geom.svg2.implicits._
 import gsp.math.geom.ShapeExpression
 import gem.geom.GmosScienceAreaGeometry
-// import gem.geom.GmosOiwfsProbeArm
+import gem.geom.GmosOiwfsProbeArm
 import gsp.math.geom.syntax.shapeexpression._
 import gsp.math.geom.jts.JtsShape
 import gsp.math.syntax.int._
@@ -48,20 +48,13 @@ object GeomSvgDemo {
   val port: PortDisposition =
     PortDisposition.Side
 
-  println(GmosScienceAreaGeometry.imaging ↗ offsetPos)
   // Shape to display
   val shapes: NonEmptyList[(String, ShapeExpression)] =
     NonEmptyList.of(
-      // ("probe", GmosOiwfsProbeArm.shapeAt(posAngle, guideStarOffset, offsetPos, fpu, port)),
-      // ("patrol-field", GmosOiwfsProbeArm.patrolFieldAt(posAngle, offsetPos, fpu, port)),
-      // ("science-area", GmosScienceAreaGeometry.shapeAt(posAngle, offsetPos, fpu)),
-      // ("science-ccd", GmosScienceAreaGeometry.imaging ⟲ posAngle),
-      // ("science-ccd-offset", GmosScienceAreaGeometry.imaging ⟲ posAngle) // ↗ offsetPos)
-      ("science-ccd",
-       GmosScienceAreaGeometry.imaging ⟲ posAngle), // viewBox="-165170 -165170 330340 330340"
-      // GmosScienceAreaGeometry.imaging), // viewBox="-165170 -165170 330340 330340"
-      ("science-ccd-offset",
-       GmosScienceAreaGeometry.imaging ↗ offsetPos ⟲ posAngle) // viewBox="-165170 -105170 330340 330340"
+      ("probe", GmosOiwfsProbeArm.shapeAt(posAngle, guideStarOffset, offsetPos, fpu, port)),
+      ("patrol-field", GmosOiwfsProbeArm.patrolFieldAt(posAngle, offsetPos, fpu, port)),
+      ("science-ccd", GmosScienceAreaGeometry.imaging ⟲ posAngle),
+      ("science-ccd-offset", GmosScienceAreaGeometry.imaging ↗ offsetPos ⟲ posAngle)
     )
 
   // Scale
@@ -73,7 +66,7 @@ object GeomSvgDemo {
 
   val ScaleFactor = 1000
 
-  // Firefox doesn't properly handle very large coordinates, scale by 100 at least
+  // Firefox doesn't properly handle very large coordinates, scale by 1000 at least
   val scalingFn: ScalingFn = _ / ScaleFactor
 
   val pp: SvgPostProcessor = {
@@ -85,6 +78,7 @@ object GeomSvgDemo {
 
   def generate(s: Size, pixelScale: PixelScale): Svg = {
     val svg: Svg = SVG_()
+    // Render the svg
     shapes
       .map(x => x.copy(_2 = x._2.eval))
       .map {
@@ -93,8 +87,6 @@ object GeomSvgDemo {
       }
       .toSvg(svg, pp, scalingFn = scalingFn)
 
-    // val g = svg.children()(0).asInstanceOf[Container]
-    // println(g)
     // Viewbox size
     val (h, w) = (svg.viewbox().height_Box, svg.viewbox().width_Box)
     val (x, y) = (svg.viewbox().x_Box, svg.viewbox().y_Box)
@@ -102,59 +94,30 @@ object GeomSvgDemo {
     val hAngle = Angle.fromMicroarcseconds((h.toLong * ScaleFactor).toLong)
     val wAngle = Angle.fromMicroarcseconds((w.toLong * ScaleFactor).toLong)
     // Deltas to calculate the size of the svg on aladin scale
-    val ps = pixelScale.x //min(pixelScale.x, pixelScale.y)
-    // val dy = h * ScaleFactor * 2.7777776630942e-10 * ps
-    // val dx = w * ScaleFactor *.863597023  2.7777776630942e-10 * ps //(wAngle.toDoubleDegrees * ps)
-    val dx = (wAngle.toDoubleDegrees * ps)
+    val dx = (wAngle.toDoubleDegrees * pixelScale.x)
     val dy = (hAngle.toDoubleDegrees * pixelScale.y)
 
-    println("dim")
-    println(h)
-    println(w)
-    println("pos")
-    println(x)
-    println(y)
-    // println("pixelScale")
-    // println(pixelScale.x)
-    // println(pixelScale.y)
-    println("deltas")
-    println(dx)
-    println(dy)
-    // val tx = Angle
-    //   .fromMicroarcseconds((w.toLong - scala.math.abs(svg.viewbox().x_Box.toLong)) * ScaleFactor)
-    //   .toDoubleDegrees * pixelScale.x
-    // println(abs(svg.viewbox().x_Box * ScaleFactor) / w)
-    val tx = abs(dx * x / w)
-    // .fromMicroarcseconds((abs(svg.viewbox().x_Box)).toLong * ScaleFactor)
-    // .fromMicroarcseconds((abs(w)).toLong * ScaleFactor)
-    // .toDoubleDegrees * ps
-
     val svgSize = Size(dy, dx)
-    val ty      = abs(dy * y / h)
-    // Angle
-    //// .fromMicroarcseconds((abs(svg.viewbox().y_Box.toLong)) * ScaleFactor)
-    //// .toDoubleDegrees * ps
-    println("trans")
-    println(tx)
-    println(ty)
+
+    // Translation coordinates
+    val tx = abs(dx * x / w)
+    val ty = abs(dy * y / h)
+
+    // Cross at 0,0 style it with css
     svg
-      .line(-10 * dy, -10 * dx, 10 * dy, 10 * dx)
+      .line(-10 * dx, -10 * dx, 10 * dx, 10 * dx)
       .attr("class", "jts-svg-center")
-    // svg
-    //   .line(-10 * dy, -10 * dy, 10 * dx, 10 * dy)
-    //   .attr("class", "jts-svg-center-b")
     svg
-      .line(-10 * dx, 10 * dy, 10 * dx, -10 * dy)
+      .line(-10 * dx, 10 * dx, 10 * dx, -10 * dx)
       .attr("class", "jts-svg-center")
-    // svg
-    //   .line(-10 * dy, 10 * dx, 10 * dy, -10 * dx)
-    //   .attr("class", "jts-svg-center-b")
-    // border
+
+    // Border to the whole svg, usually hidden
     svg
       .rect(w, h)
       .translate(x, y)
       .fill("none")
       .attr("class", "jts-svg-border")
+
     // Rotation reference point. It is a bit surprising but it is in screen coordinates
     val ry = ty - dy / 2
     // Scale and postion the center in the right location
