@@ -18,17 +18,19 @@ body {
 .instrument-geom {
   z-index: 10;
   position: absolute;
+  top: 0px;
+  left: 0px;
 }
 svg {
   // width: 720px;
   // height: 720px;
-  // position: absolute;
+  position: relative;
   pointer-events: none;
 }
 
 .jts {
   z-index: 10;
-  position: absolute;
+  // position: absolute;
   // transform: scale(0.3, -0.3);
   // transform: translate(0, 0)
 }
@@ -38,7 +40,7 @@ svg {
   stroke-width: 2px;
   fill: lightgray;
   fill-opacity: 0.3;
-  position: absolute;
+  // position: absolute;
   vector-effect: non-scaling-stroke;
 }
 
@@ -69,14 +71,16 @@ stroke: red;
   fill-opacity: 0.1;
 }
 
+// Shows a border around the whole SVG
 .jts-svg-border {
-  display: none;
+  // display: none;
   stroke: yellow;
   stroke-width: 5px;
   vector-effect: non-scaling-stroke;
   stroke-dasharray: 1;
 }
 
+// Drawn X to indicate the target, or coordinates 0,0
 .jts-svg-center {
   stroke: red;
   stroke-width: 1px;

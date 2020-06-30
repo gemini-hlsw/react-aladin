@@ -57,9 +57,11 @@ object GeomSvgDemo {
       // ("science-area", GmosScienceAreaGeometry.shapeAt(posAngle, offsetPos, fpu)),
       // ("science-ccd", GmosScienceAreaGeometry.imaging ⟲ posAngle),
       // ("science-ccd-offset", GmosScienceAreaGeometry.imaging ⟲ posAngle) // ↗ offsetPos)
-      ("science-ccd", GmosScienceAreaGeometry.imaging), // viewBox="-165170 -165170 330340 330340"
+      ("science-ccd",
+       GmosScienceAreaGeometry.imaging ⟲ posAngle), // viewBox="-165170 -165170 330340 330340"
+      // GmosScienceAreaGeometry.imaging), // viewBox="-165170 -165170 330340 330340"
       ("science-ccd-offset",
-       GmosScienceAreaGeometry.imaging ↗ offsetPos) // viewBox="-165170 -105170 330340 330340"
+       GmosScienceAreaGeometry.imaging ↗ offsetPos ⟲ posAngle) // viewBox="-165170 -105170 330340 330340"
     )
 
   // Scale
@@ -90,6 +92,9 @@ object GeomSvgDemo {
         case x                   => sys.error(s"Whoa unexpected shape type: $x")
       }
       .toSvg(svg, pp, scalingFn = scalingFn)
+
+    // val g = svg.children()(0).asInstanceOf[Container]
+    // println(g)
     // Viewbox size
     val (h, w) = (svg.viewbox().height_Box, svg.viewbox().width_Box)
     val (x, y) = (svg.viewbox().x_Box, svg.viewbox().y_Box)
@@ -99,9 +104,9 @@ object GeomSvgDemo {
     // Deltas to calculate the size of the svg on aladin scale
     val ps = pixelScale.x //min(pixelScale.x, pixelScale.y)
     // val dy = h * ScaleFactor * 2.7777776630942e-10 * ps
-    // val dx = w * ScaleFactor * 2.7777776630942e-10 * ps //(wAngle.toDoubleDegrees * ps)
-    val dy = (hAngle.toDoubleDegrees * ps)
+    // val dx = w * ScaleFactor *.863597023  2.7777776630942e-10 * ps //(wAngle.toDoubleDegrees * ps)
     val dx = (wAngle.toDoubleDegrees * ps)
+    val dy = (hAngle.toDoubleDegrees * pixelScale.y)
 
     println("dim")
     println(h)
@@ -133,11 +138,17 @@ object GeomSvgDemo {
     println(tx)
     println(ty)
     svg
-      .line(-10 * dx, -10 * dy, 10 * dx, 10 * dy)
+      .line(-10 * dy, -10 * dx, 10 * dy, 10 * dx)
       .attr("class", "jts-svg-center")
+    // svg
+    //   .line(-10 * dy, -10 * dy, 10 * dx, 10 * dy)
+    //   .attr("class", "jts-svg-center-b")
     svg
       .line(-10 * dx, 10 * dy, 10 * dx, -10 * dy)
       .attr("class", "jts-svg-center")
+    // svg
+    //   .line(-10 * dy, 10 * dx, 10 * dy, -10 * dx)
+    //   .attr("class", "jts-svg-center-b")
     // border
     svg
       .rect(w, h)
@@ -146,17 +157,14 @@ object GeomSvgDemo {
       .attr("class", "jts-svg-border")
     // Rotation reference point. It is a bit surprising but it is in screen coordinates
     val ry = ty - dy / 2
-    svg.transform(
+    // Scale and postion the center in the right location
+    val transformation =
       new Matrix()
-      // .scale(1, -1)
-      // .scale(1, -1, 0, 0) //ty)
-      // .scale(1, -1, 0, y) //ty - dy)
-        .translate(s.width.toDouble / 2 - tx, -s.height.toDouble / 2 + ty)
-        // .flip("y", ry)
-        .scale(1, -1, 0, ry)
-      // .rotate(180)
-    )
+        .scale(1, -1, 0, ry) // Order of operations is important
+        .translate(s.width.toDouble / 2 - tx, s.height.toDouble / 2 - ty)
+    svg.transform(transformation)
     svg.size(svgSize)
+    // container.appendChild(svg.node)
     svg
   }
 }
