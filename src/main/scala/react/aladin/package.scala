@@ -3,6 +3,7 @@ package react
 import gsp.math.Angle
 import react.common.EnumValue
 import react.common.Size
+import japgolly.scalajs.react.Callback
 
 package aladin {
 
@@ -42,6 +43,10 @@ package object aladin {
     def size: Size = Size(a.getSize()(0), a.getSize()(1))
     def fov: Fov =
       Fov(Angle.fromDoubleDegrees(a.getFov()(0)), Angle.fromDoubleDegrees(a.getFov()(1)))
+    def onZoom(cb: Fov => Callback): Unit =
+      a.on("zoomChanged", (_: Double) => cb(fov).runNow)
+    def onZoomCB(cb: Callback): Unit =
+      a.on("zoomChanged", (_: Double) => cb.runNow)
     def pixelScale: PixelScale =
       PixelScale(a.getSize()(0) / a.getFov()(0), a.getSize()(1) / a.getFov()(1))
   }

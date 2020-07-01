@@ -144,6 +144,7 @@ class JsAladin extends js.Object {
   def getFov(): js.Array[Double]  = js.native
   def pix2world(x: Double, y: Double): js.Array[Double] = js.native
   def world2pix(x: Double, y: Double): js.Array[Double] = js.native
+  def on(n:        String, f: js.Function): Unit        = js.native
 }
 
 @js.native

@@ -44,8 +44,16 @@ object TargetBody {
 
     def includeSvg(v: JsAladin): Unit = {
       val (h, w) = (v.getParentDiv().clientHeight, v.getParentDiv().clientWidth)
-      val svg    = GeomSvgDemo.generate(Size(h, w), v.pixelScale)
-      v.getParentDiv().appendChild(svg.node_Svg)
+      val div    = v.getParentDiv()
+      // div.an
+      v.onZoomCB {
+        Callback {
+          val svg      = GeomSvgDemo.generate(Size(h, w), v.pixelScale)
+          val previous = Option(div.querySelector("svg"))
+          previous.foreach(div.removeChild)
+          div.appendChild(svg.node_Svg)
+        }
+      }
       ()
     }
 
