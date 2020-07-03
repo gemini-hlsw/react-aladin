@@ -165,7 +165,7 @@ lazy val facade =
     )
 
 lazy val commonSettings = Seq(
-  scalaVersion := "2.13.2",
+  scalaVersion := "2.13.3",
   organization := "io.github.cquiroz.react",
   sonatypeProfileName := "io.github.cquiroz",
   description := "react component for aladin",
@@ -174,7 +174,8 @@ lazy val commonSettings = Seq(
     Set(
       // By necessity facades will have unused params
       "-Wdead-code",
-      "-Wunused:params"
+      "-Wunused:params",
+      "-Wunused:explicits"
     )
   ))
 )
