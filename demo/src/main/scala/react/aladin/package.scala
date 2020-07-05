@@ -36,11 +36,12 @@ package aladin {
     case object J2000d extends CooFrame
     case object Galactic extends CooFrame
 
-    def fromString(s: String): Option[CooFrame] = s match {
-      case "j2000"    => Some(J2000)
-      case "j2000d"   => Some(J2000d)
-      case "galactic" => Some(Galactic)
-    }
+    def fromString(s: String): Option[CooFrame] =
+      s match {
+        case "j2000"    => Some(J2000)
+        case "j2000d"   => Some(J2000d)
+        case "galactic" => Some(Galactic)
+      }
   }
 }
 

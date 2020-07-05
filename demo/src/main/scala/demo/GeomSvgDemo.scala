@@ -112,8 +112,8 @@ object GeomSvgDemo {
       val hAngle = Angle.fromMicroarcseconds((h.toLong * scaleFactor).toLong)
       val wAngle = Angle.fromMicroarcseconds((w.toLong * scaleFactor).toLong)
       // Deltas to calculate the size of the svg on aladin scale
-      val dx = (wAngle.toDoubleDegrees * pixelScale.x)
-      val dy = (hAngle.toDoubleDegrees * pixelScale.y)
+      val dx = wAngle.toDoubleDegrees * pixelScale.x
+      val dy = hAngle.toDoubleDegrees * pixelScale.y
 
       val svgSize = Size(dy, dx)
 
@@ -184,8 +184,8 @@ object GeomSvgDemo {
     val hAngle = Angle.fromMicroarcseconds((h.toLong * ScaleFactor).toLong)
     val wAngle = Angle.fromMicroarcseconds((w.toLong * ScaleFactor).toLong)
     // Deltas to calculate the size of the svg on aladin scale
-    val dx = (wAngle.toDoubleDegrees * pixelScale.x)
-    val dy = (hAngle.toDoubleDegrees * pixelScale.y)
+    val dx = wAngle.toDoubleDegrees * pixelScale.x
+    val dy = hAngle.toDoubleDegrees * pixelScale.y
 
     val svgSize = Size(dy, dx)
 

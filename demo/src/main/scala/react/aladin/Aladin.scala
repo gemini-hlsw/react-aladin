@@ -51,13 +51,13 @@ trait OverlayOptions extends js.Object {
 
 object OverlayOptions {
   def apply(
-    name:      js.UndefOr[String]   = js.undefined,
-    color:     js.UndefOr[Color]    = js.undefined,
+    name:      js.UndefOr[String] = js.undefined,
+    color:     js.UndefOr[Color] = js.undefined,
     lineWidth: js.UndefOr[JsNumber] = js.undefined
   ): OverlayOptions = {
     val p = (new js.Object()).asInstanceOf[OverlayOptions]
-    p.name      = name
-    p.color     = color.map(c => c: String)
+    p.name = name
+    p.color = color.map(c => c: String)
     p.lineWidth = lineWidth
     p
   }
@@ -151,7 +151,7 @@ class JsAladin extends js.Object {
 object A extends js.Object {
   def aladin(divSelector: String, options: AladinProps): JsAladin = js.native
   def catalog(c:          CatalogOptions): AladinCatalog = js.native
-  def graphicOverlay(c:   OverlayOptions): AladinOverlay = js.native
+  def graphicOverlay(c:   OverlayOptions): AladinOverlay               = js.native
   def polygon(raDecArray: js.Array[js.Array[Double]]): AladinFootprint = js.native
   def polyline(
     raDecArray: js.Array[js.Array[Double]],
@@ -202,23 +202,23 @@ object A extends js.Object {
 }
 
 final case class Aladin(
-  target:                   js.UndefOr[String]           = js.undefined,
-  fov:                      js.UndefOr[JsNumber]         = js.undefined,
-  survey:                   js.UndefOr[String]           = js.undefined,
-  cooFrame:                 js.UndefOr[CooFrame]         = js.undefined,
-  showReticle:              js.UndefOr[Boolean]          = js.undefined,
-  showZoomControl:          js.UndefOr[Boolean]          = js.undefined,
-  showFullscreenControl:    js.UndefOr[Boolean]          = js.undefined,
-  showLayersControl:        js.UndefOr[Boolean]          = js.undefined,
-  showGotoControl:          js.UndefOr[Boolean]          = js.undefined,
-  showShareControl:         js.UndefOr[Boolean]          = js.undefined,
-  showSimbadPointerControl: js.UndefOr[Boolean]          = js.undefined,
-  showFrame:                js.UndefOr[Boolean]          = js.undefined,
-  fullScreen:               js.UndefOr[Boolean]          = js.undefined,
-  reticleColor:             js.UndefOr[Color]            = js.undefined,
-  reticleSize:              js.UndefOr[JsNumber]         = js.undefined,
-  imageSurvey:              js.UndefOr[String]           = js.undefined,
-  baseImageLayer:           js.UndefOr[String]           = js.undefined,
+  target:                   js.UndefOr[String] = js.undefined,
+  fov:                      js.UndefOr[JsNumber] = js.undefined,
+  survey:                   js.UndefOr[String] = js.undefined,
+  cooFrame:                 js.UndefOr[CooFrame] = js.undefined,
+  showReticle:              js.UndefOr[Boolean] = js.undefined,
+  showZoomControl:          js.UndefOr[Boolean] = js.undefined,
+  showFullscreenControl:    js.UndefOr[Boolean] = js.undefined,
+  showLayersControl:        js.UndefOr[Boolean] = js.undefined,
+  showGotoControl:          js.UndefOr[Boolean] = js.undefined,
+  showShareControl:         js.UndefOr[Boolean] = js.undefined,
+  showSimbadPointerControl: js.UndefOr[Boolean] = js.undefined,
+  showFrame:                js.UndefOr[Boolean] = js.undefined,
+  fullScreen:               js.UndefOr[Boolean] = js.undefined,
+  reticleColor:             js.UndefOr[Color] = js.undefined,
+  reticleSize:              js.UndefOr[JsNumber] = js.undefined,
+  imageSurvey:              js.UndefOr[String] = js.undefined,
+  baseImageLayer:           js.UndefOr[String] = js.undefined,
   customize:                js.UndefOr[JsAladin => Unit] = js.undefined
 ) {
   def render   = Aladin.component(this)
@@ -229,7 +229,7 @@ object Aladin {
   type Props = Aladin
 
   final case class State(a: Option[JsAladin])
-  class Backend(bs:         BackendScope[Aladin, State]) {
+  class Backend(bs: BackendScope[Aladin, State]) {
     private def runOnAladinOpt[A](f: JsAladin => A): CallbackTo[Option[A]] =
       bs.state.flatMap {
         case State(Some(a)) => CallbackTo(Some(f(a)))
@@ -242,9 +242,10 @@ object Aladin {
       }
     def render: VdomElement = <.div(^.cls := "react-aladin")
     def gotoRaDec(ra: JsNumber, dec: JsNumber): Callback = runOnAladin(_.gotoRaDec(ra, dec))
-    def getRaDec: CallbackTo[Option[(Double, Double)]] = runOnAladinOpt(_.getRaDec()).map {
-      _.map(a => (a(0), a(1)))
-    }
+    def getRaDec: CallbackTo[Option[(Double, Double)]] =
+      runOnAladinOpt(_.getRaDec()).map {
+        _.map(a => (a(0), a(1)))
+      }
     def gotoObject(q: String, cb: (JsNumber, JsNumber) => Callback, er: Callback): Callback =
       runOnAladin(_.gotoObject(q, new GoToObjectCallback(cb, er)))
   }
@@ -289,24 +290,24 @@ object Aladin {
 
   def fromProps(q: Props): AladinProps = {
     val p = new js.Object().asInstanceOf[AladinProps]
-    p.fov                      = q.fov
-    p.target                   = q.target
-    p.survey                   = q.survey
-    p.cooFrame                 = q.cooFrame.toJs
-    p.reticleColor             = q.reticleColor.map(c => c: String)
-    p.reticleSize              = q.reticleSize
-    p.imageSurvey              = q.imageSurvey
-    p.baseImageLayer           = q.baseImageLayer
-    p.customize                = q.customize
-    p.showReticle              = q.showReticle
-    p.showZoomControl          = q.showZoomControl
-    p.showFullscreenControl    = q.showFullscreenControl
-    p.showLayersControl        = q.showLayersControl
-    p.showGotoControl          = q.showGotoControl
-    p.showShareControl         = q.showShareControl
+    p.fov = q.fov
+    p.target = q.target
+    p.survey = q.survey
+    p.cooFrame = q.cooFrame.toJs
+    p.reticleColor = q.reticleColor.map(c => c: String)
+    p.reticleSize = q.reticleSize
+    p.imageSurvey = q.imageSurvey
+    p.baseImageLayer = q.baseImageLayer
+    p.customize = q.customize
+    p.showReticle = q.showReticle
+    p.showZoomControl = q.showZoomControl
+    p.showFullscreenControl = q.showFullscreenControl
+    p.showLayersControl = q.showLayersControl
+    p.showGotoControl = q.showGotoControl
+    p.showShareControl = q.showShareControl
     p.showSimbadPointerControl = q.showSimbadPointerControl
-    p.showFrame                = q.showFrame
-    p.fullScreen               = q.fullScreen
+    p.showFrame = q.showFrame
+    p.fullScreen = q.fullScreen
     p
   }
 

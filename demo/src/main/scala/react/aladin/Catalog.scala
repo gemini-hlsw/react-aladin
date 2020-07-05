@@ -32,22 +32,22 @@ object CatalogOptions {
   type OnClick         = AladinSource => Unit
 
   def apply(
-    name:         js.UndefOr[String]                        = js.undefined,
-    color:        js.UndefOr[Color]                         = js.undefined,
-    sourceSize:   js.UndefOr[JsNumber]                      = js.undefined,
+    name:         js.UndefOr[String] = js.undefined,
+    color:        js.UndefOr[Color] = js.undefined,
+    sourceSize:   js.UndefOr[JsNumber] = js.undefined,
     shape:        js.UndefOr[String | Image | DrawFunction] = js.undefined,
-    limit:        js.UndefOr[JsNumber]                      = js.undefined,
-    raField:      js.UndefOr[String]                        = js.undefined,
-    decField:     js.UndefOr[String]                        = js.undefined,
-    displayLabel: js.UndefOr[String]                        = js.undefined,
-    labelColor:   js.UndefOr[String]                        = js.undefined,
-    labelFont:    js.UndefOr[String]                        = js.undefined,
-    labelColumn:  js.UndefOr[String]                        = js.undefined,
-    onClick:      js.UndefOr[String | OnClick]              = js.undefined
+    limit:        js.UndefOr[JsNumber] = js.undefined,
+    raField:      js.UndefOr[String] = js.undefined,
+    decField:     js.UndefOr[String] = js.undefined,
+    displayLabel: js.UndefOr[String] = js.undefined,
+    labelColor:   js.UndefOr[String] = js.undefined,
+    labelFont:    js.UndefOr[String] = js.undefined,
+    labelColumn:  js.UndefOr[String] = js.undefined,
+    onClick:      js.UndefOr[String | OnClick] = js.undefined
   ): CatalogOptions = {
     val p = (new js.Object()).asInstanceOf[CatalogOptions]
-    p.name       = name
-    p.color      = color.map(c => c: String)
+    p.name = name
+    p.color = color.map(c => c: String)
     p.sourceSize = sourceSize
     p.shape = shape.map((_: Any) match {
       case s: String => s
@@ -61,13 +61,13 @@ object CatalogOptions {
           ) => f.asInstanceOf[DrawFunction](s, c, p)
         ): RawDrawFunction
     })
-    p.limit        = limit
-    p.raField      = raField
-    p.decField     = decField
+    p.limit = limit
+    p.raField = raField
+    p.decField = decField
     p.displayLabel = displayLabel
-    p.labelColor   = labelColor
-    p.labelFont    = labelFont
-    p.labelColumn  = labelColumn
+    p.labelColor = labelColor
+    p.labelFont = labelFont
+    p.labelColumn = labelColumn
     p.onClick = onClick.map((_: Any) match {
       case s: String => s
       case r         => ((s: AladinSource) => r.asInstanceOf[OnClick](s)): RawOnClick

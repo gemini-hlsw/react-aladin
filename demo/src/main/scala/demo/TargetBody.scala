@@ -12,7 +12,7 @@ import org.scalajs.dom.document
 import demo.GeomSvgDemo
 
 final case class TargetBody(
-  ) extends ReactProps[TargetBody](TargetBody.component) {}
+) extends ReactProps[TargetBody](TargetBody.component) {}
 
 @js.native
 trait SourceData extends js.Object {
@@ -24,8 +24,8 @@ trait SourceData extends js.Object {
 object SourceData {
   def apply(name: String, size: Double, otype: String): SourceData = {
     val p = (new js.Object()).asInstanceOf[SourceData]
-    p.name  = name
-    p.size  = size
+    p.name = name
+    p.size = size
     p.otype = otype
     p
   }
@@ -56,7 +56,8 @@ object TargetBody {
                                       g,
                                       Size(h, w),
                                       v.pixelScale,
-                                      GeomSvgDemo.ScaleFactor)
+                                      GeomSvgDemo.ScaleFactor
+          )
           div.appendChild(g)
         }
       }
@@ -71,11 +72,12 @@ object TargetBody {
           ^.cls := "check",
           AladinComp.withRef(ref) {
             Aladin(showReticle = true,
-                   target      = "0:00:00 0:00:00",
+                   target = "0:00:00 0:00:00",
                    // target          = "M51",
-                   fov             = 0.25,
+                   fov = 0.25,
                    showGotoControl = false,
-                   customize       = includeSvg _)
+                   customize = includeSvg _
+            )
           }
         )
       )
