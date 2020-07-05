@@ -17,6 +17,7 @@ module.exports.rootDir = rootDir;
 // Resources dir on sbt
 const resourcesDir = path.resolve(rootDir, "src/main/resources");
 module.exports.resourcesDir = resourcesDir;
+module.exports.resources = resourcesDir;
 
 // Set of browser to support on the css. Taken from Semantic-UI-React
 module.exports.browsers = {

@@ -796,9 +796,6 @@ const Aladin = (function() {
         return [radToDeg(lon), radToDeg(lat)];
     };
 
-
-
-
     /**
      * get current [ra, dec] position of the center of the view
      *
@@ -854,14 +851,10 @@ const Aladin = (function() {
         this.view.addMOC(moc);
     };
 
-
-
     // @oldAPI
     Aladin.prototype.createImageSurvey = function(id, name, rootUrl, cooFrame, maxOrder, options) {
         return new HpxImageSurvey(id, name, rootUrl, cooFrame, maxOrder, options);
     };
-
-
 
     // @api
     Aladin.prototype.getBaseImageLayer = function() {

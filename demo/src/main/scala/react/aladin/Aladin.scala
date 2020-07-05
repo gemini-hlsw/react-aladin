@@ -74,13 +74,12 @@ object PolylineOptions {
   ): PolylineOptions = {
     val p = (new js.Object()).asInstanceOf[PolylineOptions]
     p.color = color.map(c => c: String)
-    println(p.color)
     p
   }
 }
 
 @js.native
-@JSImport("~resources/aladin-lite/js/Source", JSImport.Namespace)
+@JSImport("js/Source", JSImport.Namespace)
 class AladinSource extends js.Object {
   val x: Double       = js.native
   val y: Double       = js.native
@@ -88,29 +87,29 @@ class AladinSource extends js.Object {
 }
 
 @js.native
-@JSImport("~resources/aladin-lite/js/Color", JSImport.Namespace)
+@JSImport("js/Color", JSImport.Namespace)
 class AladinColor extends js.Object {}
 
 @js.native
-@JSImport("~resources/aladin-lite/js/ColorMap", JSImport.Namespace)
+@JSImport("js/ColorMap", JSImport.Namespace)
 class ColorMap extends js.Object {
   def update(a: String): Unit = js.native
 }
 
 @js.native
-@JSImport("~resources/aladin-lite/js/Footprint", JSImport.Namespace)
+@JSImport("js/Footprint", JSImport.Namespace)
 class AladinFootprint extends js.Object {}
 
 @js.native
-@JSImport("~resources/aladin-lite/js/Polyline", JSImport.Namespace)
+@JSImport("js/Polyline", JSImport.Namespace)
 class AladinPolyline extends js.Object {}
 
 @js.native
-@JSImport("~resources/aladin-lite/js/Circle", JSImport.Namespace)
+@JSImport("js/Circle", JSImport.Namespace)
 class AladinCircle extends js.Object {}
 
 @js.native
-@JSImport("~resources/aladin-lite/js/HpxImageSurvey", JSImport.Namespace)
+@JSImport("js/HpxImageSurvey", JSImport.Namespace)
 class HpxImageSurvey extends js.Object {
   def setAlpha(a: JsNumber): Unit = js.native
   def getColorMap(): ColorMap = js.native

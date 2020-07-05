@@ -8,6 +8,7 @@ import japgolly.scalajs.react.vdom.html_<^._
 import react.aladin._
 import react.common._
 import scala.scalajs.js
+import org.scalajs.dom.document
 import demo.GeomSvgDemo
 
 final case class TargetBody(
@@ -48,10 +49,15 @@ object TargetBody {
       // div.an
       v.onZoomCB {
         Callback {
-          val svg      = GeomSvgDemo.generate(Size(h, w), v.pixelScale)
           val previous = Option(div.querySelector("svg"))
           previous.foreach(div.removeChild)
-          div.appendChild(svg.node_Svg)
+          val g = document.createElement("div")
+          GeomSvgDemo.shapesForAladin(GeomSvgDemo.shapes,
+                                      g,
+                                      Size(h, w),
+                                      v.pixelScale,
+                                      GeomSvgDemo.ScaleFactor)
+          div.appendChild(g)
         }
       }
       ()
@@ -64,7 +70,7 @@ object TargetBody {
           ^.width := "100%",
           ^.cls := "check",
           AladinComp.withRef(ref) {
-            Aladin(showReticle = false,
+            Aladin(showReticle = true,
                    target      = "0:00:00 0:00:00",
                    // target          = "M51",
                    fov             = 0.25,
