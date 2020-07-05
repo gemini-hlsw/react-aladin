@@ -9,6 +9,7 @@ import react.aladin._
 import react.common._
 import scala.scalajs.js
 import org.scalajs.dom.document
+import gsp.math.geom.jts.interpreter._
 import demo.GeomSvgDemo
 
 final case class TargetBody(
@@ -52,11 +53,11 @@ object TargetBody {
           val previous = Option(div.querySelector("svg"))
           previous.foreach(div.removeChild)
           val g = document.createElement("div")
-          GeomSvgDemo.shapesForAladin(GeomSvgDemo.shapes,
-                                      g,
-                                      Size(h, w),
-                                      v.pixelScale,
-                                      GeomSvgDemo.ScaleFactor
+          visualization.geometryForAladin(GeomSvgDemo.shapes,
+                                          g,
+                                          Size(h, w),
+                                          v.pixelScale,
+                                          GeomSvgDemo.ScaleFactor
           )
           div.appendChild(g)
         }
