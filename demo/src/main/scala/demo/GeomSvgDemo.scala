@@ -7,7 +7,6 @@ import cats.implicits._
 import gsp.math.geom.jts.interpreter._
 import gsp.math.geom.svg._
 import gsp.math.geom.svg.implicits.renderJtsShapeMapOfIds
-// import gsp.math.geom.svg.implicits.renderJtsShape
 import gsp.math.geom.ShapeExpression
 import gem.geom.GmosScienceAreaGeometry
 import gem.geom.GmosOiwfsProbeArm

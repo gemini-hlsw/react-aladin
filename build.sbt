@@ -1,5 +1,8 @@
-val reactJS      = "16.13.1"
-val scalaJsReact = "1.7.3"
+lazy val reactJS           = "16.13.1"
+lazy val scalaJsReact      = "1.7.3"
+lazy val gspMathVersion    = "0.2.3"
+lazy val gspCoreVersion    = "0.2.5"
+lazy val aladinLiteVersion = "0.1.7"
 
 parallelExecution in (ThisBuild, Test) := false
 
@@ -94,8 +97,8 @@ val demo =
         "stats.js" -> "0.17.0"
       ),
       libraryDependencies ++= Seq(
-        "edu.gemini" %%% "gsp-core-model" % "0.2.5+1-7f061f96-SNAPSHOT",
-        "edu.gemini" %%% "gsp-math" % "0.2.3+1-37e766fb-SNAPSHOT",
+        "edu.gemini" %%% "gsp-core-model" % gspCoreVersion,
+        "edu.gemini" %%% "gsp-math" % gspMathVersion,
         "com.github.japgolly.scalajs-react" %%% "core" % scalaJsReact,
         "com.github.japgolly.scalajs-react" %%% "test" % scalaJsReact % Test,
         "io.github.cquiroz.react" %%% "common" % "0.9.3",
@@ -108,17 +111,6 @@ val demo =
     )
 
 def copyAndReplace(srcFiles: Seq[File], destinationDir: File): Seq[File] = {
-  // Copy a directory and return the list of files
-  // def copyDirectory(
-  //   source:               File,
-  //   target:               [File],
-  //   overwrite:            Boolean = false,
-  //   preserveLastModified: Boolean = false
-  // ): Set[File] =
-  //   IO.copy(PathFinder(source).allPaths.pair(Path.rebase(source, target)).toTraversable,
-  //           overwrite,
-  //           preserveLastModified,
-  //           false)
   def replacements(line: String): String =
     line
       .replaceAll("js/", "@cquiroz/aladin-lite/lib/")
@@ -132,33 +124,18 @@ def copyAndReplace(srcFiles: Seq[File], destinationDir: File): Seq[File] = {
   }
 }
 
-lazy val tests =
-  project
-    .in(file("tests"))
-    .enablePlugins(ScalaJSPlugin)
-    .settings(commonSettings: _*)
-    .settings(
-      scalaJSUseMainModuleInitializer := true,
-      libraryDependencies ++= Seq(
-        "edu.gemini" %%% "gsp-core-model" % "0.2.5+1-7f061f96-SNAPSHOT",
-        "edu.gemini" %%% "gsp-math" % "0.2.3+1-37e766fb-SNAPSHOT",
-
-      )
-    )
-
 lazy val facade =
   project
     .in(file("facade"))
     .enablePlugins(ScalaJSPlugin)
     .enablePlugins(ScalaJSBundlerPlugin)
-    .disablePlugins(HydraPlugin)
     .settings(commonSettings: _*)
     .settings(
       name := "react-aladin",
       npmDependencies in Compile ++= Seq(
         "react" -> reactJS,
         "react-dom" -> reactJS,
-        "@cquiroz/aladin-lite" -> "0.1.7"
+        "@cquiroz/aladin-lite" -> aladinLiteVersion,
       ),
       // Requires the DOM for tests
       requireJsDomEnv in Test := true,
@@ -170,8 +147,8 @@ lazy val facade =
       // Compile tests to JS using fast-optimisation
       scalaJSStage in Test := FastOptStage,
       libraryDependencies ++= Seq(
-        "edu.gemini" %%% "gsp-core-model" % "0.2.5+1-7f061f96-SNAPSHOT",
-        "edu.gemini" %%% "gsp-math" % "0.2.3+1-37e766fb-SNAPSHOT",
+        "edu.gemini" %%% "gsp-core-model" % gspCoreVersion,
+        "edu.gemini" %%% "gsp-math" % gspMathVersion,
         "com.github.japgolly.scalajs-react" %%% "core" % scalaJsReact,
         "com.github.japgolly.scalajs-react" %%% "test" % scalaJsReact % Test,
         "io.github.cquiroz.react" %%% "common" % "0.9.3",
