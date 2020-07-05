@@ -113,7 +113,7 @@ val demo =
 def copyAndReplace(srcFiles: Seq[File], destinationDir: File): Seq[File] = {
   def replacements(line: String): String =
     line
-      .replaceAll("js/", "@cquiroz/aladin-lite/lib/")
+      .replaceAll("js/", "@cquiroz/aladin-lite/lib/js/")
 
   // Visit each file and read the content replacing key strings
   srcFiles.filter(_.getPath.contains("react/aladin")).map { f =>
