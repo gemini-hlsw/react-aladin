@@ -110,17 +110,20 @@ val demo =
       Keys.`package` := file("")
     )
 
-def copyAndReplace(srcFiles: Seq[File], destinationDir: File): Seq[File] = {
+def copyAndReplace(srcFiles: Seq[File], srcRoot: File, destinationDir: File): Seq[File] = {
   def replacements(line: String): String =
     line
       .replaceAll("js/", "@cquiroz/aladin-lite/lib/js/")
 
   // Visit each file and read the content replacing key strings
-  srcFiles.filter(_.getPath.contains("react/aladin")).map { f =>
-    val target = new File(destinationDir, s"react/aladin/${f.getName}")
-    val replacedLines = IO.readLines(f).map(replacements)
-    IO.writeLines(target , replacedLines)
-    target
+  srcFiles.filter(_.getPath.contains("react/aladin")).flatMap { f =>
+    f.relativeTo(srcRoot).map { r =>
+      val target = new File(destinationDir, r.getPath)
+      val replacedLines = IO.readLines(f).map(replacements)
+      IO.createDirectory(target.getParentFile)
+      IO.writeLines(target , replacedLines)
+      Seq(target)
+    }.getOrElse(Seq.empty)
   }
 }
 
@@ -156,9 +159,10 @@ lazy val facade =
       ),
       testFrameworks += new TestFramework("utest.runner.Framework"),
       Compile / sourceGenerators += Def.task {
-        val srcDirs        = (demo / Compile / unmanagedSources).value ** "*.scala"
+        val srcDir        = (demo / Compile / scalaSource).value
+        val srcFiles        = srcDir ** "*.scala"
         val destinationDir = (Compile / sourceManaged).value
-        copyAndReplace(srcDirs.get, destinationDir)
+        copyAndReplace(srcFiles.get, srcDir, destinationDir)
       }.taskValue
     )
 

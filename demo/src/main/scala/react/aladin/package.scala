@@ -1,16 +1,9 @@
 package react
 
 import gsp.math.Angle
-// import gpp.svgdotjs.svgdotjsSvgJs.mod._
 import japgolly.scalajs.react.Callback
 import react.common._
-// import cats.data.NonEmptyList
-// import gsp.math.geom.ShapeExpression
-// import gsp.math.geom.ShapeInterpreter
-// import gsp.math.geom.jts.JtsShape
-// import gsp.math.geom.svg2._
-// import gsp.math.geom.svg2.implicits._
-//
+
 package aladin {
 
   /**
@@ -58,67 +51,4 @@ package object aladin {
       PixelScale(a.getSize()(0) / a.getFov()(0), a.getSize()(1) / a.getFov()(1))
   }
 
-  /**
-    * This method will build an svg appropriate to show on aladin.
-    * Note we need to transform the svg to get the correct size and location
-    * This particular method uses just svg but it doesn't properly work on Safari
-    */
-  // def shapesToSvg(
-  //   shapes:      NonEmptyList[(String, ShapeExpression)],
-  //   s:           Size,
-  //   pixelScale:  PixelScale,
-  //   scaleFactor: Int
-  // )(implicit ev: ShapeInterpreter): Svg = {
-  //   val svg: Svg = SVG_()
-  //   // Render the svg
-  //   shapes
-  //     .map(x => x.copy(_2 = x._2.eval))
-  //     .map {
-  //       case (id, jts: JtsShape) => (id, jts)
-  //       case x                   => sys.error(s"Whoa unexpected shape type: $x")
-  //     }
-  //     .toSvg(svg, pp, scalingFn = scalingFn)
-  //
-  //   // Viewbox size
-  //   val (h, w) = (svg.viewbox().height_Box, svg.viewbox().width_Box)
-  //   val (x, y) = (svg.viewbox().x_Box, svg.viewbox().y_Box)
-  //   // Angular size of the geometry
-  //   val hAngle = Angle.fromMicroarcseconds((h.toLong * scaleFactor).toLong)
-  //   val wAngle = Angle.fromMicroarcseconds((w.toLong * scaleFactor).toLong)
-  //   // Deltas to calculate the size of the svg on aladin scale
-  //   val dx = (wAngle.toDoubleDegrees * pixelScale.x)
-  //   val dy = (hAngle.toDoubleDegrees * pixelScale.y)
-  //
-  //   val svgSize = Size(dy, dx)
-  //
-  //   // Translation coordinates
-  //   val tx = abs(dx * x / w)
-  //   val ty = abs(dy * y / h)
-  //
-  //   // Cross at 0,0 style it with css
-  //   svg
-  //     .line(-10 * dx, -10 * dx, 10 * dx, 10 * dx)
-  //     .attr("class", "jts-svg-center")
-  //   svg
-  //     .line(-10 * dx, 10 * dx, 10 * dx, -10 * dx)
-  //     .attr("class", "jts-svg-center")
-  //
-  //   // Border to the whole svg, usually hidden
-  //   svg
-  //     .rect(w, h)
-  //     .translate(x, y)
-  //     .fill("none")
-  //     .attr("class", "jts-svg-border")
-  //
-  //   // Rotation reference point. It is a bit surprising but it is in screen coordinates
-  //   val ry = ty - dy / 2
-  //   // Scale and postion the center in the right location
-  //   val transformation =
-  //     new Matrix()
-  //       .scale(1, -1, 0, ry) // Order of operations is important
-  //       .translate(s.width.toDouble / 2 - tx, s.height.toDouble / 2 - ty)
-  //   svg.transform(transformation)
-  //   svg.size(svgSize)
-  //   svg
-  // }
 }
