@@ -40,12 +40,19 @@ addCommandAlias(
   "; demo/fastOptJS::stopWebpackDevServer; demo/fastOptJS::startWebpackDevServer; ~demo/fastOptJS"
 )
 
+lazy val root =
+  project
+    .in(file("."))
+    .settings(commonSettings: _*)
+    .aggregate(facade, demo)
+
 val demo =
   project
     .in(file("demo"))
     .enablePlugins(ScalaJSBundlerPlugin)
     .settings(commonSettings: _*)
     .settings(
+      skip in publish := true,
       version in webpack := "4.43.0",
       version in startWebpackDevServer := "3.11.0",
       webpackConfigFile in fastOptJS := Some(
