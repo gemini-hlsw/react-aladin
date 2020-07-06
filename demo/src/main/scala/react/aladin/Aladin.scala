@@ -87,35 +87,6 @@ class AladinSource extends js.Object {
 }
 
 @js.native
-@JSImport("js/Color", JSImport.Namespace)
-class AladinColor extends js.Object {}
-
-@js.native
-@JSImport("js/ColorMap", JSImport.Namespace)
-class ColorMap extends js.Object {
-  def update(a: String): Unit = js.native
-}
-
-@js.native
-@JSImport("js/Footprint", JSImport.Namespace)
-class AladinFootprint extends js.Object {}
-
-@js.native
-@JSImport("js/Polyline", JSImport.Namespace)
-class AladinPolyline extends js.Object {}
-
-@js.native
-@JSImport("js/Circle", JSImport.Namespace)
-class AladinCircle extends js.Object {}
-
-@js.native
-@JSImport("js/HpxImageSurvey", JSImport.Namespace)
-class HpxImageSurvey extends js.Object {
-  def setAlpha(a: JsNumber): Unit = js.native
-  def getColorMap(): ColorMap = js.native
-}
-
-@js.native
 @JSImport("js/Aladin", JSImport.Namespace)
 class JsAladin extends js.Object {
   def setImageSurvey(s:    String): Unit = js.native

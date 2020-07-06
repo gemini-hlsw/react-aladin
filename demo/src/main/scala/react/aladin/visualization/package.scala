@@ -9,9 +9,9 @@ import gsp.math.Angle
 import gsp.math.geom.jts.JtsShape
 import gsp.math.geom.ShapeExpression
 import gsp.math.geom.ShapeInterpreter
+import org.scalajs.dom.raw.Element
 import react.common._
 import scala.math._
-import org.scalajs.dom.raw.Element
 
 package object visualization {
   implicit class SvgOps(val svg: Svg) extends AnyVal {
