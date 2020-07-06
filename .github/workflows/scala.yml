@@ -15,4 +15,4 @@ jobs:
       - name: Checking your code format
         run: csbt scalafmtCheckAll
       - name: Run tests
-        run: csbt test
+        run: csbt test demo/fastOptJS::webpack

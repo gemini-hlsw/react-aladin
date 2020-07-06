@@ -3,12 +3,12 @@ package react.aladin
 import scala.scalajs.js
 import scala.scalajs.js.annotation._
 import scala.scalajs.js.JSConverters._
-import scala.scalajs.js.|
 import org.scalajs.dom.ext._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 import japgolly.scalajs.react.raw.JsNumber
 import react.common._
+import org.scalajs.dom.raw.Element
 
 // This will be the props object used from JS-land
 @js.native
@@ -51,13 +51,13 @@ trait OverlayOptions extends js.Object {
 
 object OverlayOptions {
   def apply(
-    name:      js.UndefOr[String]   = js.undefined,
-    color:     js.UndefOr[Color]    = js.undefined,
+    name:      js.UndefOr[String] = js.undefined,
+    color:     js.UndefOr[Color] = js.undefined,
     lineWidth: js.UndefOr[JsNumber] = js.undefined
   ): OverlayOptions = {
     val p = (new js.Object()).asInstanceOf[OverlayOptions]
-    p.name      = name
-    p.color     = color.map(c => c: String)
+    p.name = name
+    p.color = color.map(c => c: String)
     p.lineWidth = lineWidth
     p
   }
@@ -74,13 +74,12 @@ object PolylineOptions {
   ): PolylineOptions = {
     val p = (new js.Object()).asInstanceOf[PolylineOptions]
     p.color = color.map(c => c: String)
-    println(p.color)
     p
   }
 }
 
 @js.native
-@JSImport("@cquiroz/aladin-lite/lib/js/Source", JSImport.Namespace)
+@JSImport("js/Source", JSImport.Namespace)
 class AladinSource extends js.Object {
   val x: Double       = js.native
   val y: Double       = js.native
@@ -88,46 +87,7 @@ class AladinSource extends js.Object {
 }
 
 @js.native
-@JSImport("@cquiroz/aladin-lite/lib/js/Color", JSImport.Namespace)
-class AladinColor extends js.Object {}
-
-@js.native
-@JSImport("@cquiroz/aladin-lite/lib/js/ColorMap", JSImport.Namespace)
-class ColorMap extends js.Object {
-  def update(a: String): Unit = js.native
-}
-
-@js.native
-@JSImport("@cquiroz/aladin-lite/lib/js/Footprint", JSImport.Namespace)
-class AladinFootprint extends js.Object {}
-
-@js.native
-@JSImport("@cquiroz/aladin-lite/lib/js/Polyline", JSImport.Namespace)
-class AladinPolyline extends js.Object {}
-
-@js.native
-@JSImport("@cquiroz/aladin-lite/lib/js/Circle", JSImport.Namespace)
-class AladinCircle extends js.Object {}
-
-@js.native
-@JSImport("@cquiroz/aladin-lite/lib/js/HpxImageSurvey", JSImport.Namespace)
-class HpxImageSurvey extends js.Object {
-  def setAlpha(a: JsNumber): Unit = js.native
-  def getColorMap(): ColorMap = js.native
-}
-
-@js.native
-@JSImport("@cquiroz/aladin-lite/lib/js/Overlay", JSImport.Namespace)
-class AladinOverlay extends js.Object {
-  def addFootprints(s: js.Array[AladinOverlay.Shapes]): Unit = js.native
-  def add(s:           AladinOverlay.Shapes): Unit           = js.native
-}
-
-object AladinOverlay {
-  type Shapes = AladinCircle | AladinFootprint | AladinPolyline
-}
-@js.native
-@JSImport("@cquiroz/aladin-lite/lib/js/Aladin", JSImport.Namespace)
+@JSImport("js/Aladin", JSImport.Namespace)
 class JsAladin extends js.Object {
   def setImageSurvey(s:    String): Unit = js.native
   def setBaseImageLayer(s: String): Unit = js.native
@@ -145,21 +105,27 @@ class JsAladin extends js.Object {
   def addCatalog(c: AladinCatalog): Unit = js.native
   def addOverlay(c: AladinOverlay): Unit = js.native
   def gotoRaDec(ra: JsNumber, dec: JsNumber): Unit = js.native
-  def getRaDec(): js.Array[JsNumber] = js.native
+  def getRaDec(): js.Array[Double] = js.native
   def gotoObject(q:      String, cb:    GoToObjectCallback): Unit = js.native
   def animateToRaDec(ra: JsNumber, dec: JsNumber, time: JsNumber): Unit = js.native
-  def recalculateView(): Unit = js.native
+  def recalculateView(): Unit     = js.native
+  def getParentDiv(): Element     = js.native
+  def getSize(): js.Array[Double] = js.native
+  def getFov(): js.Array[Double]  = js.native
+  def pix2world(x: Double, y: Double): js.Array[Double] = js.native
+  def world2pix(x: Double, y: Double): js.Array[Double] = js.native
+  def on(n:        String, f: js.Function): Unit        = js.native
 }
 
 @js.native
-@JSImport("@cquiroz/aladin-lite/lib/js/A", JSImport.Namespace)
+@JSImport("js/A", JSImport.Namespace)
 object A extends js.Object {
   def aladin(divSelector: String, options: AladinProps): JsAladin = js.native
   def catalog(c:          CatalogOptions): AladinCatalog = js.native
-  def graphicOverlay(c:   OverlayOptions): AladinOverlay = js.native
-  def polygon(raDecArray: js.Array[js.Array[JsNumber]]): AladinFootprint = js.native
+  def graphicOverlay(c:   OverlayOptions): AladinOverlay               = js.native
+  def polygon(raDecArray: js.Array[js.Array[Double]]): AladinFootprint = js.native
   def polyline(
-    raDecArray: js.Array[js.Array[JsNumber]],
+    raDecArray: js.Array[js.Array[Double]],
     o:          js.UndefOr[PolylineOptions]
   ): AladinPolyline = js.native
   def circle(
@@ -207,23 +173,23 @@ object A extends js.Object {
 }
 
 final case class Aladin(
-  target:                   js.UndefOr[String]           = js.undefined,
-  fov:                      js.UndefOr[JsNumber]         = js.undefined,
-  survey:                   js.UndefOr[String]           = js.undefined,
-  cooFrame:                 js.UndefOr[CooFrame]         = js.undefined,
-  showReticle:              js.UndefOr[Boolean]          = js.undefined,
-  showZoomControl:          js.UndefOr[Boolean]          = js.undefined,
-  showFullscreenControl:    js.UndefOr[Boolean]          = js.undefined,
-  showLayersControl:        js.UndefOr[Boolean]          = js.undefined,
-  showGotoControl:          js.UndefOr[Boolean]          = js.undefined,
-  showShareControl:         js.UndefOr[Boolean]          = js.undefined,
-  showSimbadPointerControl: js.UndefOr[Boolean]          = js.undefined,
-  showFrame:                js.UndefOr[Boolean]          = js.undefined,
-  fullScreen:               js.UndefOr[Boolean]          = js.undefined,
-  reticleColor:             js.UndefOr[Color]            = js.undefined,
-  reticleSize:              js.UndefOr[JsNumber]         = js.undefined,
-  imageSurvey:              js.UndefOr[String]           = js.undefined,
-  baseImageLayer:           js.UndefOr[String]           = js.undefined,
+  target:                   js.UndefOr[String] = js.undefined,
+  fov:                      js.UndefOr[JsNumber] = js.undefined,
+  survey:                   js.UndefOr[String] = js.undefined,
+  cooFrame:                 js.UndefOr[CooFrame] = js.undefined,
+  showReticle:              js.UndefOr[Boolean] = js.undefined,
+  showZoomControl:          js.UndefOr[Boolean] = js.undefined,
+  showFullscreenControl:    js.UndefOr[Boolean] = js.undefined,
+  showLayersControl:        js.UndefOr[Boolean] = js.undefined,
+  showGotoControl:          js.UndefOr[Boolean] = js.undefined,
+  showShareControl:         js.UndefOr[Boolean] = js.undefined,
+  showSimbadPointerControl: js.UndefOr[Boolean] = js.undefined,
+  showFrame:                js.UndefOr[Boolean] = js.undefined,
+  fullScreen:               js.UndefOr[Boolean] = js.undefined,
+  reticleColor:             js.UndefOr[Color] = js.undefined,
+  reticleSize:              js.UndefOr[JsNumber] = js.undefined,
+  imageSurvey:              js.UndefOr[String] = js.undefined,
+  baseImageLayer:           js.UndefOr[String] = js.undefined,
   customize:                js.UndefOr[JsAladin => Unit] = js.undefined
 ) {
   def render   = Aladin.component(this)
@@ -234,24 +200,32 @@ object Aladin {
   type Props = Aladin
 
   final case class State(a: Option[JsAladin])
-  class Backend(bs:         BackendScope[Aladin, State]) {
+  class Backend(bs: BackendScope[Aladin, State]) {
     private def runOnAladinOpt[A](f: JsAladin => A): CallbackTo[Option[A]] =
       bs.state.flatMap {
         case State(Some(a)) => CallbackTo(Some(f(a)))
         case _              => CallbackTo(None)
       }
-    private def runOnAladin[A](f: JsAladin => A): Callback =
+    def runOnAladinCB[A](f: JsAladin => CallbackTo[A]): Callback =
+      bs.state.flatMap {
+        case State(Some(a)) => f(a).void
+        case _              => Callback.empty
+      }
+    def runOnAladin[A](f: JsAladin => A): Callback =
       bs.state.flatMap {
         case State(Some(a)) => CallbackTo(f(a)).void
         case _              => Callback.empty
       }
     def render: VdomElement = <.div(^.cls := "react-aladin")
     def gotoRaDec(ra: JsNumber, dec: JsNumber): Callback = runOnAladin(_.gotoRaDec(ra, dec))
-    def getRaDec: CallbackTo[Option[(JsNumber, JsNumber)]] = runOnAladinOpt(_.getRaDec()).map {
-      _.map(a => (a(0), a(1)))
-    }
+    def getRaDec: CallbackTo[Option[(Double, Double)]] =
+      runOnAladinOpt(_.getRaDec()).map {
+        _.map(a => (a(0), a(1)))
+      }
     def gotoObject(q: String, cb: (JsNumber, JsNumber) => Callback, er: Callback): Callback =
       runOnAladin(_.gotoObject(q, new GoToObjectCallback(cb, er)))
+    def recalculateView: Callback =
+      runOnAladin(_.recalculateView())
   }
 
   // Say this is the Scala component you want to share
@@ -294,24 +268,24 @@ object Aladin {
 
   def fromProps(q: Props): AladinProps = {
     val p = new js.Object().asInstanceOf[AladinProps]
-    p.fov                      = q.fov
-    p.target                   = q.target
-    p.survey                   = q.survey
-    p.cooFrame                 = q.cooFrame.toJs
-    p.reticleColor             = q.reticleColor.map(c => c: String)
-    p.reticleSize              = q.reticleSize
-    p.imageSurvey              = q.imageSurvey
-    p.baseImageLayer           = q.baseImageLayer
-    p.customize                = q.customize
-    p.showReticle              = q.showReticle
-    p.showZoomControl          = q.showZoomControl
-    p.showFullscreenControl    = q.showFullscreenControl
-    p.showLayersControl        = q.showLayersControl
-    p.showGotoControl          = q.showGotoControl
-    p.showShareControl         = q.showShareControl
+    p.fov = q.fov
+    p.target = q.target
+    p.survey = q.survey
+    p.cooFrame = q.cooFrame.toJs
+    p.reticleColor = q.reticleColor.map(c => c: String)
+    p.reticleSize = q.reticleSize
+    p.imageSurvey = q.imageSurvey
+    p.baseImageLayer = q.baseImageLayer
+    p.customize = q.customize
+    p.showReticle = q.showReticle
+    p.showZoomControl = q.showZoomControl
+    p.showFullscreenControl = q.showFullscreenControl
+    p.showLayersControl = q.showLayersControl
+    p.showGotoControl = q.showGotoControl
+    p.showShareControl = q.showShareControl
     p.showSimbadPointerControl = q.showSimbadPointerControl
-    p.showFrame                = q.showFrame
-    p.fullScreen               = q.fullScreen
+    p.showFrame = q.showFrame
+    p.fullScreen = q.fullScreen
     p
   }
 
