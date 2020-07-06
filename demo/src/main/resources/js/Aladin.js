@@ -92,9 +92,7 @@ const Aladin = (function() {
 
         $("<style type='text/css'> .aladin-reticleColor { color: " + this.options.reticleColor + "; font-weight:bold;} </style>").appendTo(aladinDiv);
 
-
-
-		this.aladinDiv = aladinDiv;
+        this.aladinDiv = aladinDiv;
 
         this.reduceDeformations = true;
 
@@ -379,6 +377,7 @@ const Aladin = (function() {
     Aladin.prototype.recalculateView = function() {
       this.view.fixLayoutDimensions();
     }
+
     // realFullscreen: AL div expands not only to the size of its parent, but takes the whole available screen estate
     Aladin.prototype.toggleFullscreen = function(realFullscreen) {
         realFullscreen = Boolean(realFullscreen);

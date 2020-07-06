@@ -43,14 +43,14 @@ function relMouseCoords(event) {
     }
     else {
         if (!Utils.cssScale) {
-            var st = window.getComputedStyle(document.body, null);
-            var tr = st.getPropertyValue("-webkit-transform") ||
+            const st = window.getComputedStyle(document.body, null);
+            const tr = st.getPropertyValue("-webkit-transform") ||
                     st.getPropertyValue("-moz-transform") ||
                     st.getPropertyValue("-ms-transform") ||
                     st.getPropertyValue("-o-transform") ||
                     st.getPropertyValue("transform");
-            var matrixRegex = /matrix\((-?\d*\.?\d+),\s*0,\s*0,\s*(-?\d*\.?\d+),\s*0,\s*0\)/;
-            var matches = tr.match(matrixRegex);
+            const matrixRegex = /matrix\((-?\d*\.?\d+),\s*0,\s*0,\s*(-?\d*\.?\d+),\s*0,\s*0\)/;
+            const matches = tr.match(matrixRegex);
             if (matches) {
                 Utils.cssScale = parseFloat(matches[1]);
             }
@@ -58,27 +58,27 @@ function relMouseCoords(event) {
                 Utils.cssScale = 1;
             }
         }
-        var e = event;
+        const e = event;
         // http://www.jacklmoore.com/notes/mouse-position/
-        var target = e.target || e.srcElement;
-        var style = target.currentStyle || window.getComputedStyle(target, null);
-        var borderLeftWidth = parseInt(style['borderLeftWidth'], 10);
-        var borderTopWidth = parseInt(style['borderTopWidth'], 10);
-        var rect = target.getBoundingClientRect();
+        const target = e.target || e.srcElement;
+        const style = target.currentStyle || window.getComputedStyle(target, null);
+        const borderLeftWidth = parseInt(style['borderLeftWidth'], 10);
+        const borderTopWidth = parseInt(style['borderTopWidth'], 10);
+        const rect = target.getBoundingClientRect();
 
-        var clientX = e.clientX;
-        var clientY = e.clientY;
-        if (e.clientX) {
+        let clientX = e.clientX;
+        let clientY = e.clientY;
+        if (!(e.clientX === undefined)) {
             clientX = e.clientX;
             clientY = e.clientY;
         }
-        else {
+        else if (e.originalEvent.changedTouches) {
             clientX = e.originalEvent.changedTouches[0].clientX;
             clientY = e.originalEvent.changedTouches[0].clientY;
         }
 
-        var offsetX = clientX - borderLeftWidth - rect.left;
-        var offsetY = clientY - borderTopWidth - rect.top
+        const offsetX = clientX - borderLeftWidth - rect.left;
+        const offsetY = clientY - borderTopWidth - rect.top
 
         return {x: parseInt(offsetX/Utils.cssScale), y: parseInt(offsetY/Utils.cssScale)};
     }

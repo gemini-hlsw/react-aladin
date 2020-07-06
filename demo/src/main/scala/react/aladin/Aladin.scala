@@ -235,7 +235,12 @@ object Aladin {
         case State(Some(a)) => CallbackTo(Some(f(a)))
         case _              => CallbackTo(None)
       }
-    private def runOnAladin[A](f: JsAladin => A): Callback =
+    def runOnAladinCB[A](f: JsAladin => CallbackTo[A]): Callback =
+      bs.state.flatMap {
+        case State(Some(a)) => f(a).void
+        case _              => Callback.empty
+      }
+    def runOnAladin[A](f: JsAladin => A): Callback =
       bs.state.flatMap {
         case State(Some(a)) => CallbackTo(f(a)).void
         case _              => Callback.empty
@@ -248,6 +253,8 @@ object Aladin {
       }
     def gotoObject(q: String, cb: (JsNumber, JsNumber) => Callback, er: Callback): Callback =
       runOnAladin(_.gotoObject(q, new GoToObjectCallback(cb, er)))
+    def recalculateView: Callback =
+      runOnAladin(_.recalculateView())
   }
 
   // Say this is the Scala component you want to share

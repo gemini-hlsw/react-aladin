@@ -2,7 +2,7 @@ lazy val reactJS           = "16.13.1"
 lazy val scalaJsReact      = "1.7.3"
 lazy val gspMathVersion    = "0.2.3"
 lazy val gspCoreVersion    = "0.2.5"
-lazy val aladinLiteVersion = "0.1.7"
+lazy val aladinLiteVersion = "0.1.8"
 
 parallelExecution in (ThisBuild, Test) := false
 
@@ -102,6 +102,7 @@ val demo =
         "com.github.japgolly.scalajs-react" %%% "core" % scalaJsReact,
         "com.github.japgolly.scalajs-react" %%% "test" % scalaJsReact % Test,
         "io.github.cquiroz.react" %%% "common" % "0.9.3",
+        "io.github.cquiroz.react" %%% "react-sizeme" % "0.4.4"
       ),
       // don't publish the demo
       publish := {},
@@ -117,13 +118,15 @@ def copyAndReplace(srcFiles: Seq[File], srcRoot: File, destinationDir: File): Se
 
   // Visit each file and read the content replacing key strings
   srcFiles.filter(_.getPath.contains("react/aladin")).flatMap { f =>
-    f.relativeTo(srcRoot).map { r =>
-      val target = new File(destinationDir, r.getPath)
-      val replacedLines = IO.readLines(f).map(replacements)
-      IO.createDirectory(target.getParentFile)
-      IO.writeLines(target , replacedLines)
-      Seq(target)
-    }.getOrElse(Seq.empty)
+    f.relativeTo(srcRoot)
+      .map { r =>
+        val target        = new File(destinationDir, r.getPath)
+        val replacedLines = IO.readLines(f).map(replacements)
+        IO.createDirectory(target.getParentFile)
+        IO.writeLines(target, replacedLines)
+        Seq(target)
+      }
+      .getOrElse(Seq.empty)
   }
 }
 
@@ -138,7 +141,7 @@ lazy val facade =
       npmDependencies in Compile ++= Seq(
         "react" -> reactJS,
         "react-dom" -> reactJS,
-        "@cquiroz/aladin-lite" -> aladinLiteVersion,
+        "@cquiroz/aladin-lite" -> aladinLiteVersion
       ),
       // Requires the DOM for tests
       requireJsDomEnv in Test := true,
@@ -159,8 +162,8 @@ lazy val facade =
       ),
       testFrameworks += new TestFramework("utest.runner.Framework"),
       Compile / sourceGenerators += Def.task {
-        val srcDir        = (demo / Compile / scalaSource).value
-        val srcFiles        = srcDir ** "*.scala"
+        val srcDir         = (demo / Compile / scalaSource).value
+        val srcFiles       = srcDir ** "*.scala"
         val destinationDir = (Compile / sourceManaged).value
         copyAndReplace(srcFiles.get, srcDir, destinationDir)
       }.taskValue

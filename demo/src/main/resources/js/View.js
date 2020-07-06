@@ -874,8 +874,6 @@ const View = (function() {
         };
     };
 
-
-
     /**
      * redraw the whole view
      */

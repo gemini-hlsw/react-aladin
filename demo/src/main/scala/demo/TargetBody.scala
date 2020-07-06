@@ -7,10 +7,12 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 import react.aladin._
 import react.common._
+import react.sizeme._
 import scala.scalajs.js
 import org.scalajs.dom.document
 import gsp.math.geom.jts.interpreter._
 import demo.GeomSvgDemo
+import org.scalajs.dom.raw.Element
 
 final case class TargetBody(
 ) extends ReactProps[TargetBody](TargetBody.component) {}
@@ -33,10 +35,13 @@ object SourceData {
 
 }
 
-object TargetBody {
-  type Props = TargetBody
+final case class AladinContainer(s: Size)
+    extends ReactProps[AladinContainer](AladinContainer.component)
 
-  protected implicit val propsReuse: Reusability[Props] = Reusability.derive
+object AladinContainer {
+  type Props = AladinContainer
+
+  protected implicit val propsReuse: Reusability[Props] = Reusability.never
 
   val AladinComp = Aladin.component
 
@@ -44,29 +49,37 @@ object TargetBody {
     // Create a mutable reference
     private val ref = Ref.toScalaComponent(AladinComp)
 
-    def includeSvg(v: JsAladin): Unit = {
-      val (h, w) = (v.getParentDiv().clientHeight, v.getParentDiv().clientWidth)
-      val div    = v.getParentDiv()
-      // div.an
-      v.onZoomCB {
-        Callback {
-          val previous = Option(div.querySelector("svg"))
-          previous.foreach(div.removeChild)
-          val g = document.createElement("div")
-          visualization.geometryForAladin(GeomSvgDemo.shapes,
-                                          g,
-                                          Size(h, w),
-                                          v.pixelScale,
-                                          GeomSvgDemo.ScaleFactor
-          )
-          div.appendChild(g)
-        }
+    def renderVisualization(div: Element, size: Size, pixelScale: => PixelScale): Callback =
+      Callback {
+        // Delete any viz previously rendered
+        val previous = Option(div.querySelector(".aladin-visualization"))
+        previous.foreach(div.removeChild)
+        val g = document.createElement("div")
+        g.classList.add("aladin-visualization")
+        visualization.geometryForAladin(GeomSvgDemo.shapes,
+                                        g,
+                                        size,
+                                        pixelScale,
+                                        GeomSvgDemo.ScaleFactor
+        )
+        div.appendChild(g)
       }
+
+    def includeSvg(v: JsAladin): Unit = {
+      val size = Size(v.getParentDiv().clientHeight, v.getParentDiv().clientWidth)
+      val div  = v.getParentDiv()
+      v.onZoomCB(renderVisualization(div, size, v.pixelScale))
       ()
     }
 
+    def updateVisualization(v: JsAladin): Callback = {
+      val size = Size(v.getParentDiv().clientHeight, v.getParentDiv().clientWidth)
+      val div  = v.getParentDiv()
+      renderVisualization(div, size, v.pixelScale)
+    }
+
     def render(props: Props) =
-      React.Fragment(
+      SizeMe() { s =>
         <.div(
           ^.height := "100%",
           ^.width := "100%",
@@ -81,14 +94,36 @@ object TargetBody {
             )
           }
         )
-      )
+      }
 
+    def recalculateView =
+      Callback.log("here") *>
+        ref.get.flatMapCB(r => r.backend.runOnAladinCB(updateVisualization))
   }
 
   val component =
     ScalaComponent
       .builder[Props]
       .renderBackend[Backend]
+      .componentDidUpdate(_.backend.recalculateView)
+      .build
+
+}
+
+object TargetBody {
+  type Props = TargetBody
+
+  protected implicit val propsReuse: Reusability[Props] = Reusability.derive
+
+  val component =
+    ScalaComponent
+      .builder[Props]
+      .stateless
+      .render { _ =>
+        SizeMe() { s =>
+          AladinContainer(s)
+        }.vdomElement
+      }
       .build
 
 }
