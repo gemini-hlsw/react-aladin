@@ -18,37 +18,6 @@ package object visualization {
     def setSize(s: Size): Svg = svg.size(s.width.toDouble, s.height.toDouble)
   }
 
-  implicit val renderJtsShapeMapOfIds: RenderSvg[NonEmptyMap[String, JtsShape]] =
-    new RenderSvg[NonEmptyMap[String, JtsShape]] {
-      def toSvg(
-        base:      Container,
-        pp:        SvgPostProcessor,
-        scalingFn: ScalingFn,
-        a:         NonEmptyMap[String, JtsShape]
-      ): Container = {
-        // Safari doesn't support transformations on the svg directly, but it can transfor a group below it
-        val containerGroup = base.group()
-
-        containerGroup.addClass("jts-root-group")
-        // We should calculate the viewbox of the whole geometry
-        val composite = a.toNonEmptyList.map(_.g).reduce(geometryUnionSemigroup)
-        a.toNel.map {
-          case (id, g) =>
-            val c = g.toSvg(containerGroup, pp, scalingFn)
-            // Set an id per geometry
-            c.id(id)
-        }
-        val envelope = composite.getBoundary.getEnvelopeInternal
-        base.viewbox(scalingFn(envelope.getMinX),
-                     scalingFn(envelope.getMinY),
-                     scalingFn(envelope.getWidth),
-                     scalingFn(envelope.getHeight)
-        )
-        // Note the svg is reversed on y but we'll let clients do the flip
-        base
-      }
-    }
-
   val pp: SvgPostProcessor = {
     case p: Polygon   => p.addClass("jts-polygon")
     case g: G         => g.addClass("jts-group")
@@ -56,16 +25,15 @@ package object visualization {
     case a            => a
   }
 
-  def geometryForAladin(
+  def shapesToSvg(
     shapes:      NonEmptyMap[String, ShapeExpression],
-    parent:      Element,
-    s:           Size,
+    pp:          SvgPostProcessor,
     pixelScale:  PixelScale,
     scaleFactor: Int
-  )(implicit si: ShapeInterpreter): Element = {
+  )(implicit si: ShapeInterpreter): Svg = {
     val scalingFn: ScalingFn = _ / scaleFactor
 
-    val svgBase: Svg = SVG_()
+    val svg: Svg = SVG_()
     // Render the svg
     val evaldShapes = shapes
       .map(_.eval)
@@ -78,7 +46,26 @@ package object visualization {
     // Unsafe call but we know the map is non empty
     NonEmptyMap
       .fromMapUnsafe(evaldShapes)
-      .toSvg(svgBase, pp, scalingFn = scalingFn)
+      .toSvg(svg, pp, scalingFn = scalingFn)
+    svg
+  }
+
+  def addBorder(svg: Container, x: Double, y: Double, w: Double, h: Double): Rect =
+    // Border to the whole svg, usually hidden
+    svg
+      .rect(w, h)
+      .translate(x, y)
+      .fill("none")
+      .attr("class", "jts-svg-border")
+
+  def geometryForAladin(
+    shapes:      NonEmptyMap[String, ShapeExpression],
+    parent:      Element,
+    s:           Size,
+    pixelScale:  PixelScale,
+    scaleFactor: Int
+  )(implicit si: ShapeInterpreter): Element = {
+    val svgBase = shapesToSvg(shapes, pp, pixelScale, scaleFactor)
     // Viewbox size
     val (h, w) = (svgBase.viewbox().height_Box, svgBase.viewbox().width_Box)
     val (x, y) = (svgBase.viewbox().x_Box, svgBase.viewbox().y_Box)
@@ -100,18 +87,14 @@ package object visualization {
 
       // Cross at 0,0 style it with css
       svg
-        .line(-10 * dx, -10 * dx, 10 * dx, 10 * dx)
+        .line(-10 * pixelScale.x, -10 * pixelScale.x, 10 * pixelScale.x, 10 * pixelScale.x)
         .attr("class", "jts-svg-center")
       svg
-        .line(-10 * dx, 10 * dx, 10 * dx, -10 * dx)
+        .line(-10 * pixelScale.x, 10 * pixelScale.x, 10 * pixelScale.x, -10 * pixelScale.x)
         .attr("class", "jts-svg-center")
 
       // Border to the whole svg, usually hidden
-      svg
-        .rect(w, h)
-        .translate(x, y)
-        .fill("none")
-        .attr("class", "jts-svg-border")
+      addBorder(svg, x, y, w, h)
 
       // Rotation reference point. It is a bit surprising but it is in screen coordinates
       val ry = ty - dy / 2
@@ -140,22 +123,7 @@ package object visualization {
     pixelScale:  PixelScale,
     scaleFactor: Int
   )(implicit si: ShapeInterpreter): Svg = {
-    val scalingFn: ScalingFn = _ / scaleFactor
-    val svg: Svg             = SVG_()
-    // Render the svg
-    val evaldShapes = shapes
-      .map(_.eval)
-      .toSortedMap
-      .map {
-        case (id, jts: JtsShape) => (id, jts)
-        case x                   => sys.error(s"Whoa unexpected shape type: $x")
-      }
-
-    // Unsafe call but we know the map is non empty
-    NonEmptyMap
-      .fromMapUnsafe(evaldShapes)
-      .toSvg(svg, pp, scalingFn = scalingFn)
-
+    val svg = shapesToSvg(shapes, pp, pixelScale, scaleFactor)
     // Viewbox size
     val (h, w) = (svg.viewbox().height_Box, svg.viewbox().width_Box)
     val (x, y) = (svg.viewbox().x_Box, svg.viewbox().y_Box)
