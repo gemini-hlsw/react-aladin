@@ -339,7 +339,7 @@ const HiPSDefinition = (function() {
               return defs === null ? [] : window.JSON.parse(defs);
           }
           catch(e) {
-              console.error(e);
+              // silently fail and return empty array
               return [];
           }
         } else {
@@ -355,7 +355,7 @@ const HiPSDefinition = (function() {
             window.localStorage.setItem(HiPSDefinition.LOCAL_STORAGE_KEY, window.JSON.stringify(properties));
         }
         catch(e) {
-            console.error(e);
+            // silently fail and return empty array
             return false;
         }
         }

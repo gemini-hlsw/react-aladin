@@ -643,7 +643,7 @@ const Aladin = (function() {
 
     var doAnimation = function(aladin) {
         var params = aladin.animationParams;
-        if (params==null) {
+        if (params==null || !params['running']) {
             return;
         }
         var now = new Date().getTime();
@@ -671,6 +671,21 @@ const Aladin = (function() {
         setTimeout(function() {doAnimation(aladin);}, 50);
 
     };
+
+    /*
+     * Stop all animations that have been initiated  by animateToRaDec or by zoomToFoV
+     * @API
+     *
+     */
+    Aladin.prototype.stopAnimation =  function() {
+        if (this.zoomAnimationParams) {
+            this.zoomAnimationParams['running'] = false;
+        }
+        if (this.animationParams) {
+            this.animationParams['running']     = false;
+        }
+    };
+
     /*
      * animate smoothly from the current position to the given ra, dec
      *
@@ -703,7 +718,7 @@ const Aladin = (function() {
 
     var doZoomAnimation = function(aladin) {
         var params = aladin.zoomAnimationParams;
-        if (params==null) {
+        if (params==null || !params['running']) {
             return;
         }
         var now = new Date().getTime();
@@ -749,8 +764,7 @@ const Aladin = (function() {
         zoomAnimationParams['fovStart'] = Math.max(fovArray[0], fovArray[1]);
         zoomAnimationParams['fovEnd'] = fov;
         zoomAnimationParams['complete'] = complete;
-
-        console.log(zoomAnimationParams);
+        zoomAnimationParams['running'] = true;
 
         this.zoomAnimationParams = zoomAnimationParams;
         doZoomAnimation(this);
