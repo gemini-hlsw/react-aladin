@@ -4,10 +4,12 @@
 package demo
 
 import japgolly.scalajs.react._
+import japgolly.scalajs.react.raw.JsNumber
 import japgolly.scalajs.react.vdom.html_<^._
 import react.aladin._
 import react.common._
 import react.sizeme._
+import react.gridlayout._
 import scala.scalajs.js
 import org.scalajs.dom.document
 import gsp.math.geom.jts.interpreter._
@@ -44,6 +46,28 @@ object AladinContainer {
   protected implicit val propsReuse: Reusability[Props] = Reusability.never
 
   val AladinComp = Aladin.component
+
+  private val layoutLg: Layout = Layout(
+    List(
+      LayoutItem(x = 0, y = 0, w = 12, h = 16, i = "target"),
+      LayoutItem(x = 0, y = 8, w = 12, h = 8, i = "constraints")
+    )
+  )
+
+  private val layoutMd: Layout = Layout(
+    List(
+      LayoutItem(x = 0, y = 0, w = 12, h = 16, i = "target"),
+      LayoutItem(x = 0, y = 8, w = 12, h = 8, i = "constraints")
+    )
+  )
+
+  private val layouts: Map[BreakpointName, (JsNumber, JsNumber, Layout)] =
+    Map(
+      (BreakpointName.lg, (1200, 12, layoutLg)),
+      (BreakpointName.md, (996, 10, layoutMd))
+      // (BreakpointName.sm, (768, 8, layout)),
+      // (BreakpointName.xs, (480, 6, layout))
+    )
 
   class Backend(bs: BackendScope[Props, Unit]) {
     // Create a mutable reference
@@ -83,16 +107,33 @@ object AladinContainer {
         <.div(
           ^.height := "100%",
           ^.width := "100%",
-          ^.cls := "check",
-          AladinComp.withRef(ref) {
-            Aladin(showReticle = true,
-                   target = "0:00:00 0:00:00",
-                   // target          = "M51",
-                   fov = 0.25,
-                   showGotoControl = false,
-                   customize = includeSvg _
+          ResponsiveReactGridLayout(
+            width = s.width,
+            margin = (5, 5),
+            containerPadding = (5, 5),
+            rowHeight = 30,
+            draggableHandle = ".tileTitle",
+            useCSSTransforms = false, // Not ideal, but fixes flicker on first update (0.18.3).
+            onLayoutChange =
+              (_, _) => ref.get.flatMapCB(_.backend.recalculateView) *> recalculateView,
+            layouts = layouts
+          )(
+            <.div(
+              ^.height := "100%",
+              ^.width := "100%",
+              ^.key := "target",
+              ^.cls := "tile",
+              AladinComp.withRef(ref) {
+                Aladin(showReticle = true,
+                       // target = "0:00:00 0:00:00",
+                       target = "M51",
+                       fov = 0.25,
+                       showGotoControl = false,
+                       customize = includeSvg _
+                )
+              }
             )
-          }
+          )
         )
       }
 

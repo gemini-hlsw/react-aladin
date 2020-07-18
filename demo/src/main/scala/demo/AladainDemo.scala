@@ -6,7 +6,7 @@ import js.annotation._
 // import japgolly.scalajs.react._
 
 @JSExportTopLevel("Main")
-object SUiMain {
+object AladinDemo {
 
   @JSExport
   def main(): Unit = {

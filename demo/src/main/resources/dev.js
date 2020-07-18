@@ -2,7 +2,7 @@ import "./aladin.css";
 import "./less/style.less";
 
 import App from "sjs/demo-fastopt.js";
-import React from "react";
+// import React from "react";
 
 // Enable why did you update plugin
 // if (process.env.NODE_ENV !== "production") {
