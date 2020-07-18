@@ -45,8 +45,12 @@ package object aladin {
       Fov(Angle.fromDoubleDegrees(a.getFov()(0)), Angle.fromDoubleDegrees(a.getFov()(1)))
     def onZoom(cb: Fov => Callback): Unit =
       a.on("zoomChanged", (_: Double) => cb(fov).runNow())
-    def onZoomCB(cb: Callback): Unit =
+    def onZoom(cb: Callback): Unit =
       a.on("zoomChanged", (_: Double) => cb.runNow())
+    def onFullScreenToggle(cb: Boolean => Callback): Unit =
+      a.on("fullScreenToggled", (t: Boolean) => cb(t).runNow())
+    def onFullScreenToggle(cb: Callback): Unit =
+      a.on("fullScreenToggled", (a: Boolean) => cb.runNow())
     def pixelScale: PixelScale =
       PixelScale(a.getSize()(0) / a.getFov()(0), a.getSize()(1) / a.getFov()(1))
   }
