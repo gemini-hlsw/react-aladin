@@ -375,6 +375,7 @@ const Aladin = (function() {
 
 
     Aladin.prototype.recalculateView = function() {
+      this.view.setZoomLevel(this.view.zoomLevel);
       this.view.fixLayoutDimensions();
     }
 
