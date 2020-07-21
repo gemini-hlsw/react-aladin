@@ -11,10 +11,6 @@ import react.common._
 import react.sizeme._
 import react.gridlayout._
 import scala.scalajs.js
-import org.scalajs.dom.document
-import gsp.math.geom.jts.interpreter._
-import demo.GeomSvgDemo
-import org.scalajs.dom.raw.Element
 
 final case class TargetBody(
 ) extends ReactProps[TargetBody](TargetBody.component) {}
@@ -37,26 +33,27 @@ object SourceData {
 
 }
 
-final case class AladinContainer(s: Size)
-    extends ReactProps[AladinContainer](AladinContainer.component)
+final case class AladinTile(s: Size) extends ReactProps[AladinTile](AladinTile.component)
 
-object AladinContainer {
-  type Props = AladinContainer
+object AladinTile {
+  type Props = AladinTile
 
   protected implicit val propsReuse: Reusability[Props] = Reusability.never
 
   val AladinComp = Aladin.component
+  val targetH    = 16
+  val targetW    = 3
 
   private val layoutLg: Layout = Layout(
     List(
-      LayoutItem(x = 0, y = 0, w = 12, h = 16, i = "target"),
+      LayoutItem(x = 0, y = 0, w = targetW, h = 16, i = "target"),
       LayoutItem(x = 0, y = 8, w = 12, h = 8, i = "constraints")
     )
   )
 
   private val layoutMd: Layout = Layout(
     List(
-      LayoutItem(x = 0, y = 0, w = 12, h = 16, i = "target"),
+      LayoutItem(x = 0, y = 0, w = targetW, h = 16, i = "target"),
       LayoutItem(x = 0, y = 8, w = 12, h = 8, i = "constraints")
     )
   )
@@ -70,41 +67,8 @@ object AladinContainer {
     )
 
   class Backend(bs: BackendScope[Props, Unit]) {
-    // Create a mutable reference
-    private val ref = Ref.toScalaComponent(AladinComp)
-
-    def renderVisualization(div: Element, size: Size, pixelScale: => PixelScale): Callback =
-      Callback {
-        // Delete any viz previously rendered
-        val previous = Option(div.querySelector(".aladin-visualization"))
-        previous.foreach(div.removeChild)
-        val g = document.createElement("div")
-        g.classList.add("aladin-visualization")
-        visualization.geometryForAladin(GeomSvgDemo.shapes,
-                                        g,
-                                        size,
-                                        pixelScale,
-                                        GeomSvgDemo.ScaleFactor
-        )
-        div.appendChild(g)
-      }
-
-    def includeSvg(v: JsAladin): Unit = {
-      val size = Size(v.getParentDiv().clientHeight, v.getParentDiv().clientWidth)
-      val div  = v.getParentDiv()
-      v.onFullScreenToggle(recalculateView)
-      v.onZoom(renderVisualization(div, size, v.pixelScale))
-      ()
-    }
-
-    def updateVisualization(v: JsAladin): Callback = {
-      val size = Size(v.getParentDiv().clientHeight, v.getParentDiv().clientWidth)
-      val div  = v.getParentDiv()
-      renderVisualization(div, size, v.pixelScale)
-    }
-
     def render(props: Props) =
-      SizeMe() { s =>
+      SizeMe(monitorHeight = true) { s =>
         <.div(
           ^.height := "100%",
           ^.width := "100%",
@@ -115,8 +79,8 @@ object AladinContainer {
             rowHeight = 30,
             draggableHandle = ".tileTitle",
             useCSSTransforms = false, // Not ideal, but fixes flicker on first update (0.18.3).
-            onLayoutChange =
-              (_, _) => ref.get.flatMapCB(_.backend.recalculateView) *> recalculateView,
+            // onLayoutChange =
+            //   (_, _) => ref.get.flatMapCB(_.backend.recalculateView) *> recalculateView,
             layouts = layouts
           )(
             <.div(
@@ -124,30 +88,19 @@ object AladinContainer {
               ^.width := "100%",
               ^.key := "target",
               ^.cls := "tile",
-              AladinComp.withRef(ref) {
-                Aladin(showReticle = true,
-                       // target = "0:00:00 0:00:00",
-                       target = "M51",
-                       fov = 0.25,
-                       showGotoControl = false,
-                       customize = includeSvg _
-                )
+              SizeMe(monitorHeight = true) { s =>
+                AladinContainer(s)
               }
             )
           )
         )
       }
-
-    def recalculateView =
-      Callback.log("here") *>
-        ref.get.flatMapCB(r => r.backend.runOnAladinCB(updateVisualization))
   }
 
   val component =
     ScalaComponent
       .builder[Props]
       .renderBackend[Backend]
-      .componentDidUpdate(_.backend.recalculateView)
       .build
 
 }
@@ -163,7 +116,7 @@ object TargetBody {
       .stateless
       .render { _ =>
         SizeMe() { s =>
-          AladinContainer(s)
+          AladinTile(s)
         }.vdomElement
       }
       .build

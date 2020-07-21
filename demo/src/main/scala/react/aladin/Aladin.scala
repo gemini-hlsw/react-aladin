@@ -190,7 +190,7 @@ final case class Aladin(
   reticleSize:              js.UndefOr[JsNumber] = js.undefined,
   imageSurvey:              js.UndefOr[String] = js.undefined,
   baseImageLayer:           js.UndefOr[String] = js.undefined,
-  customize:                js.UndefOr[JsAladin => Unit] = js.undefined
+  customize:                js.UndefOr[JsAladin => Callback] = js.undefined
 ) {
   def render   = Aladin.component(this)
   def renderJs = Aladin.jsComponent(Aladin.fromProps(this))
@@ -238,7 +238,7 @@ object Aladin {
         aladin <- CallbackTo[JsAladin](A.aladin(".react-aladin", fromProps(b.props)))
         _      <- Callback(b.props.imageSurvey.toOption.map(aladin.setImageSurvey))
         _      <- Callback(b.props.baseImageLayer.toOption.map(aladin.setBaseImageLayer))
-        _      <- Callback(b.props.customize.toOption.map(_(aladin)))
+        _      <- Callback(b.props.customize.toOption.map(_(aladin).runNow()))
         _      <- b.setState(State(Some(aladin)))
       } yield ()
     }
@@ -263,7 +263,7 @@ object Aladin {
       q.reticleSize,
       q.imageSurvey,
       q.baseImageLayer,
-      q.customize
+      q.customize.map(f => (j: JsAladin) => Callback(f(j)))
     )
 
   def fromProps(q: Props): AladinProps = {
@@ -276,7 +276,7 @@ object Aladin {
     p.reticleSize = q.reticleSize
     p.imageSurvey = q.imageSurvey
     p.baseImageLayer = q.baseImageLayer
-    p.customize = q.customize
+    p.customize = q.customize.map(f => (j: JsAladin) => f(j).runNow())
     p.showReticle = q.showReticle
     p.showZoomControl = q.showZoomControl
     p.showFullscreenControl = q.showFullscreenControl
