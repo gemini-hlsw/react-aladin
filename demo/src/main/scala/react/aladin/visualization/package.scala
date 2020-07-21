@@ -61,8 +61,8 @@ package object visualization {
   def geometryForAladin(
     shapes:      NonEmptyMap[String, ShapeExpression],
     parent:      Element,
-    s:           Size,
-    pixelScale:  PixelScale,
+    s:           => Size,
+    pixelScale:  => PixelScale,
     scaleFactor: Int
   )(implicit si: ShapeInterpreter): Element = {
     val svgBase = shapesToSvg(shapes, pp, pixelScale, scaleFactor)
