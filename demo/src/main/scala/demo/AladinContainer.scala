@@ -46,7 +46,7 @@ object AladinContainer {
       }).void
 
     def includeSvg(v: JsAladin): Callback =
-        v.onFullScreenToggle(recalculateView) *>
+      v.onFullScreenToggle(recalculateView) *>
         v.onZoom(recalculateView)
 
     def updateVisualization(v: JsAladin): Callback = {
@@ -61,15 +61,14 @@ object AladinContainer {
         ^.height := 100.pct,
         AladinComp.withRef(aladinRef) {
           Aladin(showReticle = true,
-            target = "0:00:00 0:00:00",
-            // target = "ngc 1055",
-            fov = 0.25,
-            showGotoControl = false,
-            customize = includeSvg _
-            )
+                 target = "0:00:00 0:00:00",
+                 // target = "ngc 1055",
+                 fov = 0.25,
+                 showGotoControl = false,
+                 customize = includeSvg _
+          )
         }
-        )
-
+      )
 
     def recalculateView =
       aladinRef.get.flatMapCB(r =>
