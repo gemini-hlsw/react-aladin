@@ -18,7 +18,7 @@ import gem.enum.GmosNorthFpu
 import gem.enum.GmosSouthFpu
 import gem.enum.PortDisposition
 
-object GeomSvgDemo {
+object GmosGeometry {
 
   val posAngle: Angle =
     145.deg
