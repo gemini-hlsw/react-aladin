@@ -107,6 +107,7 @@ val demo =
         "edu.gemini" %%% "gsp-core-model" % gspCoreVersion,
         "edu.gemini" %%% "gsp-math" % gspMathVersion,
         "com.github.japgolly.scalajs-react" %%% "core" % scalaJsReact,
+        "com.github.japgolly.scalajs-react" %%% "ext-monocle-cats" % scalaJsReact,
         "com.github.japgolly.scalajs-react" %%% "test" % scalaJsReact % Test,
         "io.github.cquiroz.react" %%% "common" % "0.9.4",
         "io.github.cquiroz.react" %%% "react-sizeme" % "0.4.4",

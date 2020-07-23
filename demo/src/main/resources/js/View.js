@@ -156,11 +156,10 @@ const View = (function() {
 
             init(this);
 
-
             // listen to window resize and reshape canvases
             this.resizeTimer = null;
             var self = this;
-            $(window, this.aladinDiv).resize(function() {
+            window.addEventListener('resize', function() {
                 clearTimeout(self.resizeTimer);
                 self.resizeTimer = setTimeout(function() {self.fixLayoutDimensions(self)}, 100);
             });
@@ -237,7 +236,6 @@ const View = (function() {
         this.catalogCtx.canvas.width = this.width;
         this.reticleCtx.canvas.width = this.width;
 
-
         this.imageCtx.canvas.height = this.height;
         this.catalogCtx.canvas.height = this.height;
         this.reticleCtx.canvas.height = this.height;
@@ -259,7 +257,6 @@ const View = (function() {
             $(this.logoDiv).css('width', '32px');
         }
 
-
         this.computeNorder();
         this.requestRedraw();
     };
@@ -272,7 +269,6 @@ const View = (function() {
         ctx.msImageSmoothingEnabled = enableSmoothing;
         ctx.oImageSmoothingEnabled = enableSmoothing;
     }
-
 
     View.prototype.setMode = function(mode) {
         this.mode = mode;
@@ -298,8 +294,6 @@ const View = (function() {
         }
         this.reticleCanvas.style.cursor = cursor;
     };
-
-
 
     /**
      * return dataURL string corresponding to the current view
@@ -357,12 +351,13 @@ const View = (function() {
     };
 
     View.prototype.updateFovDiv = function(view) {
+      if(view.fovDiv) {
         if (isNaN(view.fov)) {
-            view.fovDiv.html("FoV:");
+            view.fovDiv.innerHTML = "FoV:";
             return;
         }
         // update FoV value
-        var fovStr;
+        let fovStr;
         if (view.fov>1) {
             fovStr = Math.round(view.fov*100)/100 + "°";
         }
@@ -372,7 +367,8 @@ const View = (function() {
         else {
             fovStr = Math.round(view.fov*3600*100)/100 + '"';
         }
-        view.fovDiv.html("FoV: " + fovStr);
+        view.fovDiv.innerHTML = `FoV: ${fovStr}`;
+      }
     };
 
     View.prototype.createListeners = function(view) {

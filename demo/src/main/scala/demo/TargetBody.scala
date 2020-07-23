@@ -11,6 +11,7 @@ import react.common._
 import react.sizeme._
 import react.gridlayout._
 import scala.scalajs.js
+import gsp.math._
 
 final case class TargetBody(
 ) extends ReactProps[TargetBody](TargetBody.component) {}
@@ -33,7 +34,8 @@ object SourceData {
 
 }
 
-final case class AladinTile(s: Size) extends ReactProps[AladinTile](AladinTile.component)
+final case class AladinTile(s: Size, c: Coordinates)
+    extends ReactProps[AladinTile](AladinTile.component)
 
 object AladinTile {
   type Props = AladinTile
@@ -42,7 +44,7 @@ object AladinTile {
 
   val AladinComp = Aladin.component
   val targetH    = 16
-  val targetW    = 3
+  val targetW    = 12
 
   private val layoutLg: Layout = Layout(
     List(
@@ -89,7 +91,7 @@ object AladinTile {
               ^.key := "target",
               ^.cls := "tile",
               SizeMe(monitorHeight = true) { s =>
-                AladinContainer(s)
+                AladinContainer(s, props.c)
               }
             )
           )
@@ -116,7 +118,12 @@ object TargetBody {
       .stateless
       .render { _ =>
         SizeMe() { s =>
-          AladinTile(s)
+          // AladinTile(s, Coordinates.fromHmsDms.getOption("17:16:56.411 +89:02:15.73").get)
+        AladinTile(
+          s,
+          Coordinates.Zero
+        //   // Coordinates.NorthPole.offset(HourAngle.HourAngle0, Angle.fromDoubleDegrees(1))
+        )
         }.vdomElement
       }
       .build

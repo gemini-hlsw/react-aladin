@@ -3,57 +3,118 @@
 
 package demo
 
+import cats.implicits._
 import gsp.math.geom.jts.interpreter._
+import japgolly.scalajs.react.MonocleReact._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom.document
 import org.scalajs.dom.raw.Element
 import react.aladin._
 import react.common._
+import gsp.math._
+import monocle.macros.GenLens
+import monocle.Lens
+import gpp.svgdotjs.svgdotjsSvgJs.mod.Svg
 
 final case class AladinContainer(
-  s: Size
-) extends ReactProps[AladinContainer](AladinContainer.component)
+  s:           Size,
+  coordinates: Coordinates
+) extends ReactProps[AladinContainer](AladinContainer.component) {
+  val aladinCoordsStr: String = Coordinates.fromHmsDms.reverseGet(coordinates)
+}
 
 object AladinContainer {
   type Props = AladinContainer
 
   val AladinComp = Aladin.component
 
-  class Backend($ : BackendScope[Props, Unit]) {
+  val coordinates = GenLens[AladinContainer](_.coordinates)
+
+  /**
+    * On the state we keep the svg to avoid recalculations during panning
+    */
+  final case class State(svg: Option[Svg])
+
+  implicit val propsReuse = Reusability.by[Props, String](_.aladinCoordsStr)
+  implicit val stateReuse = Reusability.always[State]
+
+  object State {
+    val Zero: State = State(None)
+
+    val svg: Lens[State, Option[Svg]] = Lens[State, Option[Svg]](_.svg)(a => s => s.copy(svg = a))
+  }
+
+  class Backend($ : BackendScope[Props, State]) {
     // Create a mutable reference
     private val aladinRef = Ref.toScalaComponent(AladinComp)
 
+    /**
+      * Recalculate the svg, we keep it on the state for better performance
+      *
+      * @return
+      */
+    def calculateSvg: Callback =
+      aladinRef.get
+        .flatMapCB(_.backend.runOnAladinCB(v => recalculateSvg(v.pixelScale)))
+        .void
+
+    /**
+      * Recalculate svg and store it on state
+      *
+      * @param pixelScale
+      * @return
+      */
+    def recalculateSvg(pixelScale: PixelScale): CallbackTo[Svg] =
+      CallbackTo
+        .pure(
+          visualization
+            .shapesToSvg(GmosGeometry.shapes, GmosGeometry.pp, pixelScale, GmosGeometry.ScaleFactor)
+        )
+        .flatTap(svg => $.setStateL(State.svg)(svg.some))
+
     def renderVisualization(
+      svgBase:    Svg,
       div:        Element,
       size:       => Size,
       pixelScale: => PixelScale
     ): Callback =
-      ($.props |> { (p: Props) =>
-        // Delete any viz previously rendered
-        val previous = Option(div.querySelector(".aladin-visualization"))
-        previous.foreach(div.removeChild)
-        val g = document.createElement("div")
-        g.classList.add("aladin-visualization")
-        visualization.geometryForAladin(GmosGeometry.shapes,
-                                        g,
-                                        size,
-                                        pixelScale,
-                                        GmosGeometry.ScaleFactor
-        )
-        // Switch the visibility
-        div.appendChild(g)
-      }).void
+      $.props
+        .map(AladinContainer.coordinates.get)
+        .toCBO
+        .flatMap(c => aladinRef.get.flatMapCB(_.backend.world2pix(c))) // calculate the offset
+        .map {
+          case (x: Double, y: Double) =>
+            // Delete any viz previously rendered
+            val previous = Option(div.querySelector(".aladin-visualization"))
+            previous.foreach(div.removeChild)
+            val g = document.createElement("div")
+            g.classList.add("aladin-visualization")
+            visualization.geometryForAladin(svgBase,
+                                            g,
+                                            size,
+                                            pixelScale,
+                                            GmosGeometry.ScaleFactor,
+                                            (x, y)
+            )
+            // Include visibility on the dom
+            div.appendChild(g)
+        }
+        .void
 
     def includeSvg(v: JsAladin): Callback =
-      v.onFullScreenToggle(recalculateView) *>
-        v.onZoom(recalculateView)
+      v.onFullScreenToggle(recalculateView) *> // re render on screen toggle
+        v.onZoom(onZoom(v)) *> // re render on zoom
+        v.onPositionChanged(onPositionChanged(v))
 
-    def updateVisualization(v: JsAladin): Callback = {
+    def updateVisualization(s: Svg)(v: JsAladin): Callback = {
       val size = Size(v.getParentDiv().clientHeight, v.getParentDiv().clientWidth)
       val div  = v.getParentDiv()
-      renderVisualization(div, size, v.pixelScale)
+      renderVisualization(s, div, size, v.pixelScale)
     }
+
+    def updateVisualization(v: JsAladin): Callback =
+      $.state.flatMap(s => s.svg.map(updateVisualization(_)(v)).getOrEmpty)
 
     def render(props: Props) =
       <.div(
@@ -61,7 +122,7 @@ object AladinContainer {
         ^.height := 100.pct,
         AladinComp.withRef(aladinRef) {
           Aladin(showReticle = true,
-                 target = "0:00:00 0:00:00",
+                 target = props.aladinCoordsStr,
                  // target = "ngc 1055",
                  fov = 0.25,
                  showGotoControl = false,
@@ -69,6 +130,51 @@ object AladinContainer {
           )
         }
       )
+
+    def onZoom(v: JsAladin): Callback =
+      recalculateSvg(v.pixelScale).flatMap { s =>
+        aladinRef.get.flatMapCB(r =>
+          r.backend.recalculateView *>
+            r.backend.runOnAladinCB(updateVisualization(s))
+        )
+      }
+
+    /**
+      * Called when the position changes, i.e. aladin pans. We want to offset the visualization to
+      * keep the internal target correct
+      */
+    def onPositionChanged(v: JsAladin)(s: PositionChanged): Callback =
+      $.props
+        .zip($.state)
+        .flatMap {
+          case (p, s) =>
+            val size = Size(v.getParentDiv().clientHeight, v.getParentDiv().clientWidth)
+            val div  = v.getParentDiv()
+            // Update the existing visualization in place
+            val previous = Option(div.querySelector(".aladin-visualization"))
+            (s.svg, previous).mapN {
+              case (svg, previous) =>
+                aladinRef.get
+                  .flatMapCB(
+                    _.backend.world2pix(Coordinates(p.coordinates.ra, p.coordinates.dec))
+                  )
+                  .flatMapCB { off =>
+                    Callback {
+                      // Offset the visualization
+                      visualization
+                        .updatePosition(svg,
+                                        previous,
+                                        size,
+                                        v.pixelScale,
+                                        GmosGeometry.ScaleFactor,
+                                        off
+                        )
+                    }
+                  }
+                  .toCallback
+            }.getOrEmpty
+        }
+        .void
 
     def recalculateView =
       aladinRef.get.flatMapCB(r =>
@@ -79,8 +185,11 @@ object AladinContainer {
   val component =
     ScalaComponent
       .builder[Props]
+      .initialState(State.Zero)
       .renderBackend[Backend]
+      .componentDidMount(_.backend.calculateSvg)
       .componentDidUpdate(_.backend.recalculateView)
+      .configure(Reusability.shouldComponentUpdate)
       .build
 
 }

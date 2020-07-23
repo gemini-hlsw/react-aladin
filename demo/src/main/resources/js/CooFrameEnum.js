@@ -1,4 +1,4 @@
-// Copyright 2013 - UDS/CNRS
+
 // The Aladin Lite program is distributed under the terms
 // of the GNU General Public License version 3.
 //
@@ -30,7 +30,7 @@
 
 const CooFrameEnum = (function() {
 
-    var systems = {J2000: 'J2000', GAL: 'Galactic'};
+    const systems = {J2000: 'J2000', GAL: 'Galactic'};
     return {
         SYSTEMS: systems,
 
