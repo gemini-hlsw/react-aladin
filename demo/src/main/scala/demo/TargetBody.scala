@@ -119,11 +119,11 @@ object TargetBody {
       .render { _ =>
         SizeMe() { s =>
           // AladinTile(s, Coordinates.fromHmsDms.getOption("17:16:56.411 +89:02:15.73").get)
-        AladinTile(
-          s,
-          Coordinates.Zero
-        //   // Coordinates.NorthPole.offset(HourAngle.HourAngle0, Angle.fromDoubleDegrees(1))
-        )
+          AladinTile(
+            s,
+            Coordinates.Zero
+            //   // Coordinates.NorthPole.offset(HourAngle.HourAngle0, Angle.fromDoubleDegrees(1))
+          )
         }.vdomElement
       }
       .build

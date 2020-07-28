@@ -2,7 +2,7 @@ lazy val reactJS           = "16.13.1"
 lazy val scalaJsReact      = "1.7.3"
 lazy val gspMathVersion    = "0.2.7"
 lazy val gspCoreVersion    = "0.2.8"
-lazy val aladinLiteVersion = "0.2.1"
+lazy val aladinLiteVersion = "0.2.2"
 
 parallelExecution in (ThisBuild, Test) := false
 
