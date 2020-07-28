@@ -1,8 +1,8 @@
 lazy val reactJS           = "16.13.1"
 lazy val scalaJsReact      = "1.7.3"
-lazy val gspMathVersion    = "0.2.4"
-lazy val gspCoreVersion    = "0.2.6"
-lazy val aladinLiteVersion = "0.2.1"
+lazy val gspMathVersion    = "0.2.7"
+lazy val gspCoreVersion    = "0.2.8"
+lazy val aladinLiteVersion = "0.2.2"
 
 parallelExecution in (ThisBuild, Test) := false
 
@@ -107,10 +107,11 @@ val demo =
         "edu.gemini" %%% "gsp-core-model" % gspCoreVersion,
         "edu.gemini" %%% "gsp-math" % gspMathVersion,
         "com.github.japgolly.scalajs-react" %%% "core" % scalaJsReact,
+        "com.github.japgolly.scalajs-react" %%% "ext-monocle-cats" % scalaJsReact,
         "com.github.japgolly.scalajs-react" %%% "test" % scalaJsReact % Test,
         "io.github.cquiroz.react" %%% "common" % "0.9.4",
         "io.github.cquiroz.react" %%% "react-sizeme" % "0.4.4",
-        "io.github.cquiroz.react" %%% "react-grid-layout" % "0.6.2"
+        "io.github.cquiroz.react" %%% "react-grid-layout" % "0.7.0"
       ),
       // don't publish the demo
       publish := {},

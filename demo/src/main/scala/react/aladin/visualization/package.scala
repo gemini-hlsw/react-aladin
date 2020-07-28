@@ -12,6 +12,7 @@ import gsp.math.geom.ShapeInterpreter
 import org.scalajs.dom.raw.Element
 import react.common._
 import scala.math._
+// import cats.Eval
 
 package object visualization {
   implicit class SvgOps(val svg: Svg) extends AnyVal {
@@ -58,14 +59,30 @@ package object visualization {
       .fill("none")
       .attr("class", "jts-svg-border")
 
-  def geometryForAladin(
-    shapes:      NonEmptyMap[String, ShapeExpression],
+  val ReticleSize = 14
+
+  def addCross(svg: Container, reticleSize: Double): G = {
+    val g = svg.group()
+    g.attr("class", "jts-svg-reticle")
+
+    // Cross at 0,0 style it with css
+    g
+      .line(-reticleSize, -reticleSize, reticleSize, reticleSize)
+      .attr("class", "jts-svg-center")
+    g
+      .line(-reticleSize, reticleSize, reticleSize, -reticleSize)
+      .attr("class", "jts-svg-center")
+    g
+  }
+
+  def updatePosition(
+    svgBase:     Svg,
     parent:      Element,
     s:           => Size,
     pixelScale:  => PixelScale,
-    scaleFactor: Int
-  )(implicit si: ShapeInterpreter): Element = {
-    val svgBase = shapesToSvg(shapes, pp, pixelScale, scaleFactor)
+    scaleFactor: Int,
+    coordOffset: (Double, Double)
+  ): Element = {
     // Viewbox size
     val (h, w) = (svgBase.viewbox().height_Box, svgBase.viewbox().width_Box)
     val (x, y) = (svgBase.viewbox().x_Box, svgBase.viewbox().y_Box)
@@ -76,22 +93,60 @@ package object visualization {
       val hAngle = Angle.fromMicroarcseconds((h.toLong * scaleFactor).toLong)
       val wAngle = Angle.fromMicroarcseconds((w.toLong * scaleFactor).toLong)
       // Deltas to calculate the size of the svg on aladin scale
-      val dx = wAngle.toDoubleDegrees * pixelScale.x
-      val dy = hAngle.toDoubleDegrees * pixelScale.y
+      val dx           = (wAngle.toDoubleDegrees) * pixelScale.x
+      val dy           = (hAngle.toDoubleDegrees) * pixelScale.y
+      val (offX, offY) = coordOffset
+      val dox          = s.width.toDouble / 2 - offX
+      val doy          = s.height.toDouble / 2 - offY
+
+      // Translation coordinates
+      val tx = abs(dx * x / w) + dox
+      val ty = abs(dy * y / h) - doy
+
+      // Rotation reference point. It is a bit surprising but it is in screen coordinates
+      val ry = ty - dy / 2
+      // To workaround Safari we set the position of the surrounding div rather than the svg
+      parent.setAttribute(
+        "style",
+        s"position: absolute; left:${s.width.toDouble / 2 - tx}px; top: ${s.height.toDouble / 2 - ty + 2 * ry}px"
+      )
+    }
+    parent
+  }
+
+  def geometryForAladin(
+    svgBase:     Svg,
+    parent:      Element,
+    s:           => Size,
+    pixelScale:  => PixelScale,
+    scaleFactor: Int,
+    coordOffset: (Double, Double)
+  ): Element = {
+    // Viewbox size
+    val (h, w) = (svgBase.viewbox().height_Box, svgBase.viewbox().width_Box)
+    val (x, y) = (svgBase.viewbox().x_Box, svgBase.viewbox().y_Box)
+
+    // Transform the group at the root of the svg
+    svgBase.children().each { (svg: Container) =>
+      // Angular size of the geometry
+      val hAngle = Angle.fromMicroarcseconds((h.toLong * scaleFactor).toLong)
+      val wAngle = Angle.fromMicroarcseconds((w.toLong * scaleFactor).toLong)
+      // Deltas to calculate the size of the svg on aladin scale
+      val dx           = (wAngle.toDoubleDegrees) * pixelScale.x
+      val dy           = (hAngle.toDoubleDegrees) * pixelScale.y
+      val (offX, offY) = coordOffset
+      val dox          = s.width.toDouble / 2 - offX
+      val doy          = s.height.toDouble / 2 - offY
 
       val svgSize = Size(dy, dx)
 
       // Translation coordinates
-      val tx = abs(dx * x / w)
-      val ty = abs(dy * y / h)
+      val tx = abs(dx * x / w) + dox
+      val ty = abs(dy * y / h) - doy
 
-      // Cross at 0,0 style it with css
-      svg
-        .line(-10 * pixelScale.x, -10 * pixelScale.x, 10 * pixelScale.x, 10 * pixelScale.x)
-        .attr("class", "jts-svg-center")
-      svg
-        .line(-10 * pixelScale.x, 10 * pixelScale.x, 10 * pixelScale.x, -10 * pixelScale.x)
-        .attr("class", "jts-svg-center")
+      // center cross
+      val reticleSizeX = ReticleSize * x / dx
+      addCross(svg, reticleSizeX)
 
       // Border to the whole svg, usually hidden
       addBorder(svg, x, y, w, h)
@@ -140,13 +195,9 @@ package object visualization {
     val tx = abs(dx * x / w)
     val ty = abs(dy * y / h)
 
-    // Cross at 0,0 style it with css
-    svg
-      .line(-10 * dx, -10 * dx, 10 * dx, 10 * dx)
-      .attr("class", "jts-svg-center")
-    svg
-      .line(-10 * dx, 10 * dx, 10 * dx, -10 * dx)
-      .attr("class", "jts-svg-center")
+    // center cross
+    val reticleSizeX = ReticleSize * x / dx
+    addCross(svg, reticleSizeX)
 
     // Border to the whole svg, usually hidden
     svg

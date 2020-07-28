@@ -302,7 +302,7 @@ word-wrap:break-word;
 	width: 140px;
 	margin-left: 5px;
 }
-	
+
 
 
 
@@ -332,7 +332,7 @@ word-wrap:break-word;
     font-weight: bold;
     display: inline-block;
     line-height: 0px;
-    padding: 8px 2px;       
+    padding: 8px 2px;
 }
 
 .aladin-closeBtn:hover {
@@ -449,7 +449,7 @@ word-wrap:break-word;
 .aladin-unknownObject {
 	border: 3px solid red;
 }
-    
+
 .aladin-popup-container {
 	z-index: 25;
 	position: absolute;

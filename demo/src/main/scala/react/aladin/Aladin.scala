@@ -1,5 +1,6 @@
 package react.aladin
 
+import cats.implicits._
 import scala.scalajs.js
 import scala.scalajs.js.annotation._
 import scala.scalajs.js.JSConverters._
@@ -9,6 +10,7 @@ import japgolly.scalajs.react.vdom.html_<^._
 import japgolly.scalajs.react.raw.JsNumber
 import react.common._
 import org.scalajs.dom.raw.Element
+import gsp.math._
 
 // This will be the props object used from JS-land
 @js.native
@@ -33,6 +35,8 @@ trait AladinProps extends js.Object {
   var showShareControl: js.UndefOr[Boolean]
   var showSimbadPointerControl: js.UndefOr[Boolean]
   var showFrame: js.UndefOr[Boolean]
+  var showCoordinates: js.UndefOr[Boolean]
+  var showFov: js.UndefOr[Boolean]
   var fullScreen: js.UndefOr[Boolean]
   var reticleColor: js.UndefOr[String]
   var reticleSize: js.UndefOr[JsNumber]
@@ -185,6 +189,8 @@ final case class Aladin(
   showShareControl:         js.UndefOr[Boolean] = js.undefined,
   showSimbadPointerControl: js.UndefOr[Boolean] = js.undefined,
   showFrame:                js.UndefOr[Boolean] = js.undefined,
+  showCoordinates:          js.UndefOr[Boolean] = js.undefined,
+  showFov:                  js.UndefOr[Boolean] = js.undefined,
   fullScreen:               js.UndefOr[Boolean] = js.undefined,
   reticleColor:             js.UndefOr[Color] = js.undefined,
   reticleSize:              js.UndefOr[JsNumber] = js.undefined,
@@ -198,14 +204,15 @@ final case class Aladin(
 
 object Aladin {
   type Props = Aladin
-
   final case class State(a: Option[JsAladin])
   class Backend(bs: BackendScope[Aladin, State]) {
-    private def runOnAladinOpt[A](f: JsAladin => A): CallbackTo[Option[A]] =
-      bs.state.flatMap {
-        case State(Some(a)) => CallbackTo(Some(f(a)))
-        case _              => CallbackTo(None)
-      }
+    private def runOnAladinOpt[A](f: JsAladin => A): CallbackOption[A] =
+      bs.state
+        .map {
+          case State(Some(a)) => f(a).some
+          case _              => none
+        }
+        .asCBO[A]
     def runOnAladinCB[A](f: JsAladin => CallbackTo[A]): Callback =
       bs.state.flatMap {
         case State(Some(a)) => f(a).void
@@ -218,10 +225,23 @@ object Aladin {
       }
     def render: VdomElement = <.div(^.cls := "react-aladin")
     def gotoRaDec(ra: JsNumber, dec: JsNumber): Callback = runOnAladin(_.gotoRaDec(ra, dec))
-    def getRaDec: CallbackTo[Option[(Double, Double)]] =
-      runOnAladinOpt(_.getRaDec()).map {
-        _.map(a => (a(0), a(1)))
-      }
+    def world2pix(c:  Coordinates): CallbackTo[(Double, Double)] =
+      runOnAladinOpt { j =>
+        val ra  = c.ra.toAngle.toDoubleDegrees
+        val dec = c.dec.toAngle.toSignedDoubleDegrees
+        val p   = j.world2pix(ra, dec)
+        (p(0), p(1))
+      }.getOrElse((0, 0))
+    def getRaDec: CallbackTo[Coordinates] =
+      runOnAladinOpt(_.getRaDec())
+        .flatMapOption { a =>
+          (RightAscension.fromHourAngle
+             .get(Angle.hourAngle.get(Angle.fromDoubleDegrees(a(0))))
+             .some,
+           Declination.fromAngle.getOption(Angle.fromDoubleDegrees(a(1)))
+          ).mapN(Coordinates.apply)
+        }
+        .getOrElse(Coordinates.Zero)
     def gotoObject(q: String, cb: (JsNumber, JsNumber) => Callback, er: Callback): Callback =
       runOnAladin(_.gotoObject(q, new GoToObjectCallback(cb, er)))
     def recalculateView: Callback =
@@ -258,6 +278,8 @@ object Aladin {
       q.showShareControl,
       q.showSimbadPointerControl,
       q.showFrame,
+      q.showCoordinates,
+      q.showFov,
       q.fullScreen,
       q.reticleColor.map(Color.apply),
       q.reticleSize,
@@ -285,6 +307,8 @@ object Aladin {
     p.showShareControl = q.showShareControl
     p.showSimbadPointerControl = q.showSimbadPointerControl
     p.showFrame = q.showFrame
+    p.showCoordinates = q.showCoordinates
+    p.showFov = q.showFov
     p.fullScreen = q.fullScreen
     p
   }

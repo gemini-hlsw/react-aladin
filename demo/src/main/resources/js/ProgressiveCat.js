@@ -65,20 +65,11 @@ const ProgressiveCat = (function() {
         this.sourceSize = options.sourceSize || 6;
         this.selectSize = this.sourceSize + 2;
         this.selectionColor = '#00ff00'; // TODO: to be merged with Catalog
-
-
         this.onClick = options.onClick || undefined; // TODO: inherit from catalog
-
-
-
         // we cache the list of sources in each healpix tile. Key of the cache is norder+'-'+npix
         this.sourcesCache = new Utils.LRUCache(100);
 
         this.updateShape(options);
-
-
-
-
         this.maxOrderAllsky = 2;
         this.isReady = false;
     };
@@ -113,10 +104,6 @@ const ProgressiveCat = (function() {
                 errorCallback && errorCallback(err);
             }
         });
-
-
-
-
 
     };
 
@@ -359,8 +346,6 @@ const ProgressiveCat = (function() {
                 }
             }
 
-
-
         },
         drawSources: function(sources, ctx, projection, frame, width, height, largestDim, zoomFactor) {
             if (! sources) {
@@ -402,8 +387,6 @@ const ProgressiveCat = (function() {
 
             return ret;
         },
-
-
 
         deselectAll: function() {
             if (this.order1Sources) {

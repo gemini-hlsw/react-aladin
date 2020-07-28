@@ -3,6 +3,9 @@ package react
 import gsp.math.Angle
 import japgolly.scalajs.react.Callback
 import react.common._
+import scala.scalajs.js
+import gsp.math.RightAscension
+import gsp.math.Declination
 
 package aladin {
 
@@ -36,6 +39,25 @@ package aladin {
         case "galactic" => Some(Galactic)
       }
   }
+
+  @js.native
+  trait JsPositionChanged extends js.Object {
+    val ra: Double
+    val dec: Double
+    val dragging: Boolean
+  }
+
+  final case class PositionChanged(ra: RightAscension, dec: Declination, dragging: Boolean)
+
+  object PositionChanged {
+    def fromJs(p: JsPositionChanged): PositionChanged =
+      PositionChanged(
+        RightAscension.fromHourAngle.get(Angle.hourAngle.get(Angle.fromDoubleDegrees(p.ra))),
+        Declination.fromAngle.getOption(Angle.fromDoubleDegrees(p.dec)).getOrElse(Declination.Zero),
+        p.dragging
+      )
+  }
+
 }
 
 package object aladin {
@@ -43,6 +65,10 @@ package object aladin {
     def size: Size = Size(a.getSize()(0), a.getSize()(1))
     def fov: Fov =
       Fov(Angle.fromDoubleDegrees(a.getFov()(0)), Angle.fromDoubleDegrees(a.getFov()(1)))
+    def onPositionChanged(cb: PositionChanged => Callback): Callback =
+      Callback(
+        a.on("positionChanged", (o: JsPositionChanged) => cb(PositionChanged.fromJs(o)).runNow())
+      )
     def onZoom(cb: Fov => Callback): Callback =
       Callback(a.on("zoomChanged", (_: Double) => cb(fov).runNow()))
     def onZoom(cb: => Callback): Callback =
