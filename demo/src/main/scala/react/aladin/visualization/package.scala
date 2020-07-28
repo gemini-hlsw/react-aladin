@@ -66,10 +66,10 @@ package object visualization {
 
     // Cross at 0,0 style it with css
     g
-      .line(-reticleSize, -reticleSize, reticleSize, reticleSize)
+      .line(0, -reticleSize, 0, reticleSize)
       .attr("class", "jts-svg-center")
     g
-      .line(-reticleSize, reticleSize, reticleSize, -reticleSize)
+      .line(-reticleSize, 0, reticleSize, 0)
       .attr("class", "jts-svg-center")
     g
   }

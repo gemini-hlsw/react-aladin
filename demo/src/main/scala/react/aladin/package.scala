@@ -58,6 +58,26 @@ package aladin {
       )
   }
 
+  @js.native
+  trait JsMouseMoved extends js.Object {
+    val ra: Double
+    val dec: Double
+    val x: Int
+    val y: Int
+  }
+
+  final case class MouseMoved(ra: RightAscension, dec: Declination, x: Int, y: Int)
+
+  object MouseMoved {
+    def fromJs(p: JsMouseMoved): MouseMoved =
+      MouseMoved(
+        RightAscension.fromHourAngle.get(Angle.hourAngle.get(Angle.fromDoubleDegrees(p.ra))),
+        Declination.fromAngle.getOption(Angle.fromDoubleDegrees(p.dec)).getOrElse(Declination.Zero),
+        p.x,
+        p.y
+      )
+  }
+
 }
 
 package object aladin {
@@ -77,6 +97,12 @@ package object aladin {
       Callback(a.on("fullScreenToggled", (t: Boolean) => cb(t).runNow()))
     def onFullScreenToggle(cb: => Callback): Callback =
       Callback(a.on("fullScreenToggled", (a: Boolean) => cb.runNow()))
+    def onMouseMove(cb: MouseMoved => Callback): Callback =
+      Callback(
+        a.on("mouseMove",
+             (t: JsMouseMoved) => (Callback.log(t) *> cb(MouseMoved.fromJs(t))).runNow()
+        )
+      )
     def pixelScale: PixelScale =
       PixelScale(a.getSize()(0) / a.getFov()(0), a.getSize()(1) / a.getFov()(1))
   }
