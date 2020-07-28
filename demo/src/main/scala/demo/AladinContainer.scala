@@ -105,7 +105,8 @@ object AladinContainer {
     def includeSvg(v: JsAladin): Callback =
       v.onFullScreenToggle(recalculateView) *> // re render on screen toggle
         v.onZoom(onZoom(v)) *> // re render on zoom
-        v.onPositionChanged(onPositionChanged(v))
+        v.onPositionChanged(onPositionChanged(v)) *>
+        v.onMouseMove(s => Callback.log(s"$s"))
 
     def updateVisualization(s: Svg)(v: JsAladin): Callback = {
       val size = Size(v.getParentDiv().clientHeight, v.getParentDiv().clientWidth)
@@ -121,7 +122,7 @@ object AladinContainer {
         ^.width := 100.pct,
         ^.height := 100.pct,
         AladinComp.withRef(aladinRef) {
-          Aladin(showReticle = true,
+          Aladin(showReticle = false,
                  target = props.aladinCoordsStr,
                  // target = "ngc 1055",
                  fov = 0.25,
