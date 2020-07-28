@@ -25,6 +25,10 @@ package aladin {
     */
   final case class PixelScale(x: Double, y: Double)
 
+  object PixelScale {
+    val Default: PixelScale = PixelScale(1, 1)
+  }
+
   sealed trait CooFrame extends Product with Serializable
   object CooFrame {
     implicit val enum: EnumValue[CooFrame] = EnumValue.toLowerCaseString

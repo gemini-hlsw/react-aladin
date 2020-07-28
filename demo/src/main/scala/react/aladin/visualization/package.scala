@@ -31,7 +31,7 @@ package object visualization {
     pixelScale:  PixelScale,
     scaleFactor: Int
   )(implicit si: ShapeInterpreter): Svg = {
-    val scalingFn: ScalingFn = _ / scaleFactor
+    val scalingFn: ScalingFn = (v: Double) => rint(v / scaleFactor)
 
     val svg: Svg = SVG_()
     // Render the svg
@@ -107,7 +107,7 @@ package object visualization {
       // To workaround Safari we set the position of the surrounding div rather than the svg
       parent.setAttribute(
         "style",
-        s"position: absolute; left:${s.width.toDouble / 2 - tx}px; top: ${s.height.toDouble / 2 - ty + 2 * ry}px"
+        s"position: absolute; left: ${rint(s.width.toDouble / 2 - tx)}px; top: ${rint(s.height.toDouble / 2 - ty + 2 * ry)}px"
       )
     }
     parent
@@ -137,7 +137,7 @@ package object visualization {
       val dox          = s.width.toDouble / 2 - offX
       val doy          = s.height.toDouble / 2 - offY
 
-      val svgSize = Size(dy, dx)
+      val svgSize = Size(rint(dy), rint(dx))
 
       // Translation coordinates
       val tx = abs(dx * x / w) + dox
@@ -159,7 +159,7 @@ package object visualization {
       // To workaround Safari we set the position of the surrounding div rather than the svg
       parent.setAttribute(
         "style",
-        s"position: absolute; left:${s.width.toDouble / 2 - tx}px; top: ${s.height.toDouble / 2 - ty + 2 * ry}px"
+        s"position: absolute; left: ${rint(s.width.toDouble / 2 - tx)}px; top: ${rint(s.height.toDouble / 2 - ty + 2 * ry)}px"
       )
     }
     parent.appendChild(svgBase.node_Svg)

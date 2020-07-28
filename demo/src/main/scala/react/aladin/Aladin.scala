@@ -204,34 +204,45 @@ final case class Aladin(
 
 object Aladin {
   type Props = Aladin
+
   final case class State(a: Option[JsAladin])
+
+  implicit val propsReuse: Reusability[Props] = Reusability.always
+  implicit val stateReuse: Reusability[State] = Reusability.by(_.a.isDefined)
+
   class Backend(bs: BackendScope[Aladin, State]) {
-    private def runOnAladinOpt[A](f: JsAladin => A): CallbackOption[A] =
+    def runOnAladinOpt[A](f: JsAladin => A): CallbackOption[A] =
       bs.state
         .map {
           case State(Some(a)) => f(a).some
           case _              => none
         }
         .asCBO[A]
+
     def runOnAladinCB[A](f: JsAladin => CallbackTo[A]): Callback =
       bs.state.flatMap {
         case State(Some(a)) => f(a).void
         case _              => Callback.empty
       }
+
     def runOnAladin[A](f: JsAladin => A): Callback =
       bs.state.flatMap {
         case State(Some(a)) => CallbackTo(f(a)).void
         case _              => Callback.empty
       }
+
     def render: VdomElement = <.div(^.cls := "react-aladin")
+
     def gotoRaDec(ra: JsNumber, dec: JsNumber): Callback = runOnAladin(_.gotoRaDec(ra, dec))
-    def world2pix(c:  Coordinates): CallbackTo[(Double, Double)] =
+
+    def world2pix(c: Coordinates): CallbackTo[(Double, Double)] =
       runOnAladinOpt { j =>
         val ra  = c.ra.toAngle.toDoubleDegrees
         val dec = c.dec.toAngle.toSignedDoubleDegrees
         val p   = j.world2pix(ra, dec)
         (p(0), p(1))
       }.getOrElse((0, 0))
+
     def getRaDec: CallbackTo[Coordinates] =
       runOnAladinOpt(_.getRaDec())
         .flatMapOption { a =>
@@ -242,10 +253,17 @@ object Aladin {
           ).mapN(Coordinates.apply)
         }
         .getOrElse(Coordinates.Zero)
+
     def gotoObject(q: String, cb: (JsNumber, JsNumber) => Callback, er: Callback): Callback =
       runOnAladin(_.gotoObject(q, new GoToObjectCallback(cb, er)))
+
     def recalculateView: Callback =
       runOnAladin(_.recalculateView())
+
+    def pixelScale: CallbackTo[PixelScale] =
+      runOnAladinOpt(a =>
+        PixelScale(a.getSize()(0) / a.getFov()(0), a.getSize()(1) / a.getFov()(1))
+      ).getOrElse(PixelScale.Default)
   }
 
   // Say this is the Scala component you want to share
@@ -262,6 +280,7 @@ object Aladin {
         _      <- b.setState(State(Some(aladin)))
       } yield ()
     }
+    .configure(Reusability.shouldComponentUpdate)
     .build
 
   def fromProps(q: AladinProps): Props =
