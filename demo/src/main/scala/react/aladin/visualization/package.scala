@@ -12,7 +12,6 @@ import gsp.math.geom.ShapeInterpreter
 import org.scalajs.dom.raw.Element
 import react.common._
 import scala.math._
-// import cats.Eval
 
 package object visualization {
   implicit class SvgOps(val svg: Svg) extends AnyVal {
