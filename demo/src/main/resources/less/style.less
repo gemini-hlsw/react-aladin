@@ -33,6 +33,11 @@ svg {
   position: absolute;
   pointer-events: none;
 }
+@media (min-resolution: 2ddpx) {
+  svg {
+    shape-rendering: optimizeSpeed;
+  }
+}
 
 .jts {
   z-index: 10;
