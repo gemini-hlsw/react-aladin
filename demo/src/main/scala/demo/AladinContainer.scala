@@ -36,7 +36,8 @@ object AladinContainer {
     */
   final case class State(svg: Option[Svg])
 
-  implicit val propsReuse = Reusability.by[Props, String](_.aladinCoordsStr)
+  implicit val propsReuse: Reusability[Props] =
+    Reusability.by_== //by(p => (p.aladinCoordsStr, p.s.width.toDouble, p.s.height.toDouble))
   implicit val stateReuse = Reusability.always[State]
 
   object State {
@@ -54,9 +55,9 @@ object AladinContainer {
       *
       * @return
       */
-    def calculateSvg: Callback =
+    def initialSvgState: Callback =
       aladinRef.get
-        .flatMapCB(_.backend.runOnAladinCB(v => recalculateSvg(v.pixelScale)))
+        .flatMapCB(_.backend.runOnAladinCB(v => updateSvgState(v.pixelScale)))
         .void
 
     /**
@@ -65,7 +66,7 @@ object AladinContainer {
       * @param pixelScale
       * @return
       */
-    def recalculateSvg(pixelScale: PixelScale): CallbackTo[Svg] =
+    def updateSvgState(pixelScale: PixelScale): CallbackTo[Svg] =
       CallbackTo
         .pure(
           visualization
@@ -133,7 +134,7 @@ object AladinContainer {
       )
 
     def onZoom(v: JsAladin): Callback =
-      recalculateSvg(v.pixelScale).flatMap { s =>
+      updateSvgState(v.pixelScale).flatMap { s =>
         aladinRef.get.flatMapCB(r =>
           r.backend.recalculateView *>
             r.backend.runOnAladinCB(updateVisualization(s))
@@ -178,9 +179,13 @@ object AladinContainer {
         .void
 
     def recalculateView =
-      aladinRef.get.flatMapCB(r =>
-        r.backend.recalculateView *> r.backend.runOnAladinCB(updateVisualization)
-      )
+      aladinRef.get.flatMapCB { r =>
+        r.backend.pixelScale.flatMap { ps =>
+          updateSvgState(ps).flatMap { s =>
+            r.backend.recalculateView *> r.backend.runOnAladinCB(updateVisualization(s))
+          }
+        }
+      }
   }
 
   val component =
@@ -188,7 +193,7 @@ object AladinContainer {
       .builder[Props]
       .initialState(State.Zero)
       .renderBackend[Backend]
-      .componentDidMount(_.backend.calculateSvg)
+      .componentDidMount(_.backend.initialSvgState)
       .componentDidUpdate(_.backend.recalculateView)
       .configure(Reusability.shouldComponentUpdate)
       .build
