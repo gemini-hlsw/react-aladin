@@ -123,12 +123,14 @@ object AladinContainer {
         ^.width := 100.pct,
         ^.height := 100.pct,
         AladinComp.withRef(aladinRef) {
-          Aladin(showReticle = false,
-                 target = props.aladinCoordsStr,
-                 // target = "ngc 1055",
-                 fov = 0.25,
-                 showGotoControl = false,
-                 customize = includeSvg _
+          Aladin(
+            showReticle = false,
+            showFullscreenControl = true,
+            target = props.aladinCoordsStr,
+            // target = "ngc 1055",
+            fov = 0.25,
+            showGotoControl = false,
+            customize = includeSvg _
           )
         }
       )

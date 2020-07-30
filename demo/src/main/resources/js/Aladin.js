@@ -138,13 +138,13 @@ const Aladin = (function () {
     const frameSelect = document.createElement("select");
     frameSelect.classList.add("aladin-frameChoice");
     const all = [CooFrameEnum.J2000, CooFrameEnum.J2000d, CooFrameEnum.GAL];
-    all.forEach ( f => {
-    const selectOption = document.createElement("option");
+    all.forEach((f) => {
+      const selectOption = document.createElement("option");
       selectOption.value = f.label;
       selectOption.innerHTML = f.label;
-      selectOption.selected = cooFrame === f
+      selectOption.selected = cooFrame === f;
       frameSelect.appendChild(selectOption);
-    })
+    });
     const locationText = document.createElement("span");
     locationText.classList.add("aladin-location-text");
 
@@ -152,7 +152,7 @@ const Aladin = (function () {
     locationDiv.appendChild(locationText);
     aladinDiv.appendChild(locationDiv);
     if (!options.showCoordinates) {
-      locationDiv.style.display = 'none';
+      locationDiv.style.display = "none";
     }
 
     // div where FoV value is written
@@ -161,7 +161,7 @@ const Aladin = (function () {
       fovDiv = document.createElement("div");
       fovDiv.classList.add("aladin-fov");
       aladinDiv.appendChild(fovDiv);
-    // $('<div class="aladin-fov"></div>').appendTo(aladinDiv);
+      // $('<div class="aladin-fov"></div>').appendTo(aladinDiv);
     }
 
     // zoom control
@@ -188,32 +188,41 @@ const Aladin = (function () {
 
     // maximize control
     if (options.showFullscreenControl) {
-      $(
-        '<div class="aladin-fullscreenControl aladin-maximize" title="Full screen"></div>'
-      ).appendTo(aladinDiv);
+      const fullScreenDiv = document.createElement("div");
+      fullScreenDiv.title = "Full screen";
+      fullScreenDiv.classList.add("aladin-fullscreenControl");
+      fullScreenDiv.classList.add("aladin-maximize");
+      aladinDiv.appendChild(fullScreenDiv);
+      // $(
+      //   '<div class="aladin-fullscreenControl aladin-maximize" title="Full screen"></div>'
+      // ).appendTo(aladinDiv);
     }
-    this.fullScreenBtn = $(aladinDiv).find(".aladin-fullscreenControl");
-    this.fullScreenBtn.click(function () {
-      self.toggleFullscreen(self.options.realFullscreen);
-    });
+    this.fullScreenBtn = aladinDiv.querySelectorAll(
+      ".aladin-fullscreenControl"
+    )[0];
+    if (this.fullScreenBtn) {
+      this.fullScreenBtn.addEventListener("click", (_) => {
+        self.toggleFullscreen(self.options.realFullscreen);
+      });
+    }
     // react to fullscreenchange event to restore initial width/height (if user pressed ESC to go back from full screen)
-    $(document).on(
-      "fullscreenchange webkitfullscreenchange mozfullscreenchange MSFullscreenChange",
-      function (e) {
+    document.addEventListener("fullscreenchange webkitfullscreenchange mozfullscreenchange MSFullscreenChange", _ => {
         var fullscreenElt =
           document.fullscreenElement ||
           document.webkitFullscreenElement ||
           document.mozFullScreenElement ||
           document.msFullscreenElement;
         if (fullscreenElt === null || fullscreenElt === undefined) {
-          self.fullScreenBtn.removeClass("aladin-restore");
-          self.fullScreenBtn.addClass("aladin-maximize");
-          self.fullScreenBtn.attr("title", "Full screen");
-          $(self.aladinDiv).removeClass("aladin-fullscreen");
+          self.fullScreenBtn.classList.remove("aladin-restore");
+          self.fullScreenBtn.classList.add("aladin-maximize");
+          self.fullScreenBtn.setAttribute("title", "Full screen");
+          self.aladinDiv.classList.remove("aladin-fullscreen");
 
           var fullScreenToggledFn =
             self.callbacksByEventName["fullScreenToggled"];
-          var isInFullscreen = self.fullScreenBtn.hasClass("aladin-restore");
+          var isInFullscreen = self.fullScreenBtn.classList.contains(
+            "aladin-restore"
+          );
           typeof fullScreenToggledFn === "function" &&
             fullScreenToggledFn(isInFullscreen);
         }
@@ -482,13 +491,16 @@ const Aladin = (function () {
   Aladin.prototype.toggleFullscreen = function (realFullscreen) {
     realFullscreen = Boolean(realFullscreen);
 
-    this.fullScreenBtn.toggleClass("aladin-maximize aladin-restore");
-    var isInFullscreen = this.fullScreenBtn.hasClass("aladin-restore");
-    this.fullScreenBtn.attr(
+    this.fullScreenBtn.classList.toggle("aladin-maximize");
+    this.fullScreenBtn.classList.toggle("aladin-restore");
+    var isInFullscreen = this.fullScreenBtn.classList.contains(
+      "aladin-restore"
+    );
+    this.fullScreenBtn.setAttribute(
       "title",
       isInFullscreen ? "Restore original size" : "Full screen"
     );
-    $(this.aladinDiv).toggleClass("aladin-fullscreen");
+    this.aladinDiv.classList.toggle("aladin-fullscreen");
 
     if (realFullscreen) {
       // go to "real" full screen mode
