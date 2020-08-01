@@ -1,5 +1,5 @@
 lazy val reactJS           = "16.13.1"
-lazy val scalaJsReact      = "1.7.3"
+lazy val scalaJsReact      = "1.7.4"
 lazy val gspMathVersion    = "0.2.8"
 lazy val gspCoreVersion    = "0.2.8"
 lazy val aladinLiteVersion = "0.2.3"
@@ -109,9 +109,9 @@ val demo =
         "com.github.japgolly.scalajs-react" %%% "core" % scalaJsReact,
         "com.github.japgolly.scalajs-react" %%% "ext-monocle-cats" % scalaJsReact,
         "com.github.japgolly.scalajs-react" %%% "test" % scalaJsReact % Test,
-        "io.github.cquiroz.react" %%% "common" % "0.9.4",
-        "io.github.cquiroz.react" %%% "react-sizeme" % "0.4.4",
-        "io.github.cquiroz.react" %%% "react-grid-layout" % "0.7.0"
+        "io.github.cquiroz.react" %%% "common" % "0.9.6",
+        "io.github.cquiroz.react" %%% "react-sizeme" % "0.4.6",
+        "io.github.cquiroz.react" %%% "react-grid-layout" % "0.7.1"
       ),
       // don't publish the demo
       publish := {},
@@ -166,7 +166,7 @@ lazy val facade =
         "edu.gemini" %%% "gsp-math" % gspMathVersion,
         "com.github.japgolly.scalajs-react" %%% "core" % scalaJsReact,
         "com.github.japgolly.scalajs-react" %%% "test" % scalaJsReact % Test,
-        "io.github.cquiroz.react" %%% "common" % "0.9.4",
+        "io.github.cquiroz.react" %%% "common" % "0.9.6",
         "com.lihaoyi" %%% "utest" % "0.7.4" % Test
       ),
       testFrameworks += new TestFramework("utest.runner.Framework"),
