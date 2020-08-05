@@ -235,13 +235,13 @@ object Aladin {
 
     def gotoRaDec(ra: JsNumber, dec: JsNumber): Callback = runOnAladin(_.gotoRaDec(ra, dec))
 
-    def world2pix(c: Coordinates): CallbackTo[(Double, Double)] =
+    def world2pix(c: Coordinates): CallbackTo[Option[(Double, Double)]] =
       runOnAladinOpt { j =>
         val ra  = c.ra.toAngle.toDoubleDegrees
         val dec = c.dec.toAngle.toSignedDoubleDegrees
         val p   = j.world2pix(ra, dec)
-        (p(0), p(1))
-      }.getOrElse((0, 0))
+        Option(p).filter(_.length == 2).map(p => (p(0), p(1)))
+      }.getOrElse(None)
 
     def getRaDec: CallbackTo[Coordinates] =
       runOnAladinOpt(_.getRaDec())
