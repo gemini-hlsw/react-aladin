@@ -85,7 +85,7 @@ object AladinContainer {
         .toCBO
         .flatMap(c => aladinRef.get.flatMapCB(_.backend.world2pix(c))) // calculate the offset
         .map {
-          case (x: Double, y: Double) =>
+          case Some((x: Double, y: Double)) =>
             // Delete any viz previously rendered
             val previous = Option(div.querySelector(".aladin-visualization"))
             previous.foreach(div.removeChild)
@@ -100,6 +100,7 @@ object AladinContainer {
             )
             // Include visibility on the dom
             div.appendChild(g)
+          case _ =>
         }
         .void
 
@@ -171,7 +172,7 @@ object AladinContainer {
                                         size,
                                         v.pixelScale,
                                         GmosGeometry.ScaleFactor,
-                                        off
+                                        off.getOrElse((0, 0))
                         )
                     }
                   }
