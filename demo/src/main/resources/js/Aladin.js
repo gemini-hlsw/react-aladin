@@ -230,9 +230,22 @@ const Aladin = (function () {
     );
 
     // Aladin logo
-    $(
-      "<div class='aladin-logo-container'><a href='http://aladin.unistra.fr/' title='Powered by Aladin Lite' target='_blank'><div class='aladin-logo'></div></a></div>"
-    ).appendTo(aladinDiv);
+    const logo = document.createElement("div")
+    logo.classList.add("aladin-logo-container")
+    const logoRef = document.createElement("a")
+    logoRef.href = "http://aladin.unistra.fr"
+    logoRef.title = "Powored by Alading Lite"
+    logoRef.target = "_blank"
+    logoRef.target = "_blank"
+    const logoLogo = document.createElement("div")
+    logoLogo.classList.add("aladin-logo")
+    logoRef.appendChild(logoLogo)
+    logo.appendChild(logoRef)
+    aladinDiv.appendChild(logo)
+
+    // $(
+    //   "<div class='aladin-logo-container'><a href='http://aladin.unistra.fr/' title='Powered by Aladin Lite' target='_blank'><div class='aladin-logo'></div></a></div>"
+    // ).appendTo(aladinDiv);
 
     // we store the boxes
     this.boxes = [];
