@@ -1,5 +1,5 @@
 lazy val reactJS           = "16.13.1"
-lazy val scalaJsReact      = "1.7.4"
+lazy val scalaJsReact      = "1.7.5"
 lazy val gspMathVersion    = "0.2.8"
 lazy val gspCoreVersion    = "0.2.8"
 lazy val aladinLiteVersion = "0.2.3"
@@ -109,7 +109,7 @@ val demo =
         "com.github.japgolly.scalajs-react" %%% "core" % scalaJsReact,
         "com.github.japgolly.scalajs-react" %%% "ext-monocle-cats" % scalaJsReact,
         "com.github.japgolly.scalajs-react" %%% "test" % scalaJsReact % Test,
-        "io.github.cquiroz.react" %%% "common" % "0.9.6",
+        "io.github.cquiroz.react" %%% "common" % "0.9.7",
         "io.github.cquiroz.react" %%% "react-sizeme" % "0.4.6",
         "io.github.cquiroz.react" %%% "react-grid-layout" % "0.7.1"
       ),
