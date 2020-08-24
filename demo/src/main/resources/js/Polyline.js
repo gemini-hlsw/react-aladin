@@ -36,7 +36,8 @@ export default class Polyline {
   // constructor
   construtor(radecArray, options) {
     options = options || {};
-    this.color = options["color"] || undefined;
+    this.color = options["color"] || "white";
+    this.lineWidth = options["lineWidth"] || 2;
 
     this.radecArray = radecArray;
     this.overlay = null;
@@ -89,6 +90,22 @@ export default class Polyline {
     }
   }
 
+  setLineWidth(lineWidth) {
+    if (this.lineWidth == lineWidth) {
+      return;
+    }
+    this.lineWidth = lineWidth;
+    this.overlay.reportChange();
+  }
+
+  setColor(color) {
+    if (this.color == color) {
+      return;
+    }
+    this.color = color;
+    this.overlay.reportChange();
+  }
+
   draw(ctx, projection, frame, width, height, largestDim, zoomFactor) {
     if (!this.isShowing) {
       return;
@@ -111,13 +128,30 @@ export default class Polyline {
       largestDim,
       zoomFactor
     );
+    for (var k = 0; k < this.radecArray.length; k++) {
+      start = AladinUtils.radecToViewXy(
+        this.radecArray[k][0],
+        this.radecArray[k][1],
+        projection,
+        frame,
+        width,
+        height,
+        largestDim,
+        zoomFactor
+      );
+      if (start) {
+        break;
+      }
+    }
     if (!start) {
       return;
     }
 
     ctx.moveTo(start.vx, start.vy);
-    var pt;
-    for (var k = 1; k < this.radecArray.length; k++) {
+    let pt;
+    let newSeg = false;
+    let drawingNewSeg = true;
+    for (let k = 1; k < this.radecArray.length; k++) {
       pt = AladinUtils.radecToViewXy(
         this.radecArray[k][0],
         this.radecArray[k][1],
@@ -129,9 +163,24 @@ export default class Polyline {
         zoomFactor
       );
       if (!pt) {
-        break;
+        if (drawingNewSeg) {
+          //console.log("closing segment");
+          ctx.stroke();
+        }
+        drawingNewSeg = false;
+        newSeg = true;
+      } else {
+        if (newSeg) {
+          //console.log ("starting newSeg at "+pt.vx+" "+pt.vy);
+          drawingNewSeg = true;
+          ctx.beginPath();
+          ctx.lineWidth = this.lineWidth;
+          ctx.moveTo(pt.vx, pt.vy);
+          newSeg = false;
+        } else {
+          ctx.lineTo(pt.vx, pt.vy);
+        }
       }
-      ctx.lineTo(pt.vx, pt.vy);
     }
 
     ctx.stroke();
