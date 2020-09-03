@@ -10,7 +10,7 @@ import japgolly.scalajs.react.vdom.html_<^._
 import japgolly.scalajs.react.raw.JsNumber
 import react.common._
 import org.scalajs.dom.raw.Element
-import gsp.math._
+import lucuma.core.math._
 
 // This will be the props object used from JS-land
 @js.native

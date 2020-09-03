@@ -4,7 +4,7 @@
 package demo
 
 import cats.implicits._
-import gsp.math.geom.jts.interpreter._
+import lucuma.core.geom.jts.interpreter._
 import japgolly.scalajs.react.MonocleReact._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
@@ -12,7 +12,7 @@ import org.scalajs.dom.document
 import org.scalajs.dom.raw.Element
 import react.aladin._
 import react.common._
-import gsp.math._
+import lucuma.core.math._
 import monocle.macros.GenLens
 import monocle.Lens
 import gpp.svgdotjs.svgdotjsSvgJs.mod.Svg

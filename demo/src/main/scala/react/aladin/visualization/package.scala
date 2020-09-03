@@ -3,12 +3,12 @@ package react.aladin
 import cats.data.NonEmptyMap
 import cats.implicits._
 import gpp.svgdotjs.svgdotjsSvgJs.mod.{ Element => _, _ }
-import gsp.math.geom.svg._
-import gsp.math.geom.svg.implicits._
-import gsp.math.Angle
-import gsp.math.geom.jts.JtsShape
-import gsp.math.geom.ShapeExpression
-import gsp.math.geom.ShapeInterpreter
+import lucuma.core.geom.svg._
+import lucuma.core.geom.svg.implicits._
+import lucuma.core.math.Angle
+import lucuma.core.geom.jts.JtsShape
+import lucuma.core.geom.ShapeExpression
+import lucuma.core.geom.ShapeInterpreter
 import org.scalajs.dom.raw.Element
 import react.common._
 import scala.math._

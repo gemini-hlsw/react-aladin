@@ -1,7 +1,6 @@
 lazy val reactJS           = "16.13.1"
 lazy val scalaJsReact      = "1.7.5"
-lazy val gspMathVersion    = "0.2.8"
-lazy val gspCoreVersion    = "0.2.8"
+lazy val lucumaCoreVersion = "0.4.0"
 lazy val aladinLiteVersion = "0.2.3"
 
 parallelExecution in (ThisBuild, Test) := false
@@ -53,7 +52,7 @@ val demo =
     .settings(commonSettings: _*)
     .settings(
       skip in publish := true,
-      version in webpack := "4.43.0",
+      version in webpack := "4.44.1",
       version in startWebpackDevServer := "3.11.0",
       webpackConfigFile in fastOptJS := Some(
         baseDirectory.value / "webpack" / "dev.webpack.config.js"
@@ -104,8 +103,7 @@ val demo =
         "stats.js" -> "0.17.0"
       ),
       libraryDependencies ++= Seq(
-        "edu.gemini" %%% "gsp-core-model" % gspCoreVersion,
-        "edu.gemini" %%% "gsp-math" % gspMathVersion,
+        "edu.gemini" %%% "lucuma-core" % lucumaCoreVersion,
         "com.github.japgolly.scalajs-react" %%% "core" % scalaJsReact,
         "com.github.japgolly.scalajs-react" %%% "ext-monocle-cats" % scalaJsReact,
         "com.github.japgolly.scalajs-react" %%% "test" % scalaJsReact % Test,
@@ -162,8 +160,7 @@ lazy val facade =
       // Compile tests to JS using fast-optimisation
       scalaJSStage in Test := FastOptStage,
       libraryDependencies ++= Seq(
-        "edu.gemini" %%% "gsp-core-model" % gspCoreVersion,
-        "edu.gemini" %%% "gsp-math" % gspMathVersion,
+        "edu.gemini" %%% "lucuma-core" % lucumaCoreVersion,
         "com.github.japgolly.scalajs-react" %%% "core" % scalaJsReact,
         "com.github.japgolly.scalajs-react" %%% "test" % scalaJsReact % Test,
         "io.github.cquiroz.react" %%% "common" % "0.9.7",

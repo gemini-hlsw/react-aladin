@@ -1,11 +1,11 @@
 package react
 
-import gsp.math.Angle
+import lucuma.core.math.Angle
 import japgolly.scalajs.react.Callback
 import react.common._
 import scala.scalajs.js
-import gsp.math.RightAscension
-import gsp.math.Declination
+import lucuma.core.math.RightAscension
+import lucuma.core.math.Declination
 
 package aladin {
 

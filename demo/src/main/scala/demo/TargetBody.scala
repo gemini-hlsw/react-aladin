@@ -11,7 +11,7 @@ import react.common._
 import react.sizeme._
 import react.gridlayout._
 import scala.scalajs.js
-import gsp.math._
+import lucuma.core.math._
 
 final case class TargetBody(
 ) extends ReactProps[TargetBody](TargetBody.component) {}
