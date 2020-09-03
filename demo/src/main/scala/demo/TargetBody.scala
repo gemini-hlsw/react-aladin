@@ -3,15 +3,16 @@
 
 package demo
 
+import scala.scalajs.js
+
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.raw.JsNumber
 import japgolly.scalajs.react.vdom.html_<^._
+import lucuma.core.math._
 import react.aladin._
 import react.common._
-import react.sizeme._
 import react.gridlayout._
-import scala.scalajs.js
-import lucuma.core.math._
+import react.sizeme._
 
 final case class TargetBody(
 ) extends ReactProps[TargetBody](TargetBody.component) {}

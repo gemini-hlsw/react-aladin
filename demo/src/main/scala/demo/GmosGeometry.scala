@@ -3,20 +3,20 @@
 
 package demo
 
-import cats.implicits._
 import cats.data.NonEmptyMap
-import lucuma.core.geom.svg._
-import lucuma.core.geom.ShapeExpression
-import lucuma.core.geom.GmosScienceAreaGeometry
-import lucuma.core.geom.GmosOiwfsProbeArm
-import lucuma.core.geom.syntax.shapeexpression._
-import lucuma.core.math.syntax.int._
-import lucuma.core.math.Angle
-import lucuma.core.math.Offset
+import cats.implicits._
 import gpp.svgdotjs.svgdotjsSvgJs.mod._
 import lucuma.core.enum.GmosNorthFpu
 import lucuma.core.enum.GmosSouthFpu
 import lucuma.core.enum.PortDisposition
+import lucuma.core.geom.GmosOiwfsProbeArm
+import lucuma.core.geom.GmosScienceAreaGeometry
+import lucuma.core.geom.ShapeExpression
+import lucuma.core.geom.svg._
+import lucuma.core.geom.syntax.shapeexpression._
+import lucuma.core.math.Angle
+import lucuma.core.math.Offset
+import lucuma.core.math.syntax.int._
 
 object GmosGeometry {
 

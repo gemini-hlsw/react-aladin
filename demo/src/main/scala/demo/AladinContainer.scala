@@ -4,18 +4,18 @@
 package demo
 
 import cats.implicits._
-import lucuma.core.geom.jts.interpreter._
+import gpp.svgdotjs.svgdotjsSvgJs.mod.Svg
 import japgolly.scalajs.react.MonocleReact._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
+import lucuma.core.geom.jts.interpreter._
+import lucuma.core.math._
+import monocle.Lens
+import monocle.macros.GenLens
 import org.scalajs.dom.document
 import org.scalajs.dom.raw.Element
 import react.aladin._
 import react.common._
-import lucuma.core.math._
-import monocle.macros.GenLens
-import monocle.Lens
-import gpp.svgdotjs.svgdotjsSvgJs.mod.Svg
 
 final case class AladinContainer(
   s:           Size,
@@ -89,7 +89,7 @@ object AladinContainer {
             // Delete any viz previously rendered
             val previous = Option(div.querySelector(".aladin-visualization"))
             previous.foreach(div.removeChild)
-            val g = document.createElement("div")
+            val g        = document.createElement("div")
             g.classList.add("aladin-visualization")
             visualization.geometryForAladin(svgBase,
                                             g,
@@ -100,13 +100,13 @@ object AladinContainer {
             )
             // Include visibility on the dom
             div.appendChild(g)
-          case _ =>
+          case _                            =>
         }
         .void
 
     def includeSvg(v: JsAladin): Callback =
       v.onFullScreenToggle(recalculateView) *> // re render on screen toggle
-        v.onZoom(onZoom(v)) *> // re render on zoom
+        v.onZoom(onZoom(v)) *>                 // re render on zoom
         v.onPositionChanged(onPositionChanged(v)) *>
         v.onMouseMove(s => Callback.log(s"$s"))
 
@@ -153,8 +153,8 @@ object AladinContainer {
         .zip($.state)
         .flatMap {
           case (p, s) =>
-            val size = Size(v.getParentDiv().clientHeight, v.getParentDiv().clientWidth)
-            val div  = v.getParentDiv()
+            val size     = Size(v.getParentDiv().clientHeight, v.getParentDiv().clientWidth)
+            val div      = v.getParentDiv()
             // Update the existing visualization in place
             val previous = Option(div.querySelector(".aladin-visualization"))
             (s.svg, previous).mapN {

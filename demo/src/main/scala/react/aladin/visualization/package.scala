@@ -1,17 +1,21 @@
+// Copyright (c) 2016-2020 Association of Universities for Research in Astronomy, Inc. (AURA)
+// For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
+
 package react.aladin
+
+import scala.math._
 
 import cats.data.NonEmptyMap
 import cats.implicits._
 import gpp.svgdotjs.svgdotjsSvgJs.mod.{ Element => _, _ }
+import lucuma.core.geom.ShapeExpression
+import lucuma.core.geom.ShapeInterpreter
+import lucuma.core.geom.jts.JtsShape
 import lucuma.core.geom.svg._
 import lucuma.core.geom.svg.implicits._
 import lucuma.core.math.Angle
-import lucuma.core.geom.jts.JtsShape
-import lucuma.core.geom.ShapeExpression
-import lucuma.core.geom.ShapeInterpreter
 import org.scalajs.dom.raw.Element
 import react.common._
-import scala.math._
 
 package object visualization {
   implicit class SvgOps(val svg: Svg) extends AnyVal {
@@ -33,7 +37,7 @@ package object visualization {
   )(implicit si: ShapeInterpreter): Svg = {
     val scalingFn: ScalingFn = (v: Double) => rint(v / scaleFactor)
 
-    val svg: Svg = SVG_()
+    val svg: Svg    = SVG_()
     // Render the svg
     val evaldShapes = shapes
       .map(_.eval)
@@ -65,11 +69,9 @@ package object visualization {
     g.attr("class", "jts-svg-reticle")
 
     // Cross at 0,0 style it with css
-    g
-      .line(0, -reticleSize, 0, reticleSize)
+    g.line(0, -reticleSize, 0, reticleSize)
       .attr("class", "jts-svg-center")
-    g
-      .line(-reticleSize, 0, reticleSize, 0)
+    g.line(-reticleSize, 0, reticleSize, 0)
       .attr("class", "jts-svg-center")
     g
   }
@@ -89,8 +91,8 @@ package object visualization {
     // Transform the group at the root of the svg
     svgBase.children().each { (svg: Container) =>
       // Angular size of the geometry
-      val hAngle = Angle.fromMicroarcseconds((h.toLong * scaleFactor).toLong)
-      val wAngle = Angle.fromMicroarcseconds((w.toLong * scaleFactor).toLong)
+      val hAngle       = Angle.fromMicroarcseconds((h.toLong * scaleFactor).toLong)
+      val wAngle       = Angle.fromMicroarcseconds((w.toLong * scaleFactor).toLong)
       // Deltas to calculate the size of the svg on aladin scale
       val dx           = (wAngle.toDoubleDegrees) * pixelScale.x
       val dy           = (hAngle.toDoubleDegrees) * pixelScale.y
@@ -128,8 +130,8 @@ package object visualization {
     // Transform the group at the root of the svg
     svgBase.children().each { (svg: Container) =>
       // Angular size of the geometry
-      val hAngle = Angle.fromMicroarcseconds((h.toLong * scaleFactor).toLong)
-      val wAngle = Angle.fromMicroarcseconds((w.toLong * scaleFactor).toLong)
+      val hAngle       = Angle.fromMicroarcseconds((h.toLong * scaleFactor).toLong)
+      val wAngle       = Angle.fromMicroarcseconds((w.toLong * scaleFactor).toLong)
       // Deltas to calculate the size of the svg on aladin scale
       val dx           = (wAngle.toDoubleDegrees) * pixelScale.x
       val dy           = (hAngle.toDoubleDegrees) * pixelScale.y
@@ -177,7 +179,7 @@ package object visualization {
     pixelScale:  PixelScale,
     scaleFactor: Int
   )(implicit si: ShapeInterpreter): Svg = {
-    val svg = shapesToSvg(shapes, pp, pixelScale, scaleFactor)
+    val svg    = shapesToSvg(shapes, pp, pixelScale, scaleFactor)
     // Viewbox size
     val (h, w) = (svg.viewbox().height_Box, svg.viewbox().width_Box)
     val (x, y) = (svg.viewbox().x_Box, svg.viewbox().y_Box)
@@ -185,8 +187,8 @@ package object visualization {
     val hAngle = Angle.fromMicroarcseconds((h.toLong * scaleFactor).toLong)
     val wAngle = Angle.fromMicroarcseconds((w.toLong * scaleFactor).toLong)
     // Deltas to calculate the size of the svg on aladin scale
-    val dx = wAngle.toDoubleDegrees * pixelScale.x
-    val dy = hAngle.toDoubleDegrees * pixelScale.y
+    val dx     = wAngle.toDoubleDegrees * pixelScale.x
+    val dy     = hAngle.toDoubleDegrees * pixelScale.y
 
     val svgSize = Size(dy, dx)
 
@@ -206,7 +208,7 @@ package object visualization {
       .attr("class", "jts-svg-border")
 
     // Rotation reference point. It is a bit surprising but it is in screen coordinates
-    val ry = ty - dy / 2
+    val ry             = ty - dy / 2
     // Scale and postion the center in the right location
     val transformation =
       new Matrix()

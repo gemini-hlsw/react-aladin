@@ -1,12 +1,16 @@
+// Copyright (c) 2016-2020 Association of Universities for Research in Astronomy, Inc. (AURA)
+// For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
+
 package react.aladin
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation._
 import scala.scalajs.js.|
+
+import japgolly.scalajs.react.raw.JsNumber
+import org.scalajs.dom.CanvasRenderingContext2D
 import org.scalajs.dom.ext._
 import org.scalajs.dom.html.Image
-import org.scalajs.dom.CanvasRenderingContext2D
-import japgolly.scalajs.react.raw.JsNumber
 
 // This will be the props object used from JS-land
 @js.native
@@ -52,7 +56,7 @@ object CatalogOptions {
     p.shape = shape.map((_: Any) match {
       case s: String => s
       case i: Image  => i
-      case f =>
+      case f         =>
         (
           (
             s: AladinSource,
