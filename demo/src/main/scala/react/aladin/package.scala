@@ -14,19 +14,19 @@ import react.common._
 package aladin {
 
   /**
-    * ALadin field of view angles horizontally and vertically
-    *
-    * @param x Horizontal (RA) field of view
-    * @param y Vertical (Dec) field of view
-    */
+   * ALadin field of view angles horizontally and vertically
+   *
+   * @param x Horizontal (RA) field of view
+   * @param y Vertical (Dec) field of view
+   */
   final case class Fov(x: Angle, y: Angle)
 
   /**
-    * Aladin pixel scala in degrees per pixel
-    *
-    * @param x
-    * @param y
-    */
+   * Aladin pixel scala in degrees per pixel
+   *
+   * @param x
+   * @param y
+   */
   final case class PixelScale(x: Double, y: Double)
 
   object PixelScale {

@@ -32,8 +32,8 @@ object AladinContainer {
   val coordinates = GenLens[AladinContainer](_.coordinates)
 
   /**
-    * On the state we keep the svg to avoid recalculations during panning
-    */
+   * On the state we keep the svg to avoid recalculations during panning
+   */
   final case class State(svg: Option[Svg])
 
   implicit val propsReuse: Reusability[Props] =
@@ -51,21 +51,21 @@ object AladinContainer {
     private val aladinRef = Ref.toScalaComponent(AladinComp)
 
     /**
-      * Recalculate the svg, we keep it on the state for better performance
-      *
-      * @return
-      */
+     * Recalculate the svg, we keep it on the state for better performance
+     *
+     * @return
+     */
     def initialSvgState: Callback =
       aladinRef.get
         .flatMapCB(_.backend.runOnAladinCB(v => updateSvgState(v.pixelScale)))
         .void
 
     /**
-      * Recalculate svg and store it on state
-      *
-      * @param pixelScale
-      * @return
-      */
+     * Recalculate svg and store it on state
+     *
+     * @param pixelScale
+     * @return
+     */
     def updateSvgState(pixelScale: PixelScale): CallbackTo[Svg] =
       CallbackTo
         .pure(
@@ -145,9 +145,9 @@ object AladinContainer {
       }
 
     /**
-      * Called when the position changes, i.e. aladin pans. We want to offset the visualization to
-      * keep the internal target correct
-      */
+     * Called when the position changes, i.e. aladin pans. We want to offset the visualization to
+     * keep the internal target correct
+     */
     def onPositionChanged(v: JsAladin)(s: PositionChanged): Callback =
       $.props
         .zip($.state)
