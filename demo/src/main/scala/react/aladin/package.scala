@@ -1,28 +1,32 @@
+// Copyright (c) 2016-2020 Association of Universities for Research in Astronomy, Inc. (AURA)
+// For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
+
 package react
 
-import gsp.math.Angle
-import japgolly.scalajs.react.Callback
-import react.common._
 import scala.scalajs.js
-import gsp.math.RightAscension
-import gsp.math.Declination
+
+import japgolly.scalajs.react.Callback
+import lucuma.core.math.Angle
+import lucuma.core.math.Declination
+import lucuma.core.math.RightAscension
+import react.common._
 
 package aladin {
 
   /**
-    * ALadin field of view angles horizontally and vertically
-    *
-    * @param x Horizontal (RA) field of view
-    * @param y Vertical (Dec) field of view
-    */
+   * ALadin field of view angles horizontally and vertically
+   *
+   * @param x Horizontal (RA) field of view
+   * @param y Vertical (Dec) field of view
+   */
   final case class Fov(x: Angle, y: Angle)
 
   /**
-    * Aladin pixel scala in degrees per pixel
-    *
-    * @param x
-    * @param y
-    */
+   * Aladin pixel scala in degrees per pixel
+   *
+   * @param x
+   * @param y
+   */
   final case class PixelScale(x: Double, y: Double)
 
   object PixelScale {
@@ -32,8 +36,8 @@ package aladin {
   sealed trait CooFrame extends Product with Serializable
   object CooFrame {
     implicit val enum: EnumValue[CooFrame] = EnumValue.toLowerCaseString
-    case object J2000 extends CooFrame
-    case object J2000d extends CooFrame
+    case object J2000    extends CooFrame
+    case object J2000d   extends CooFrame
     case object Galactic extends CooFrame
 
     def fromString(s: String): Option[CooFrame] =
@@ -72,7 +76,7 @@ package aladin {
 
   final case class MouseMoved(ra: RightAscension, dec: Declination, x: Int, y: Int)
 
-  object MouseMoved {
+  object MouseMoved   {
     def fromJs(p: JsMouseMoved): MouseMoved =
       MouseMoved(
         RightAscension.fromDoubleDegrees(p.ra),
@@ -96,19 +100,19 @@ package object aladin {
         a.on("positionChanged", (o: JsPositionChanged) => cb(PositionChanged.fromJs(o)).runNow())
       )
 
-    def onZoom(cb: Fov => Callback): Callback =
+    def onZoom(cb:             Fov => Callback): Callback        =
       Callback(a.on("zoomChanged", (_: Double) => cb(fov).runNow()))
 
-    def onZoom(cb: => Callback): Callback =
+    def onZoom(cb:             => Callback): Callback            =
       Callback(a.on("zoomChanged", (_: Double) => cb.runNow()))
 
-    def onFullScreenToggle(cb: Boolean => Callback): Callback =
+    def onFullScreenToggle(cb: Boolean => Callback): Callback    =
       Callback(a.on("fullScreenToggled", (t: Boolean) => cb(t).runNow()))
 
-    def onFullScreenToggle(cb: => Callback): Callback =
+    def onFullScreenToggle(cb: => Callback): Callback            =
       Callback(a.on("fullScreenToggled", (a: Boolean) => cb.runNow()))
 
-    def onMouseMove(cb: MouseMoved => Callback): Callback =
+    def onMouseMove(cb:        MouseMoved => Callback): Callback =
       Callback(a.on("mouseMove", (t: JsMouseMoved) => cb(MouseMoved.fromJs(t)).runNow()))
 
     def pixelScale: PixelScale =

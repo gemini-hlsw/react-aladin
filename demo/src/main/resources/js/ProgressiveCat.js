@@ -64,6 +64,10 @@ const ProgressiveCat = (function() {
         this.shape = options.shape || "square";
         this.sourceSize = options.sourceSize || 6;
         this.selectSize = this.sourceSize + 2;
+      
+        // allows for filtering of sources
+        this.filterFn = options.filter || undefined; // TODO: do the same for catalog
+
         this.selectionColor = '#00ff00'; // TODO: to be merged with Catalog
         this.onClick = options.onClick || undefined; // TODO: inherit from catalog
         // we cache the list of sources in each healpix tile. Key of the cache is norder+'-'+npix
@@ -351,14 +355,21 @@ const ProgressiveCat = (function() {
             if (! sources) {
                 return;
             }
+            let s;
             for (let k=0, len = sources.length; k<len; k++) {
-                Catalog.drawSource(this, sources[k], ctx, projection, frame, width, height, largestDim, zoomFactor);
+                s = sources[k];
+                if (!this.filterFn || this.filterFn(s)) {
+                    cds.Catalog.drawSource(this, s, ctx, projection, frame, width, height, largestDim, zoomFactor);
+                }
             }
             for (let k=0, len = sources.length; k<len; k++) {
-                if (! sources[k].isSelected) {
+                s = sources[k];
+                if (! s.isSelected) {
                     continue;
                 }
-                Catalog.drawSourceSelection(this, sources[k], ctx);
+                if (!this.filterFn || this.filterFn(s)) {
+                    cds.Catalog.drawSourceSelection(this, s, ctx);
+                }
             }
         },
 

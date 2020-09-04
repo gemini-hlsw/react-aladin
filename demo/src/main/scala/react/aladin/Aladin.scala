@@ -1,16 +1,20 @@
+// Copyright (c) 2016-2020 Association of Universities for Research in Astronomy, Inc. (AURA)
+// For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
+
 package react.aladin
 
-import cats.implicits._
 import scala.scalajs.js
-import scala.scalajs.js.annotation._
 import scala.scalajs.js.JSConverters._
-import org.scalajs.dom.ext._
+import scala.scalajs.js.annotation._
+
+import cats.implicits._
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.vdom.html_<^._
 import japgolly.scalajs.react.raw.JsNumber
-import react.common._
+import japgolly.scalajs.react.vdom.html_<^._
+import lucuma.core.math._
+import org.scalajs.dom.ext._
 import org.scalajs.dom.raw.Element
-import gsp.math._
+import react.common._
 
 // This will be the props object used from JS-land
 @js.native
@@ -129,8 +133,8 @@ object A extends js.Object {
   def graphicOverlay(c:   OverlayOptions): AladinOverlay               = js.native
   def polygon(raDecArray: js.Array[js.Array[Double]]): AladinFootprint = js.native
   def polyline(
-    raDecArray: js.Array[js.Array[Double]],
-    o:          js.UndefOr[PolylineOptions]
+    raDecArray:           js.Array[js.Array[Double]],
+    o:                    js.UndefOr[PolylineOptions]
   ): AladinPolyline = js.native
   def circle(
     ra:        JsNumber,
@@ -337,6 +341,6 @@ object Aladin {
   val jsComponent =
     component
       .cmapCtorProps[AladinProps](fromProps) // Change props from JS to Scala
-      .toJsComponent // Create a new, real JS component
-      .raw // Leave the nice Scala wrappers behind and obtain the underlying JS value
+      .toJsComponent                         // Create a new, real JS component
+      .raw                                   // Leave the nice Scala wrappers behind and obtain the underlying JS value
 }

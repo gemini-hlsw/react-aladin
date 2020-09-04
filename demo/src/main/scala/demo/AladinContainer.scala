@@ -4,18 +4,18 @@
 package demo
 
 import cats.implicits._
-import gsp.math.geom.jts.interpreter._
+import gpp.svgdotjs.svgdotjsSvgJs.mod.Svg
 import japgolly.scalajs.react.MonocleReact._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
+import lucuma.core.geom.jts.interpreter._
+import lucuma.core.math._
+import monocle.Lens
+import monocle.macros.GenLens
 import org.scalajs.dom.document
 import org.scalajs.dom.raw.Element
 import react.aladin._
 import react.common._
-import gsp.math._
-import monocle.macros.GenLens
-import monocle.Lens
-import gpp.svgdotjs.svgdotjsSvgJs.mod.Svg
 
 final case class AladinContainer(
   s:           Size,
@@ -32,8 +32,8 @@ object AladinContainer {
   val coordinates = GenLens[AladinContainer](_.coordinates)
 
   /**
-    * On the state we keep the svg to avoid recalculations during panning
-    */
+   * On the state we keep the svg to avoid recalculations during panning
+   */
   final case class State(svg: Option[Svg])
 
   implicit val propsReuse: Reusability[Props] =
@@ -51,21 +51,21 @@ object AladinContainer {
     private val aladinRef = Ref.toScalaComponent(AladinComp)
 
     /**
-      * Recalculate the svg, we keep it on the state for better performance
-      *
-      * @return
-      */
+     * Recalculate the svg, we keep it on the state for better performance
+     *
+     * @return
+     */
     def initialSvgState: Callback =
       aladinRef.get
         .flatMapCB(_.backend.runOnAladinCB(v => updateSvgState(v.pixelScale)))
         .void
 
     /**
-      * Recalculate svg and store it on state
-      *
-      * @param pixelScale
-      * @return
-      */
+     * Recalculate svg and store it on state
+     *
+     * @param pixelScale
+     * @return
+     */
     def updateSvgState(pixelScale: PixelScale): CallbackTo[Svg] =
       CallbackTo
         .pure(
@@ -89,7 +89,7 @@ object AladinContainer {
             // Delete any viz previously rendered
             val previous = Option(div.querySelector(".aladin-visualization"))
             previous.foreach(div.removeChild)
-            val g = document.createElement("div")
+            val g        = document.createElement("div")
             g.classList.add("aladin-visualization")
             visualization.geometryForAladin(svgBase,
                                             g,
@@ -100,13 +100,13 @@ object AladinContainer {
             )
             // Include visibility on the dom
             div.appendChild(g)
-          case _ =>
+          case _                            =>
         }
         .void
 
     def includeSvg(v: JsAladin): Callback =
       v.onFullScreenToggle(recalculateView) *> // re render on screen toggle
-        v.onZoom(onZoom(v)) *> // re render on zoom
+        v.onZoom(onZoom(v)) *>                 // re render on zoom
         v.onPositionChanged(onPositionChanged(v)) *>
         v.onMouseMove(s => Callback.log(s"$s"))
 
@@ -145,16 +145,16 @@ object AladinContainer {
       }
 
     /**
-      * Called when the position changes, i.e. aladin pans. We want to offset the visualization to
-      * keep the internal target correct
-      */
+     * Called when the position changes, i.e. aladin pans. We want to offset the visualization to
+     * keep the internal target correct
+     */
     def onPositionChanged(v: JsAladin)(s: PositionChanged): Callback =
       $.props
         .zip($.state)
         .flatMap {
           case (p, s) =>
-            val size = Size(v.getParentDiv().clientHeight, v.getParentDiv().clientWidth)
-            val div  = v.getParentDiv()
+            val size     = Size(v.getParentDiv().clientHeight, v.getParentDiv().clientWidth)
+            val div      = v.getParentDiv()
             // Update the existing visualization in place
             val previous = Option(div.querySelector(".aladin-visualization"))
             (s.svg, previous).mapN {
