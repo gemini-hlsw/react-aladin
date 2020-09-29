@@ -3,13 +3,9 @@
 
 package react.aladin
 
-import utest._
-
 // just a linking check
-object AladinSuite extends TestSuite {
-  val tests = Tests {
-    test("linking") {
-      A.aladin("abc", null)
-    }
+class AladinSuite extends munit.FunSuite {
+  test("linking") {
+    A.aladin("abc", null)
   }
 }
