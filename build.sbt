@@ -12,7 +12,7 @@ inThisBuild(
     homepage := Some(url("https://github.com/gemini-hlsw/react-aladin")),
     Global / onChangedBuildSource := ReloadOnSourceChanges,
     scalacOptions += "-Ymacro-annotations"
-  ) ++ gspPublishSettings
+  ) ++ lucumaPublishSettings
 )
 
 Global / resolvers += Resolver.sonatypeRepo("public")
@@ -28,7 +28,7 @@ val demo =
   project
     .in(file("demo"))
     .enablePlugins(ScalaJSBundlerPlugin)
-    .settings(gspScalaJsSettings: _*)
+    .settings(lucumaScalaJsSettings: _*)
     .settings(commonSettings: _*)
     .settings(
       skip in publish := true,
@@ -123,7 +123,7 @@ lazy val facade =
     .enablePlugins(ScalaJSPlugin)
     .enablePlugins(ScalaJSBundlerPlugin)
     .enablePlugins(AutomateHeaderPlugin)
-    .settings(gspScalaJsSettings: _*)
+    .settings(lucumaScalaJsSettings: _*)
     .settings(commonSettings: _*)
     .settings(
       name := "react-aladin",
