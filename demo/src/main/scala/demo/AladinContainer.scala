@@ -151,33 +151,31 @@ object AladinContainer {
     def onPositionChanged(v: JsAladin)(s: PositionChanged): Callback =
       $.props
         .zip($.state)
-        .flatMap {
-          case (p, s) =>
-            val size     = Size(v.getParentDiv().clientHeight, v.getParentDiv().clientWidth)
-            val div      = v.getParentDiv()
-            // Update the existing visualization in place
-            val previous = Option(div.querySelector(".aladin-visualization"))
-            (s.svg, previous).mapN {
-              case (svg, previous) =>
-                aladinRef.get
-                  .flatMapCB(
-                    _.backend.world2pix(Coordinates(p.coordinates.ra, p.coordinates.dec))
-                  )
-                  .flatMapCB { off =>
-                    Callback {
-                      // Offset the visualization
-                      visualization
-                        .updatePosition(svg,
-                                        previous,
-                                        size,
-                                        v.pixelScale,
-                                        GmosGeometry.ScaleFactor,
-                                        off.getOrElse((0, 0))
-                        )
-                    }
-                  }
-                  .toCallback
-            }.getOrEmpty
+        .flatMap { case (p, s) =>
+          val size     = Size(v.getParentDiv().clientHeight, v.getParentDiv().clientWidth)
+          val div      = v.getParentDiv()
+          // Update the existing visualization in place
+          val previous = Option(div.querySelector(".aladin-visualization"))
+          (s.svg, previous).mapN { case (svg, previous) =>
+            aladinRef.get
+              .flatMapCB(
+                _.backend.world2pix(Coordinates(p.coordinates.ra, p.coordinates.dec))
+              )
+              .flatMapCB { off =>
+                Callback {
+                  // Offset the visualization
+                  visualization
+                    .updatePosition(svg,
+                                    previous,
+                                    size,
+                                    v.pixelScale,
+                                    GmosGeometry.ScaleFactor,
+                                    off.getOrElse((0, 0))
+                    )
+                }
+              }
+              .toCallback
+          }.getOrEmpty
         }
         .void
 

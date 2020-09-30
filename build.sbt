@@ -1,14 +1,18 @@
-lazy val reactJS           = "16.13.1"
-lazy val scalaJsReact      = "1.7.5"
-lazy val lucumaCoreVersion = "0.4.0"
-lazy val aladinLiteVersion = "0.2.3"
+lazy val reactJS                = "16.13.1"
+lazy val scalaJsReact           = "1.7.5"
+lazy val lucumaCoreVersion      = "0.5.0"
+lazy val aladinLiteVersion      = "0.2.3"
+lazy val reactCommonVersion     = "0.10.0"
+lazy val reactSizeMeVersion     = "0.5.0"
+lazy val reactGridLayoutVersion = "0.8.0"
+lazy val munitVersion           = "0.7.12"
 
 inThisBuild(
   Seq(
     homepage := Some(url("https://github.com/gemini-hlsw/react-aladin")),
     Global / onChangedBuildSource := ReloadOnSourceChanges,
     scalacOptions += "-Ymacro-annotations"
-  ) ++ gspPublishSettings
+  ) ++ lucumaPublishSettings
 )
 
 Global / resolvers += Resolver.sonatypeRepo("public")
@@ -24,7 +28,7 @@ val demo =
   project
     .in(file("demo"))
     .enablePlugins(ScalaJSBundlerPlugin)
-    .settings(gspScalaJsSettings: _*)
+    .settings(lucumaScalaJsSettings: _*)
     .settings(commonSettings: _*)
     .settings(
       skip in publish := true,
@@ -49,43 +53,43 @@ val demo =
       scalaJSLinkerConfig in (Compile, fullOptJS) ~= { _.withSourceMap(false) },
       // NPM libs for development, mostly to let webpack do its magic
       npmDevDependencies in Compile ++= Seq(
-        "postcss-loader" -> "3.0.0",
-        "autoprefixer" -> "9.7.6",
-        "url-loader" -> "4.1.0",
-        "file-loader" -> "6.0.0",
-        "css-loader" -> "3.5.3",
-        "style-loader" -> "1.2.1",
-        "less" -> "3.11.1",
-        "less-loader" -> "6.1.0",
-        "webpack-merge" -> "4.2.2",
-        "mini-css-extract-plugin" -> "0.9.0",
-        "webpack-dev-server-status-bar" -> "1.1.2",
-        "cssnano" -> "4.1.10",
-        "uglifyjs-webpack-plugin" -> "2.2.0",
-        "html-webpack-plugin" -> "4.3.0",
+        "postcss-loader"                     -> "3.0.0",
+        "autoprefixer"                       -> "9.7.6",
+        "url-loader"                         -> "4.1.0",
+        "file-loader"                        -> "6.0.0",
+        "css-loader"                         -> "3.5.3",
+        "style-loader"                       -> "1.2.1",
+        "less"                               -> "3.11.1",
+        "less-loader"                        -> "6.1.0",
+        "webpack-merge"                      -> "4.2.2",
+        "mini-css-extract-plugin"            -> "0.9.0",
+        "webpack-dev-server-status-bar"      -> "1.1.2",
+        "cssnano"                            -> "4.1.10",
+        "uglifyjs-webpack-plugin"            -> "2.2.0",
+        "html-webpack-plugin"                -> "4.3.0",
         "optimize-css-assets-webpack-plugin" -> "5.0.3",
-        "favicons-webpack-plugin" -> "3.0.1",
-        "why-did-you-update" -> "1.0.8",
-        "svg-inline-loader" -> "0.8.2",
-        "babel-loader" -> "8.1.0",
-        "@babel/core" -> "7.10.2",
-        "@babel/preset-env" -> "7.10.2"
+        "favicons-webpack-plugin"            -> "3.0.1",
+        "why-did-you-update"                 -> "1.0.8",
+        "svg-inline-loader"                  -> "0.8.2",
+        "babel-loader"                       -> "8.1.0",
+        "@babel/core"                        -> "7.10.2",
+        "@babel/preset-env"                  -> "7.10.2"
       ),
       npmDependencies in Compile ++= Seq(
-        "react" -> reactJS,
+        "react"     -> reactJS,
         "react-dom" -> reactJS,
-        "jquery" -> "1.12.4",
-        "raf" -> "3.4.1",
-        "stats.js" -> "0.17.0"
+        "jquery"    -> "1.12.4",
+        "raf"       -> "3.4.1",
+        "stats.js"  -> "0.17.0"
       ),
       libraryDependencies ++= Seq(
-        "edu.gemini" %%% "lucuma-core" % lucumaCoreVersion,
-        "com.github.japgolly.scalajs-react" %%% "core" % scalaJsReact,
-        "com.github.japgolly.scalajs-react" %%% "ext-monocle-cats" % scalaJsReact,
-        "com.github.japgolly.scalajs-react" %%% "test" % scalaJsReact % Test,
-        "io.github.cquiroz.react" %%% "common" % "0.9.7",
-        "io.github.cquiroz.react" %%% "react-sizeme" % "0.4.7",
-        "io.github.cquiroz.react" %%% "react-grid-layout" % "0.7.3"
+        "edu.gemini"                        %%% "lucuma-core"       % lucumaCoreVersion,
+        "com.github.japgolly.scalajs-react" %%% "core"              % scalaJsReact,
+        "com.github.japgolly.scalajs-react" %%% "ext-monocle-cats"  % scalaJsReact,
+        "com.github.japgolly.scalajs-react" %%% "test"              % scalaJsReact % Test,
+        "io.github.cquiroz.react"           %%% "common"            % reactCommonVersion,
+        "io.github.cquiroz.react"           %%% "react-sizeme"      % reactSizeMeVersion,
+        "io.github.cquiroz.react"           %%% "react-grid-layout" % reactGridLayoutVersion
       ),
       // don't publish the demo
       publish := {},
@@ -119,13 +123,13 @@ lazy val facade =
     .enablePlugins(ScalaJSPlugin)
     .enablePlugins(ScalaJSBundlerPlugin)
     .enablePlugins(AutomateHeaderPlugin)
-    .settings(gspScalaJsSettings: _*)
+    .settings(lucumaScalaJsSettings: _*)
     .settings(commonSettings: _*)
     .settings(
       name := "react-aladin",
       npmDependencies in Compile ++= Seq(
-        "react" -> reactJS,
-        "react-dom" -> reactJS,
+        "react"                -> reactJS,
+        "react-dom"            -> reactJS,
         "@cquiroz/aladin-lite" -> aladinLiteVersion
       ),
       // Requires the DOM for tests
@@ -138,13 +142,16 @@ lazy val facade =
       // Compile tests to JS using fast-optimisation
       scalaJSStage in Test := FastOptStage,
       libraryDependencies ++= Seq(
-        "edu.gemini" %%% "lucuma-core" % lucumaCoreVersion,
-        "com.github.japgolly.scalajs-react" %%% "core" % scalaJsReact,
-        "com.github.japgolly.scalajs-react" %%% "test" % scalaJsReact % Test,
-        "io.github.cquiroz.react" %%% "common" % "0.9.7",
-        "com.lihaoyi" %%% "utest" % "0.7.4" % Test
+        "edu.gemini"                        %%% "lucuma-core" % lucumaCoreVersion,
+        "com.github.japgolly.scalajs-react" %%% "core"        % scalaJsReact,
+        "com.github.japgolly.scalajs-react" %%% "test"        % scalaJsReact % Test,
+        "io.github.cquiroz.react"           %%% "common"      % reactCommonVersion,
+        "org.scalameta"                     %%% "munit"       % munitVersion % Test
       ),
-      testFrameworks += new TestFramework("utest.runner.Framework"),
+      testFrameworks += new TestFramework("munit.Framework"),
+      webpackConfigFile in Test := Some(
+        baseDirectory.value / "src" / "webpack" / "test.webpack.config.js"
+      ),
       Compile / sourceGenerators += Def.task {
         val srcDir         = (demo / Compile / scalaSource).value
         val srcFiles       = srcDir ** "*.scala"
