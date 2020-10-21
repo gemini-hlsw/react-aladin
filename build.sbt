@@ -1,11 +1,12 @@
 lazy val reactJS                = "16.13.1"
 lazy val scalaJsReact           = "1.7.5"
-lazy val lucumaCoreVersion      = "0.5.0"
+lazy val lucumaCoreVersion      = "0.5.1"
+lazy val lucumaUIVersion        = "0.4.1"
 lazy val aladinLiteVersion      = "0.2.3"
 lazy val reactCommonVersion     = "0.10.0"
 lazy val reactSizeMeVersion     = "0.5.0"
 lazy val reactGridLayoutVersion = "0.8.0"
-lazy val munitVersion           = "0.7.12"
+lazy val munitVersion           = "0.7.14"
 
 inThisBuild(
   Seq(
@@ -84,6 +85,7 @@ val demo =
       ),
       libraryDependencies ++= Seq(
         "edu.gemini"                        %%% "lucuma-core"       % lucumaCoreVersion,
+        "edu.gemini"                        %%% "lucuma-ui"         % lucumaUIVersion,
         "com.github.japgolly.scalajs-react" %%% "core"              % scalaJsReact,
         "com.github.japgolly.scalajs-react" %%% "ext-monocle-cats"  % scalaJsReact,
         "com.github.japgolly.scalajs-react" %%% "test"              % scalaJsReact % Test,
@@ -143,6 +145,7 @@ lazy val facade =
       scalaJSStage in Test := FastOptStage,
       libraryDependencies ++= Seq(
         "edu.gemini"                        %%% "lucuma-core" % lucumaCoreVersion,
+        "edu.gemini"                        %%% "lucuma-ui"   % lucumaUIVersion,
         "com.github.japgolly.scalajs-react" %%% "core"        % scalaJsReact,
         "com.github.japgolly.scalajs-react" %%% "test"        % scalaJsReact % Test,
         "io.github.cquiroz.react"           %%% "common"      % reactCommonVersion,
