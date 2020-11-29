@@ -9,9 +9,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 11
-        uses: olafurpg/setup-scala@v6
+        uses: olafurpg/setup-scala@v10
         with:
-          java-version: adoptjdk@11
+          java-version: adopt@1.11
       - name: Checking your code format
         run: csbt scalafmtCheckAll
       - name: Run tests
