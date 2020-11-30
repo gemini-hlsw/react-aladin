@@ -7,7 +7,12 @@ import scala.math._
 
 import cats.data.NonEmptyMap
 import cats.implicits._
-import gpp.svgdotjs.svgdotjsSvgJs.mod.{ Element => _, _ }
+import lucuma.svgdotjs.Svg
+import lucuma.svgdotjs.Polygon
+import lucuma.svgdotjs.Rect
+import lucuma.svgdotjs.Matrix
+import lucuma.svgdotjs.Group
+import lucuma.svgdotjs.Container
 import lucuma.core.geom.ShapeExpression
 import lucuma.core.geom.ShapeInterpreter
 import lucuma.core.geom.jts.JtsShape
@@ -24,7 +29,7 @@ package object visualization {
 
   val pp: SvgPostProcessor = {
     case p: Polygon   => p.addClass("jts-polygon")
-    case g: G         => g.addClass("jts-group")
+    case g: Group     => g.addClass("jts-group")
     case c: Container => c.addClass("jts")
     case a            => a
   }
@@ -37,7 +42,7 @@ package object visualization {
   )(implicit si: ShapeInterpreter): Svg = {
     val scalingFn: ScalingFn = (v: Double) => rint(v / scaleFactor)
 
-    val svg: Svg    = SVG_()
+    val svg: Svg    = new Svg()
     // Render the svg
     val evaldShapes = shapes
       .map(_.eval)
@@ -64,7 +69,7 @@ package object visualization {
 
   val ReticleSize = 14
 
-  def addCross(svg: Container, reticleSize: Double): G = {
+  def addCross(svg: Container, reticleSize: Double): Group = {
     val g = svg.group()
     g.attr("class", "jts-svg-reticle")
 

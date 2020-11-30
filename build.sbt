@@ -1,12 +1,13 @@
 lazy val reactJS                = "16.13.1"
 lazy val scalaJsReact           = "1.7.7"
-lazy val lucumaCoreVersion      = "0.7.1"
+lazy val lucumaCoreVersion      = "0.7.2"
 lazy val lucumaUIVersion        = "0.10.2"
 lazy val aladinLiteVersion      = "0.2.3"
 lazy val reactCommonVersion     = "0.11.2"
 lazy val reactSizeMeVersion     = "0.6.2"
 lazy val reactGridLayoutVersion = "0.9.2"
 lazy val munitVersion           = "0.7.19"
+lazy val svgdotjsVersion        = "0.0.4"
 
 inThisBuild(
   Seq(
@@ -86,6 +87,7 @@ val demo =
       libraryDependencies ++= Seq(
         "edu.gemini"                        %%% "lucuma-core"       % lucumaCoreVersion,
         "edu.gemini"                        %%% "lucuma-ui"         % lucumaUIVersion,
+        "edu.gemini"                        %%% "lucuma-svgdotjs"   % svgdotjsVersion,
         "com.github.japgolly.scalajs-react" %%% "core"              % scalaJsReact,
         "com.github.japgolly.scalajs-react" %%% "ext-monocle-cats"  % scalaJsReact,
         "com.github.japgolly.scalajs-react" %%% "test"              % scalaJsReact % Test,
@@ -144,12 +146,13 @@ lazy val facade =
       // Compile tests to JS using fast-optimisation
       scalaJSStage in Test := FastOptStage,
       libraryDependencies ++= Seq(
-        "edu.gemini"                        %%% "lucuma-core" % lucumaCoreVersion,
-        "edu.gemini"                        %%% "lucuma-ui"   % lucumaUIVersion,
-        "com.github.japgolly.scalajs-react" %%% "core"        % scalaJsReact,
-        "com.github.japgolly.scalajs-react" %%% "test"        % scalaJsReact % Test,
-        "io.github.cquiroz.react"           %%% "common"      % reactCommonVersion,
-        "org.scalameta"                     %%% "munit"       % munitVersion % Test
+        "edu.gemini"                        %%% "lucuma-core"     % lucumaCoreVersion,
+        "edu.gemini"                        %%% "lucuma-ui"       % lucumaUIVersion,
+        "edu.gemini"                        %%% "lucuma-svgdotjs" % svgdotjsVersion,
+        "com.github.japgolly.scalajs-react" %%% "core"            % scalaJsReact,
+        "com.github.japgolly.scalajs-react" %%% "test"            % scalaJsReact % Test,
+        "io.github.cquiroz.react"           %%% "common"          % reactCommonVersion,
+        "org.scalameta"                     %%% "munit"           % munitVersion % Test
       ),
       testFrameworks += new TestFramework("munit.Framework"),
       webpackConfigFile in Test := Some(
