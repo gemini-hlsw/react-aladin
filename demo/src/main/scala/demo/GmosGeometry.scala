@@ -5,7 +5,7 @@ package demo
 
 import cats.data.NonEmptyMap
 import cats.implicits._
-import gpp.svgdotjs.svgdotjsSvgJs.mod._
+import lucuma.svgdotjs._
 import lucuma.core.enum.GmosNorthFpu
 import lucuma.core.enum.GmosSouthFpu
 import lucuma.core.enum.PortDisposition
@@ -58,7 +58,7 @@ object GmosGeometry {
 
   val pp: SvgPostProcessor = {
     case p: Polygon   => p.addClass("jts-polygon")
-    case g: G         => g.addClass("jts-group")
+    case g: Group     => g.addClass("jts-group")
     case c: Container => c.addClass("jts")
     case a            => a
   }

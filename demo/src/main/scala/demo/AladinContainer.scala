@@ -4,7 +4,7 @@
 package demo
 
 import cats.implicits._
-import gpp.svgdotjs.svgdotjsSvgJs.mod.Svg
+import lucuma.svgdotjs.Svg
 import japgolly.scalajs.react.MonocleReact._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
