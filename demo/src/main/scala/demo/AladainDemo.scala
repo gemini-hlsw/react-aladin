@@ -8,10 +8,16 @@ import scala.scalajs.js
 import org.scalajs.dom
 
 import js.annotation._
+// import react.sizeme.SizeP
 // import japgolly.scalajs.react._
+// import japgolly.scalajs.react.vdom.html_<^._
+// import react.common.Size
 
 @JSExportTopLevel("Main")
 object AladinDemo {
+  @js.native
+  @JSImport("react-sizeme", JSImport.Default)
+  object RawComponent extends js.Object
 
   @JSExport
   def main(): Unit = {
@@ -21,6 +27,7 @@ object AladinDemo {
       dom.document.body.appendChild(elem)
       elem
     }
+    // SizeMe()((s: Size) => <.div(s"${s.width}")).renderIntoDOM(container)
     TargetBody().renderIntoDOM(container)
 
     ()
