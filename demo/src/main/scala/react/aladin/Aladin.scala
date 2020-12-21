@@ -87,7 +87,7 @@ object PolylineOptions {
 }
 
 @js.native
-@JSImport("js/Source", JSImport.Namespace)
+@JSImport("/js/Source", JSImport.Namespace)
 class AladinSource extends js.Object {
   val x: Double       = js.native
   val y: Double       = js.native
@@ -95,7 +95,7 @@ class AladinSource extends js.Object {
 }
 
 @js.native
-@JSImport("js/Aladin", JSImport.Namespace)
+@JSImport("/js/Aladin", JSImport.Namespace)
 class JsAladin extends js.Object {
   def setImageSurvey(s:    String): Unit = js.native
   def setBaseImageLayer(s: String): Unit = js.native
