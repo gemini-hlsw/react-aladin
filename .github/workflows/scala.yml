@@ -15,4 +15,4 @@ jobs:
       - name: Checking your code format
         run: csbt scalafmtCheckAll
       - name: Run tests
-        run: csbt headerCheck test demo/fastOptJS
+        run: csbt headerCheck test demo/fastLinkJS
