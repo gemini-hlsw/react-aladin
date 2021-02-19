@@ -6,7 +6,6 @@ package demo
 import scala.scalajs.js
 
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.raw.JsNumber
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.core.math._
 import react.aladin._
@@ -61,7 +60,7 @@ object AladinTile {
     )
   )
 
-  private val layouts: Map[BreakpointName, (JsNumber, JsNumber, Layout)] =
+  private val layouts: Map[BreakpointName, (Int, Int, Layout)] =
     Map(
       (BreakpointName.lg, (1200, 12, layoutLg)),
       (BreakpointName.md, (996, 10, layoutMd))
@@ -76,7 +75,7 @@ object AladinTile {
           ^.height := "100%",
           ^.width := "100%",
           ResponsiveReactGridLayout(
-            width = s.width,
+            width = s.width.toInt,
             margin = (5, 5),
             containerPadding = (5, 5),
             rowHeight = 30,
