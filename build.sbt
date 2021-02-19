@@ -2,13 +2,13 @@ import org.scalajs.linker.interface.ModuleSplitStyle
 
 lazy val reactJS                = "16.13.1"
 lazy val scalaJsReact           = "1.7.7"
-lazy val lucumaCoreVersion      = "0.7.4"
-lazy val lucumaUIVersion        = "0.11.1"
+lazy val lucumaCoreVersion      = "0.7.7"
+lazy val lucumaUIVersion        = "0.11.4"
 lazy val aladinLiteVersion      = "0.2.3"
-lazy val reactCommonVersion     = "0.11.2"
-lazy val reactSizeMeVersion     = "0.6.3"
-lazy val reactGridLayoutVersion = "0.9.2"
-lazy val munitVersion           = "0.7.20"
+lazy val reactCommonVersion     = "0.11.3"
+lazy val reactSizeMeVersion     = "0.6.4"
+lazy val reactGridLayoutVersion = "0.11.0"
+lazy val munitVersion           = "0.7.22"
 lazy val svgdotjsVersion        = "0.0.4"
 
 inThisBuild(
