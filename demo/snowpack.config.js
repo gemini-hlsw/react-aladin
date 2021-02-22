@@ -5,14 +5,6 @@ module.exports = {
   },
   plugins: [
     [
-      "@snowpack/plugin-build-script",
-      {
-        input: ['.less'], // files to watch
-        output: ['.css'], // files to export
-        cmd: 'lessc --include-path=node_modules:src/main/resources/ $FILE', // cmd to run
-      },
-    ],
-    [
       "@snowpack/plugin-run-script",
       {
         cmd:
@@ -31,8 +23,8 @@ module.exports = {
     "@sjs": "./target/scala-2.13/demo-fastopt"
   },
   mount: {
-    public: {url: '/', static: true},
+    "public": "/",
     // src: {url: '/dist'},
-    "./target/scala-2.13/demo-fastopt": {url: "/sjs"}
+    "./target/scala-2.13/demo-fastopt": "/sjs"
   }
 }
