@@ -13,8 +13,8 @@
     "stats.js": "0.17.0"
   },
   "devDependencies": {
-    "@snowpack/plugin-react-refresh": "^2.3.9",
-    "@snowpack/plugin-run-script": "^2.2.1",
+    "@snowpack/plugin-react-refresh": "^2.4.0",
+    "@snowpack/plugin-run-script": "^2.3.0",
     "less": "3.9.0",
     "less-watch-compiler": "1.14.6",
     "snowpack": "^3.0.11"

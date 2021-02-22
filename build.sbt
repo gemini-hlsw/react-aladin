@@ -141,6 +141,9 @@ lazy val facade =
         "react-dom"            -> reactJS,
         "@cquiroz/aladin-lite" -> aladinLiteVersion
       ),
+      npmDevDependencies in Test ++= Seq(
+        "chokidar" -> "3.4.2"
+      ),
       // Requires the DOM for tests
       requireJsDomEnv in Test := true,
       // Use yarn as it is faster than npm
