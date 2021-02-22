@@ -126,7 +126,7 @@ class JsAladin extends js.Object {
 }
 
 @js.native
-@JSImport("/js/A", JSImport.Namespace)
+@JSImport("/js/A.js", JSImport.Namespace)
 object A extends js.Object {
   def aladin(divSelector: String, options: AladinProps): JsAladin = js.native
   def catalog(c:          CatalogOptions): AladinCatalog = js.native
