@@ -8,4 +8,4 @@ addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.4.2")
 
 addSbtPlugin("com.geirsson" % "sbt-ci-release" % "1.5.5")
 
-addSbtPlugin("edu.gemini" % "sbt-lucuma" % "0.3.5")
+addSbtPlugin("edu.gemini" % "sbt-lucuma" % "0.3.6")
