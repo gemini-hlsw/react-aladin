@@ -127,6 +127,7 @@ object AladinContainer {
           Aladin(
             showReticle = false,
             showFullscreenControl = true,
+            // showZoomControl = false,
             target = props.aladinCoordsStr,
             // target = "ngc 1055",
             fov = 0.25,

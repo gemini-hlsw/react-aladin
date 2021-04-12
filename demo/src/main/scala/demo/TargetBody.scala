@@ -6,12 +6,13 @@ package demo
 import scala.scalajs.js
 
 import japgolly.scalajs.react._
+import cats.syntax.all._
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.core.math._
 import react.aladin._
 import react.common._
 import react.gridlayout._
-import react.sizeme._
+import react.resizeDetector.ResizeDetector
 
 final case class TargetBody(
 ) extends ReactProps[TargetBody](TargetBody.component) {}
@@ -70,12 +71,12 @@ object AladinTile {
 
   class Backend(bs: BackendScope[Props, Unit]) {
     def render(props: Props) =
-      SizeMe(monitorHeight = true) { s =>
+      ResizeDetector() { s =>
         <.div(
           ^.height := "100%",
           ^.width := "100%",
           ResponsiveReactGridLayout(
-            width = s.width.toInt,
+            width = s.width.orEmpty,
             margin = (5, 5),
             containerPadding = (5, 5),
             rowHeight = 30,
@@ -90,8 +91,8 @@ object AladinTile {
               ^.width := "100%",
               ^.key := "target",
               ^.cls := "tile",
-              SizeMe(monitorHeight = true) { s =>
-                AladinContainer(s, props.c)
+              ResizeDetector() { s =>
+                AladinContainer(Size(s.height.orEmpty, s.width.orEmpty), props.c)
               }
             )
           )
@@ -117,13 +118,12 @@ object TargetBody {
       .builder[Props]
       .stateless
       .render { _ =>
-        SizeMe() { s =>
-          // AladinTile(s, Coordinates.fromHmsDms.getOption("17:16:56.411 -89:02:15.73").get)
+        ResizeDetector() { s =>
           AladinTile(
-            s,
+            Size(s.height.orEmpty, s.width.orEmpty),
             Coordinates.Zero
           )
-        }.vdomElement
+        }
       }
       .build
 

@@ -27,7 +27,6 @@ object AladinDemo {
       dom.document.body.appendChild(elem)
       elem
     }
-    // SizeMe()((s: Size) => <.div(s"${s.width}")).renderIntoDOM(container)
     TargetBody().renderIntoDOM(container)
 
     ()
