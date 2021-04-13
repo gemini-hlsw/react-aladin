@@ -30,14 +30,14 @@
  *****************************************************************************/
 import $ from 'jquery';
 import Color from './Color';
-import HealpixIndex from './HealpixIndex';
+import { HealpixIndex } from './HealpixIndex';
 import Utils from './Utils';
 import AladinUtils from './AladinUtils';
 import CooConversion from './CooConversion';
 import CooFrameEnum from './CooFrameEnum';
 import Source from './Source';
 import Coo from './coo';
-import * as A from './A';
+import { source } from './A';
 
 // TODO : harmoniser parsing avec classe ProgressiveCat
 const Catalog = (function() {
@@ -421,7 +421,7 @@ const Catalog = (function() {
                 dataDict[columnNames[colIdx]] = row[colIdx];
             }
 
-            newSources.push(A.source(ra, dec, dataDict));
+            newSources.push(source(ra, dec, dataDict));
         }
 
         this.addSources(newSources);

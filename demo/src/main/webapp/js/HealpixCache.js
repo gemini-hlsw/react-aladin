@@ -27,7 +27,7 @@
  * Author: Thomas Boch[CDS]
  *
  *****************************************************************************/
-import HealpixIndex from './HealpixIndex';
+import { HealpixIndex } from './HealpixIndex';
 
 // class holding some HEALPix computations for better performances
 //

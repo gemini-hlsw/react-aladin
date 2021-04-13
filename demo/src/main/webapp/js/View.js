@@ -17,9 +17,6 @@
 //    along with Aladin Lite.
 //
 
-
-
-
 /******************************************************************************
  * Aladin Lite project
  *
@@ -38,8 +35,8 @@ import Utils from './Utils';
 import AladinUtils from './AladinUtils';
 import TileBuffer from './TileBuffer';
 import SpatialVector from './SpatialVector';
-import HpxImageSurvey from './HpxImageSurvey';
-import HealpixIndex from './HealpixIndex';
+import { HpxImageSurvey } from './HpxImageSurvey';
+import { HealpixIndex, ORDER_MAX }  from './HealpixIndex';
 import HealpixCache from './HealpixCache';
 import HealpixGrid from './HealpixGrid';
 import ProjectionEnum from './ProjectionEnum';
@@ -51,7 +48,7 @@ import {Projection} from './projection';
 import Downloader from './Downloader';
 import ColorMap from './ColorMap';
 import Footprint from './Footprint';
-import * as A from './A';
+import {catalog} from './A';
 
 const View = (function() {
 
@@ -114,7 +111,7 @@ const View = (function() {
             ctx.strokeStyle = '#c38';
             ctx.arc(12, 12, 8, 0, 2*Math.PI, true);
             ctx.stroke();
-            this.catalogForPopup = A.catalog({shape: c, sourceSize: 24});
+            this.catalogForPopup = catalog({shape: c, sourceSize: 24});
             //this.catalogForPopup = A.catalog({sourceSize: 18, shape: 'circle', color: '#c38'});
             this.catalogForPopup.hide();
             this.catalogForPopup.setView(this);
@@ -1556,11 +1553,11 @@ const View = (function() {
             overlayNorder = this.overlayImageSurvey.maxOrder;
         }
         // should never happen, as calculateNSide will return something <=HealpixIndex.ORDER_MAX
-        if (norder>HealpixIndex.ORDER_MAX) {
-            norder = HealpixIndex.ORDER_MAX;
+        if (norder>ORDER_MAX) {
+            norder = ORDER_MAX;
         }
-        if (overlayNorder>HealpixIndex.ORDER_MAX) {
-            overlayNorder = HealpixIndex.ORDER_MAX;
+        if (overlayNorder>ORDER_MAX) {
+            overlayNorder = ORDER_MAX;
         }
 
         this.curNorder = norder;

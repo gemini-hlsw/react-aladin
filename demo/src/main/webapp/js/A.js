@@ -5,21 +5,21 @@ import Coo from "./coo";
 import Circle from "./Circle";
 import Polyline from "./Polyline";
 import Footprint from "./Footprint";
-import HpxImageSurvey from "./HpxImageSurvey";
+import { HpxImageSurvey } from "./HpxImageSurvey";
 import ProgressiveCat from "./ProgressiveCat";
 import Catalog from "./Catalog";
 import Aladin from "./Aladin";
 import Source from "./Source";
 
 // API
-const footprintsFromSTCS = function (stcs) {
+export const footprintsFromSTCS = function (stcs) {
   var footprints = Overlay.parseSTCS(stcs);
 
   return footprints;
 };
 
 // API
-const MOCFromURL = function (url, options, successCallback) {
+export const MOCFromURL = function (url, options, successCallback) {
   var moc = new MOC(options);
   moc.dataFromFITSURL(url, successCallback);
 
@@ -27,12 +27,12 @@ const MOCFromURL = function (url, options, successCallback) {
 };
 //
 // @API
-const catalog = function (options) {
+export const catalog = function (options) {
   return new Catalog(options);
 };
 
 // API
-const MOCFromJSON = function (jsonMOC, options) {
+export const MOCFromJSON = function (jsonMOC, options) {
   var moc = new MOC(options);
   moc.dataFromJSON(jsonMOC);
 
@@ -40,7 +40,7 @@ const MOCFromJSON = function (jsonMOC, options) {
 };
 // TODO: try first without proxy, and then with, if param useProxy not set
 // API
-const catalogFromURL = function (url, options, successCallback, useProxy) {
+export const catalogFromURL = function (url, options, successCallback, useProxy) {
   var cat = catalog(options);
   // TODO: should be self-contained in Catalog class
   Catalog.parseVOTable(
@@ -62,7 +62,7 @@ const catalogFromURL = function (url, options, successCallback, useProxy) {
 
 // API
 // @param target: can be either a string representing a position or an object name, or can be an object with keys 'ra' and 'dec' (values being in decimal degrees)
-const catalogFromSimbad = function (target, radius, options, successCallback) {
+export const catalogFromSimbad = function (target, radius, options, successCallback) {
   options = options || {};
   if (!("name" in options)) {
     options["name"] = "Simbad";
@@ -72,7 +72,7 @@ const catalogFromSimbad = function (target, radius, options, successCallback) {
 };
 
 // API
-const catalogFromNED = function (target, radius, options, successCallback) {
+export const catalogFromNED = function (target, radius, options, successCallback) {
   options = options || {};
   if (!("name" in options)) {
     options["name"] = "NED";
@@ -97,7 +97,7 @@ const catalogFromNED = function (target, radius, options, successCallback) {
 };
 
 // API
-const catalogFromVizieR = function (
+export const catalogFromVizieR = function (
   vizCatId,
   target,
   radius,
@@ -114,7 +114,7 @@ const catalogFromVizieR = function (
 };
 
 // API
-const catalogFromSkyBot = function (
+export const catalogFromSkyBot = function (
   ra,
   dec,
   radius,
@@ -132,7 +132,7 @@ const catalogFromSkyBot = function (
   return catalogFromURL(url, options, successCallback, false);
 };
 //@API
-const aladin = (divSelector, options) => {
+export const aladin = (divSelector, options) => {
   const divs = document.querySelectorAll(divSelector);
   if (divs.length > 0) {
     return new Aladin(document.querySelectorAll(divSelector)[0], options);
@@ -150,24 +150,24 @@ const aladin = (divSelector, options) => {
 
 //@API
 // TODO : lecture de properties
-const imageLayer = function (id, name, rootUrl, options) {
+export const imageLayer = function (id, name, rootUrl, options) {
   return new HpxImageSurvey(id, name, rootUrl, null, null, options);
 };
 
 // @API
-const source = function (ra, dec, data, options) {
+export const source = function (ra, dec, data, options) {
   return new Source(ra, dec, data, options);
 };
 
 // @API
-const marker = function (ra, dec,  data, options) {
+export const marker = function (ra, dec,  data, options) {
   options = options || {};
   options["marker"] = true;
   return source(ra, dec, data, options);
 };
 
 // @API
-const polygon = function (raDecArray) {
+export const polygon = function (raDecArray) {
   var l = raDecArray.length;
   if (l > 0) {
     // close the polygon if needed
@@ -182,42 +182,22 @@ const polygon = function (raDecArray) {
 };
 
 //@API
-const polyline = function (raDecArray, options) {
+export const polyline = function (raDecArray, options) {
   return new Polyline(raDecArray, options);
 };
 
 // @API
-const circle = function (ra, dec, radiusDeg, options) {
+export const circle = function (ra, dec, radiusDeg, options) {
   return new Circle([ra, dec], radiusDeg, options);
 };
 
 // @API
-const graphicOverlay = function (options) {
+export const graphicOverlay = function (options) {
   return new Overlay(options);
 };
 
 // @API
-const catalogHiPS = function (rootURL, options) {
+export const catalogHiPS = function (rootURL, options) {
   return new ProgressiveCat(rootURL, null, null, options);
 };
 
-export {
-  MOCFromURL,
-  MOCFromJSON,
-  catalogFromSimbad,
-  catalogFromNED,
-  catalogFromVizieR,
-  catalogFromSkyBot,
-  imageLayer,
-  polygon,
-  polyline,
-  graphicOverlay,
-  catalogHiPS,
-  circle,
-  catalog,
-  marker,
-  catalogFromURL,
-  footprintsFromSTCS,
-  source,
-  aladin,
-};

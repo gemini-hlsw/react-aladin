@@ -30,7 +30,7 @@ import $ from "jquery";
 import CooFrameEnum from "./CooFrameEnum";
 import Coo from "./coo";
 import AladinUtils from "./AladinUtils";
-import HpxImageSurvey from "./HpxImageSurvey";
+import { HpxImageSurvey } from "./HpxImageSurvey";
 import CooConversion from "./CooConversion";
 import MeasurementTable from "./MeasurementTable";
 import Overlay from "./Overlay";
@@ -45,7 +45,7 @@ import ColorMap from "./ColorMap";
 import Box from "./Box";
 import Sesame from "./Sesame";
 import Source from "./Source";
-import * as A from "./A";
+import { catalog, footprintsFromSTCS, catalogFromURL, marker } from "./A";
 
 const Aladin = (function () {
   const urlParam = function (name, queryString) {
@@ -1071,7 +1071,7 @@ const Aladin = (function () {
 
   // @oldAPI
   Aladin.prototype.createCatalog = function (options) {
-    return A.catalog(options);
+    return catalog(options);
   };
 
   Aladin.prototype.createProgressiveCatalog = function (
@@ -1100,12 +1100,12 @@ const Aladin = (function () {
 
   // @oldAPI
   Aladin.prototype.createFootprintsFromSTCS = function (stcs) {
-    return A.footprintsFromSTCS(stcs);
+    return footprintsFromSTCS(stcs);
   };
 
   // @oldAPI
   Aladin.prototype.createCatalogFromVOTable = function (url, options) {
-    return A.catalogFromURL(url, options);
+    return catalogFromURL(url, options);
   };
 
   Aladin.AVAILABLE_CALLBACKS = [
@@ -1621,17 +1621,17 @@ Aladin.prototype.box = function (options) {
  */
 Aladin.prototype.showPopup = function (ra, dec, title, content) {
   this.view.catalogForPopup.removeAll();
-  var marker = A.marker(ra, dec, {
+  const lmarker = marker(ra, dec, {
     popupTitle: title,
     popupDesc: content,
     useMarkerDefaultIcon: false,
   });
-  this.view.catalogForPopup.addSources(marker);
+  this.view.catalogForPopup.addSources(lmarker);
   this.view.catalogForPopup.show();
 
   this.view.popup.setTitle(title);
   this.view.popup.setText(content);
-  this.view.popup.setSource(marker);
+  this.view.popup.setSource(lmarker);
   this.view.popup.show();
 };
 
@@ -1689,7 +1689,7 @@ Aladin.prototype.getEmbedCode = function () {
     '<script type="text/javascript" src="http://aladin.unistra.fr/AladinLite/api/v2/latest/aladin.min.js" charset="utf-8"></script>\n';
   s += '<script type="text/javascript">\n';
   s +=
-    'var aladin = A.aladin("#aladin-lite-div", {survey: "' +
+    'var aladin = aladin("#aladin-lite-div", {survey: "' +
     survey +
     'P/DSS2/color", fov: ' +
     fov.toFixed(2) +

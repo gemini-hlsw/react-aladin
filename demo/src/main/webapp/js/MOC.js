@@ -16,7 +16,7 @@ import CooConversion from './CooConversion';
 import CooFrameEnum from './CooFrameEnum';
 import HealpixCache from './HealpixCache';
 import SpatialVector from './SpatialVector';
-import HealpixIndex from './HealpixIndex';
+import { HealpixIndex } from './HealpixIndex';
 import astro from './fits';
 
 const MOC = (function() {
