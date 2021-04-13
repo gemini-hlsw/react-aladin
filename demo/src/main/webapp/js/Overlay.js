@@ -34,7 +34,7 @@ import Footprint from './Footprint';
 import CooFrameEnum from './CooFrameEnum';
 import CooConversion from './CooConversion';
 import AladinUtils from './AladinUtils';
-import * as A from './A';
+import { circle } from './A';
 
 const Overlay = (function() {
    const Overlay = function(options) {
@@ -108,7 +108,7 @@ const Overlay = (function() {
                     const dec = parseFloat(parts[k+2]);
                     const radiusDegrees = parseFloat(parts[k+3]);
 
-                    footprints.push(A.circle(ra, dec, radiusDegrees));
+                    footprints.push(circle(ra, dec, radiusDegrees));
 
                     k += 3;
                 }

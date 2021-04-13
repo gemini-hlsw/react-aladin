@@ -35,7 +35,8 @@ import $ from 'jquery';
 import Tile from './Tile';
 import HpxKey from './HpxKey';
 
-const HpxImageSurvey = (function() {
+export const UPDATE_NEEDED_TILES_DELAY = 1000; // in milliseconds
+export const HpxImageSurvey = (function() {
 
 
     /** Constructor
@@ -130,9 +131,6 @@ const HpxImageSurvey = (function() {
         HpxImageSurvey.SURVEYS_OBJECTS[this.id] = this;
     };
 
-
-
-    HpxImageSurvey.UPDATE_NEEDED_TILES_DELAY = 1000; // in milliseconds
 
     HpxImageSurvey.prototype.init = function(view, callback) {
       this.view = view;
@@ -596,7 +594,7 @@ const HpxImageSurvey = (function() {
 
         drawEven = ! drawEven;
         var now = new Date().getTime();
-        var updateNeededTiles = (now-this.lastUpdateDateNeededTiles) > HpxImageSurvey.UPDATE_NEEDED_TILES_DELAY;
+        var updateNeededTiles = (now-this.lastUpdateDateNeededTiles) > UPDATE_NEEDED_TILES_DELAY;
         let tile, url, parentTile, parentUrl;
         var parentNorder = norder - 1;
         var cornersXYView, parentCornersXYView;
@@ -730,7 +728,7 @@ const HpxImageSurvey = (function() {
         }
         if (missingTiles) {
             // callback pour redemander un display dans 1000ms
-            this.view.requestRedrawAtDate(now+HpxImageSurvey.UPDATE_NEEDED_TILES_DELAY+10);
+            this.view.requestRedrawAtDate(now+UPDATE_NEEDED_TILES_DELAY+10);
         }
     };
 
@@ -1007,4 +1005,3 @@ const HpxImageSurvey = (function() {
     return HpxImageSurvey;
 })();
 
-export default HpxImageSurvey;

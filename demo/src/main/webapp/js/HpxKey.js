@@ -34,7 +34,7 @@ import HealpixCache from './HealpixCache';
 import AladinUtils from './AladinUtils';
 import CooFrameEnum from './CooFrameEnum';
 import CooConversion from './CooConversion';
-import HpxImageSurvey from './HpxImageSurvey';
+import { UPDATE_NEEDED_TILES_DELAY } from './HpxImageSurvey';
 
 const MAX_PARENTE = 4;
 const M = 280*280;
@@ -137,7 +137,7 @@ export default class HpxKey {
         tile = this.hips.tileBuffer.addTile(url);
         view.downloader.requestDownload(tile.img, tile.url, this.hips.useCors);
         this.hips.lastUpdateDateNeededTiles = now;
-        view.requestRedrawAtDate(now+HpxImageSurvey.UPDATE_NEEDED_TILES_DELAY+10);
+        view.requestRedrawAtDate(now+UPDATE_NEEDED_TILES_DELAY+10);
       }
 
 

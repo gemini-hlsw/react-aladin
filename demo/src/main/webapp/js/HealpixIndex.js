@@ -55,7 +55,7 @@ const UTAB= new Array(TAB_SIZE).fill(0).map( (v,i) =>
                1 & i | (2 & i) << 1 | (4 & i) << 2 | (8 & i) << 3 | (16 & i) << 4 | (32 & i) << 5 | (64 & i) << 6 | (128 & i) << 7);
 /* eslint-enable no-mixed-operators */
 
-export default class HealpixIndex {
+export class HealpixIndex {
 
     constructor(nside) {
         this.nside = nside;
