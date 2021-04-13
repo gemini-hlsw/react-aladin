@@ -6,7 +6,6 @@ lazy val lucumaCoreVersion      = "0.7.8"
 lazy val lucumaUIVersion        = "0.11.5"
 lazy val aladinLiteVersion      = "0.2.3"
 lazy val reactCommonVersion     = "0.11.3"
-lazy val reactSizeMeVersion     = "0.6.4"
 lazy val reactGridLayoutVersion = "0.11.0"
 lazy val munitVersion           = "0.7.22"
 lazy val svgdotjsVersion        = "0.0.4"
@@ -97,7 +96,6 @@ val demo =
         "com.github.japgolly.scalajs-react" %%% "ext-monocle-cats"  % scalaJsReact,
         "com.github.japgolly.scalajs-react" %%% "test"              % scalaJsReact % Test,
         "io.github.cquiroz.react"           %%% "common"            % reactCommonVersion,
-        "io.github.cquiroz.react"           %%% "react-sizeme"      % reactSizeMeVersion,
         "io.github.cquiroz.react"           %%% "react-grid-layout" % reactGridLayoutVersion
       ),
       // don't publish the demo
