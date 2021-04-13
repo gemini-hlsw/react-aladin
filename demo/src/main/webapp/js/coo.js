@@ -55,8 +55,8 @@ Coo.prototype = {
     * @return ||pos-this||<sup>2</sup> = 4.sin<sup>2</sup>(r/2)
    **/
    dist2: function(pos) {
-//    	if ((this.x==0)&&(this.y==0)&&(this.z==0)) return(0./0.);
-//    	if ((pos.x==0)&&(pos.y==0)&&(pos.z==0)) return(0./0.);
+//			if ((this.x==0)&&(this.y==0)&&(this.z==0)) return(0./0.);
+//			if ((pos.x==0)&&(pos.y==0)&&(pos.z==0)) return(0./0.);
 	var w = pos.x - this.x;
 	var r2 = w * w;
 	w = pos.y - this.y; r2 += w * w;
@@ -71,8 +71,8 @@ Coo.prototype = {
    **/
     distance: function(pos) {
       // Take care of NaN:
-    	if ((pos.x===0)&&(pos.y===0)&&(pos.z===0)) return(0./0.);
-    	if ((this.x===0)&&(this.y===0)&&(this.z===0)) return(0./0.);
+			if ((pos.x===0)&&(pos.y===0)&&(pos.z===0)) return(0./0.);
+			if ((this.x===0)&&(this.y===0)&&(this.z===0)) return(0./0.);
       return (2. * AstroMath.asind(0.5 * Math.sqrt(this.dist2(pos))));
     },
 
@@ -83,7 +83,7 @@ Coo.prototype = {
    convertTo: function(new_frame) {
 		// Verify first if frames identical -- then nothing to do !
 		if (this.frame.equals(new_frame)) {
-	    		return;
+					return;
 		}
 
 		// Move via ICRS
@@ -103,7 +103,7 @@ Coo.prototype = {
 		X = R[0][0]*this.x + R[0][1]*this.y + R[0][2]*this.z;
 		Y = R[1][0]*this.x + R[1][1]*this.y + R[1][2]*this.z;
 		Z = R[2][0]*this.x + R[2][1]*this.y + R[2][2]*this.z;
-    	// this.set(X, Y, Z); Not necessary to compute positions each time.
+			// this.set(X, Y, Z); Not necessary to compute positions each time.
 		this.x = X; this.y = Y; this.z = Z;
 		this.lon = this.lat = 0./0.;
     },
@@ -119,7 +119,7 @@ Coo.prototype = {
 		X = R[0][0]*this.x + R[1][0]*this.y + R[2][0]*this.z;
 		Y = R[0][1]*this.x + R[1][1]*this.y + R[2][1]*this.z;
 		Z = R[0][2]*this.x + R[1][2]*this.y + R[2][2]*this.z;
-    	// this.set(X, Y, Z); Not necessary to compute positions each time.
+			// this.set(X, Y, Z); Not necessary to compute positions each time.
 		this.x = X; this.y = Y; this.z = Z;
 		this.lon = this.lat = 0./0.;
     },
@@ -196,9 +196,6 @@ Coo.prototype = {
 		var sign;
 		if (str.charAt(0) === '-') {
 			sign = -1;
-			str = str.substring(1);
-		} else if (str.charAt(0) === '-') {
-			sign = 1;
 			str = str.substring(1);
 		} else {
 			// No sign specified

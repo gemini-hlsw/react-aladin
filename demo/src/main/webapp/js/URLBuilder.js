@@ -60,7 +60,7 @@ const URLBuilder = (function() {
             }
 
             var maxNbSources = 1e5;
-            if (options && options.hasOwnProperty('limit') && Utils.isNumber(options.limit)) {
+            if (options && Object.prototype.hasOwnProperty.call(options, 'limit') && Utils.isNumber(options.limit)) {
                 maxNbSources = parseInt(options.limit);
             }
             return 'https://vizier.unistra.fr/viz-bin/votable?-source=' + vizCatId + '&-c=' + encodeURIComponent(target) + '&-out.max=' + maxNbSources + '&-c.rd=' + radiusDegrees;
@@ -75,7 +75,7 @@ const URLBuilder = (function() {
 
             if (queryOptions) {
                 for (var key in queryOptions) {
-                    if (queryOptions.hasOwnProperty(key)) {
+                    if (Object.prototype.hasOwnProperty.call(queryOptions, key)) {
                             url += '&' + key + '=' + encodeURIComponent(queryOptions[key]);
                     }
                 }

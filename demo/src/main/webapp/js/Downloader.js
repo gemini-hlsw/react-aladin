@@ -61,7 +61,7 @@ const Downloader = (function() {
 
 	// try to download next items in queue if possible
 	Downloader.prototype.tryDownload = function() {
-	    //if (this.dlQueue.length>0 && this.nbDownloads<NB_MAX_SIMULTANEOUS_DL) {
+			//if (this.dlQueue.length>0 && this.nbDownloads<NB_MAX_SIMULTANEOUS_DL) {
 		while (this.dlQueue.length>0 && this.nbDownloads<NB_MAX_SIMULTANEOUS_DL) {
 			this.startDownloadNext();
 		}
@@ -80,17 +80,17 @@ const Downloader = (function() {
 			downloaderRef.completeDownload(this, true); // in this context, 'this' is the Image
 		};
 
-		next.img.onerror = function(e) {
+		next.img.onerror = function() {
 			downloaderRef.completeDownload(this, false); // in this context, 'this' is the Image
 		};
 		if (next.cors) {
-		    next.img.crossOrigin = 'anonymous';
+				next.img.crossOrigin = 'anonymous';
 		}
 
 		else {
-		    if (next.img.crossOrigin !== undefined) {
-		        delete next.img.crossOrigin;
-		    }
+				if (next.img.crossOrigin !== undefined) {
+						delete next.img.crossOrigin;
+				}
 		}
 
 
@@ -111,7 +111,7 @@ const Downloader = (function() {
 			this.view.requestRedraw();
 		}
 		else {
-		    img.dlError = true;
+				img.dlError = true;
 		}
 
 		this.tryDownload();

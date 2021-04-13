@@ -199,7 +199,7 @@ const ProgressiveCat = (function() {
             newSource.setCatalog(instance);
         }
         return sources;
-    };
+    }
 
     //ProgressiveCat.prototype.updateShape = cds.Catalog.prototype.updateShape;
 
@@ -221,7 +221,7 @@ const ProgressiveCat = (function() {
                         self.frame = CooFrameEnum.fromString(self.properties['hips_frame']);
 
                         self._loadMetadata();
-                    }, function(err) {
+                    }, function() {
                         console.log('Could not find properties for HiPS ' + self.rootUrl);
                     }
                 );
@@ -239,7 +239,7 @@ const ProgressiveCat = (function() {
                     self.fields = getFields(self, xml);
                     self._loadAllskyNewMethod();
                 },
-                error: function(err) {
+                error: function() {
                     self._loadAllskyOldMethod();
                 }
             });
@@ -359,7 +359,7 @@ const ProgressiveCat = (function() {
             for (let k=0, len = sources.length; k<len; k++) {
                 s = sources[k];
                 if (!this.filterFn || this.filterFn(s)) {
-                    cds.Catalog.drawSource(this, s, ctx, projection, frame, width, height, largestDim, zoomFactor);
+                    Catalog.drawSource(this, s, ctx, projection, frame, width, height, largestDim, zoomFactor);
                 }
             }
             for (let k=0, len = sources.length; k<len; k++) {
@@ -368,7 +368,7 @@ const ProgressiveCat = (function() {
                     continue;
                 }
                 if (!this.filterFn || this.filterFn(s)) {
-                    cds.Catalog.drawSourceSelection(this, s, ctx);
+                    Catalog.drawSourceSelection(this, s, ctx);
                 }
             }
         },

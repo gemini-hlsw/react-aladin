@@ -30,21 +30,21 @@
 import Tile from './Tile';
 
 const TileBuffer = (function() {
-	var NB_MAX_TILES = 800; // buffer size
+  var NB_MAX_TILES = 800; // buffer size
 
-	// constructor
-	function TileBuffer() {
-		this.pointer = 0;
-		this.tilesMap = {};
-		this.tilesArray = new Array(NB_MAX_TILES);
+  // constructor
+  function TileBuffer() {
+    this.pointer = 0;
+    this.tilesMap = {};
+    this.tilesArray = new Array(NB_MAX_TILES);
 
-		for (var i=0; i<NB_MAX_TILES; i++) {
-			this.tilesArray[i] = new Tile(new Image(), null);
-		}
-	};
+    for (var i=0; i<NB_MAX_TILES; i++) {
+      this.tilesArray[i] = new Tile(new Image(), null);
+    }
+  }
 
-	TileBuffer.prototype.addTile = function(url) {
-	    // return null if already in buffer
+  TileBuffer.prototype.addTile = function(url) {
+      // return null if already in buffer
         if (this.getTile(url)) {
             return null;
         }
@@ -65,13 +65,13 @@ const TileBuffer = (function() {
         }
 
         return this.tilesMap[url];
-	};
+  };
 
-	TileBuffer.prototype.getTile = function(url) {
+  TileBuffer.prototype.getTile = function(url) {
         return this.tilesMap[url];
-	};
+  };
 
-	return TileBuffer;
+  return TileBuffer;
 })();
 
 export default TileBuffer;
