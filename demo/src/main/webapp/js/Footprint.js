@@ -33,13 +33,13 @@ const Footprint = (function() {
     // constructor
     const Footprint = function(polygons) {
         this.polygons = polygons;
-    	this.overlay = null;
+      this.overlay = null;
 
         // TODO : all graphic overlays should have an id
         this.id = 'footprint-' + Utils.uuidv4();
 
-    	this.isShowing = true;
-    	this.isSelected = false;
+      this.isShowing = true;
+      this.isSelected = false;
     };
 
     Footprint.prototype.setOverlay = function(overlay) {

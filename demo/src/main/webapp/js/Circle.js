@@ -46,10 +46,10 @@ const Circle = (function() {
 
         this.setCenter(centerRaDec);
         this.setRadius(radiusDegrees);
-    	this.overlay = null;
+      this.overlay = null;
 
-    	this.isShowing = true;
-    	this.isSelected = false;
+      this.isShowing = true;
+      this.isSelected = false;
     };
 
     Circle.prototype.setOverlay = function(overlay) {

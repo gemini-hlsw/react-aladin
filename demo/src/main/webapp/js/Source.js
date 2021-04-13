@@ -31,10 +31,10 @@
 export default class Source{
     // constructor
     constructor(ra, dec, data, options) {
-    	this.ra = ra;
-    	this.dec = dec;
-    	this.data = data;
-    	this.catalog = null;
+      this.ra = ra;
+      this.dec = dec;
+      this.data = data;
+      this.catalog = null;
 
         this.marker = (options && options.marker) || false;
         if (this.marker) {
@@ -43,8 +43,8 @@ export default class Source{
             this.useMarkerDefaultIcon = (options && options.useMarkerDefaultIcon!==undefined) ? options.useMarkerDefaultIcon : true;
         }
 
-    	this.isShowing = true;
-    	this.isSelected = false;
+      this.isShowing = true;
+      this.isSelected = false;
     }
 
     setCatalog(catalog) {

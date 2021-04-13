@@ -40,11 +40,11 @@ const HiPSDefinition = (function() {
         this.frame = properties['hips_frame'];
         this.order = parseInt(properties['hips_order']);
         this.clientSortKey = properties['client_sort_key'];
-        this.tileFormats = properties.hasOwnProperty('hips_tile_format') && properties['hips_tile_format'].split(' ');
+        this.tileFormats = Object.prototype.hasOwnProperty.call(properties, 'hips_tile_format') && properties['hips_tile_format'].split(' ');
         this.urls = [];
         this.urls.push(properties['hips_service_url']);
         var k = 1;
-        while (properties.hasOwnProperty('hips_service_url_' + k)) {
+        while (Object.prototype.hasOwnProperty.call(properties, 'hips_service_url_' + k)) {
             this.urls.push(properties['hips_service_url_' + k]);
             k++;
         }
@@ -54,8 +54,7 @@ const HiPSDefinition = (function() {
 
     HiPSDefinition.prototype = {
 
-        getServiceURLs: function(httpsOnly) {
-            httpsOnly = httpsOnly === true;
+        getServiceURLs: function() {
 
             // TODO: TO BE COMPLETED
         },
@@ -63,16 +62,16 @@ const HiPSDefinition = (function() {
         // return the ID according to the properties
         getID: function() {
             // ID is explicitely given
-            if (this.properties.hasOwnProperty('ID')) {
+            if (Object.prototype.hasOwnProperty.call(this.properties, 'ID')) {
                 return this.properties['ID'];
             }
 
             var id = null;
             // ID might be built from different fields
-            if (this.properties.hasOwnProperty('creator_did')) {
+            if (Object.prototype.hasOwnProperty.call(this.roperties, 'creator_did')) {
                 id = this.properties['creator_did'];
             }
-            if (id==null && this.properties.hasOwnProperty('publisher_did')) {
+            if (id==null && Object.prototype.hasOwnProperty.call(this.properties, 'publisher_did')) {
                 id = this.properties['publisher_did'];
             }
 
@@ -399,10 +398,10 @@ const HiPSDefinition = (function() {
         for (let k=0; k<baseList.length; k++) {
             let item = baseList[k];
             const id = item.ID;
-            if (newListById.hasOwnProperty(id)) {
+            if (Object.prototype.hasOwnProperty.call(newListById, id)) {
                 const itemToAdd = newListById[id];
                 // we keep the last used URL property
-                if (item.hasOwnProperty(LAST_URL_KEY) && ! itemToAdd.hasOwnProperty(LAST_URL_KEY)) {
+                if (Object.prototype.hasOwnProperty.call(item, LAST_URL_KEY) && ! Object.prototype.hasOwnProperty.call(itemToAdd, LAST_URL_KEY)) {
                     itemToAdd[LAST_URL_KEY] = item[LAST_URL_KEY];
                 }
                 updatedList.push(itemToAdd);
@@ -427,7 +426,7 @@ const HiPSDefinition = (function() {
         var indicesToRemove = [];
         for (let k=0; k<localDefs.length; k++) {
             var def = localDefs[k];
-            if (def.hasOwnProperty(RETRIEVAL_TIMESTAMP_KEY) && (now - def[RETRIEVAL_TIMESTAMP_KEY]) > 1000 * HiPSDefinition.CACHE_RETENTION_TIME_SECONDS) {
+            if (Object.prototype.hasOwnProperty.call(def, RETRIEVAL_TIMESTAMP_KEY) && (now - def[RETRIEVAL_TIMESTAMP_KEY]) > 1000 * HiPSDefinition.CACHE_RETENTION_TIME_SECONDS) {
                 indicesToRemove.push(k);
             }
         }
@@ -457,7 +456,7 @@ const HiPSDefinition = (function() {
         var ret = [];
         for (var k=0; k<listHipsProperties.length; k++) {
             var properties = listHipsProperties[k];
-            if ( ! properties.hasOwnProperty('client_application') || properties['client_application'].indexOf('AladinLite')<0) {
+            if ( ! Object.prototype.hasOwnProperty.call(properties, 'client_application') || properties['client_application'].indexOf('AladinLite')<0) {
                 continue;
             }
 
@@ -529,7 +528,7 @@ const HiPSDefinition = (function() {
 
     // find a HiPSDefinition by id.
     // search is done on the local knowledge of HiPSDefinitions
-    HiPSDefinition.findByIDLocal = function(id2search, callback) {
+    HiPSDefinition.findByIDLocal = function(id2search) {
         var candidates = [];
         for (var k=0; k<listHipsProperties.length; k++) {
             var properties = listHipsProperties[k];
@@ -550,7 +549,7 @@ const HiPSDefinition = (function() {
     // search a HiPS according to some criteria
     HiPSDefinition.findHiPSRemote = function(searchOptions, callback) {
         searchOptions = searchOptions || {};
-        if (! searchOptions.hasOwnProperty('dataproduct_type')) {
+        if (! Object.prototype.hasOwnProperty.call(searchOptions, 'dataproduct_type')) {
             searchOptions['dataproduct_type'] = 'image';
         }
         HiPSDefinition.getRemoteDefinitions(searchOptions, function(candidates) {
@@ -587,7 +586,7 @@ const HiPSDefinition = (function() {
             // Sometimes, hips_service_url is missing. That can happen for instance Hipsgen does not set the hips_service_url keyword
             // --> in that case, we add as an attribyte the URL that was given as input parameter
             var hipsPropertiesDict = HiPSDefinition.parseHiPSProperties(properties);
-            if (! hipsPropertiesDict.hasOwnProperty('hips_service_url')) {
+            if (! Object.prototype.hasOwnProperty.call(hipsPropertiesDict, 'hips_service_url')) {
                 hipsPropertiesDict['hips_service_url'] = hipsUrl;
             }
             (typeof callback === 'function') && callback(new HiPSDefinition(hipsPropertiesDict));

@@ -43,8 +43,8 @@ const CooGrid = (function() {
         catch(err) {
             return null;
         }
-        return {lon: lonlat.ra, lat: lonlat.dec};
-    };
+        return {lon: lonlat.ra, lat: lonlat.dec}
+    }
 
     CooGrid.prototype.redraw = function(ctx, projection, frame, width, height, largestDim, zoomFactor, fov) {
         if (fov>60) { // currently not supported

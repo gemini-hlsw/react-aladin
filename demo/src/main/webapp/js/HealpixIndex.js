@@ -7,7 +7,7 @@ class LongRangeSetBuilder {
 
     appendRange(first, last) {
         for (let i = first; last >= i; i++) i in this.items || this.items.push(i);
-    };
+    }
 }
 
 function bigAnd(v1, v2) {

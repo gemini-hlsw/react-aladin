@@ -34,49 +34,49 @@ import {Projection} from './projection';
 const AladinUtils = (function() {
 
     return {
-    	/**
-    	 * passage de xy projection à xy dans la vue écran
-    	 * @param x
-    	 * @param y
-    	 * @param width
-    	 * @param height
-    	 * @param largestDim largest dimension of the view
-    	 * @returns position in the view
-    	 */
-    	xyToView: function(x, y, width, height, largestDim, zoomFactor, round) {
-    	    if (round===undefined) {
+      /**
+       * passage de xy projection à xy dans la vue écran
+       * @param x
+       * @param y
+       * @param width
+       * @param height
+       * @param largestDim largest dimension of the view
+       * @returns position in the view
+       */
+      xyToView: function(x, y, width, height, largestDim, zoomFactor, round) {
+          if (round===undefined) {
                 // we round by default
-    	        round = true;
-    	    }
+              round = true;
+          }
 
-    	    if (round) {
-    	        // we round the result for potential performance gains
-    	        return {vx: AladinUtils.myRound(largestDim/2*(1+zoomFactor*x)-(largestDim-width)/2), vy: AladinUtils.myRound(largestDim/2*(1+zoomFactor*y)-(largestDim-height)/2)};
+          if (round) {
+              // we round the result for potential performance gains
+              return {vx: AladinUtils.myRound(largestDim/2*(1+zoomFactor*x)-(largestDim-width)/2), vy: AladinUtils.myRound(largestDim/2*(1+zoomFactor*y)-(largestDim-height)/2)};
 
-    	    }
-    	    else {
+          }
+          else {
                 return {vx: largestDim/2*(1+zoomFactor*x)-(largestDim-width)/2, vy: largestDim/2*(1+zoomFactor*y)-(largestDim-height)/2};
-    	    }
-    	},
+          }
+      },
 
-    	/**
-    	 * passage de xy dans la vue écran à xy projection
-    	 * @param vx
-    	 * @param vy
-    	 * @param width
-    	 * @param height
-    	 * @param largestDim
-    	 * @param zoomFactor
-    	 * @returns position in xy projection
-    	 */
-    	viewToXy: function(vx, vy, width, height, largestDim, zoomFactor) {
-    		return {x: ((2*vx+(largestDim-width))/largestDim-1)/zoomFactor, y: ((2*vy+(largestDim-height))/largestDim-1)/zoomFactor};
-    	},
+      /**
+       * passage de xy dans la vue écran à xy projection
+       * @param vx
+       * @param vy
+       * @param width
+       * @param height
+       * @param largestDim
+       * @param zoomFactor
+       * @returns position in xy projection
+       */
+      viewToXy: function(vx, vy, width, height, largestDim, zoomFactor) {
+        return {x: ((2*vx+(largestDim-width))/largestDim-1)/zoomFactor, y: ((2*vy+(largestDim-height))/largestDim-1)/zoomFactor};
+      },
 
-    	/**
-    	 * convert a
-    	 * @returns position x,y in the view. Null if projection is impossible
-    	 */
+      /**
+       * convert a
+       * @returns position x,y in the view. Null if projection is impossible
+       */
         radecToViewXy: function(ra, dec, currentProjection, currentFrame, width, height, largestDim, zoomFactor) {
             var xy;
             if (currentFrame.system !== CooFrameEnum.SYSTEMS.J2000) {
@@ -94,36 +94,37 @@ const AladinUtils = (function() {
         },
 
 
-    	myRound: function(a) {
-    		if (a<0) {
-    			return -1*( (-a) | 0);
-    		}
-    		else {
-    			return a | 0;
-    		}
-    	},
+      myRound: function(a) {
+        if (a<0) {
+          return -1*( (-a) | 0);
+        }
+        else {
+          return a | 0;
+        }
+      },
 
 
 
-    	/**
-    	 * tests whether a healpix pixel is visible or not
-    	 * @param pixCorners array of position (xy view) of the corners of the pixel
-    	 * @param viewW
-    	 */
-    	isHpxPixVisible: function(pixCorners, viewWidth, viewHeight) {
-    		for (var i = 0; i<pixCorners.length; i++) {
-    			if ( pixCorners[i].vx>=-20 && pixCorners[i].vx<(viewWidth+20) &&
-    				 pixCorners[i].vy>=-20 && pixCorners[i].vy<(viewHeight+20) ) {
-    				return true;
-    			}
-    		}
-    		return false;
-    	},
+      /**
+       * tests whether a healpix pixel is visible or not
+       * @param pixCorners array of position (xy view) of the corners of the pixel
+       * @param viewW
+       */
+      isHpxPixVisible: function(pixCorners, viewWidth, viewHeight) {
+        for (var i = 0; i<pixCorners.length; i++) {
+          if ( pixCorners[i].vx>=-20 && pixCorners[i].vx<(viewWidth+20) &&
+             pixCorners[i].vy>=-20 && pixCorners[i].vy<(viewHeight+20) ) {
+            return true;
+          }
+        }
+        return false;
+      },
 
-    	ipixToIpix: function(npixIn, norderIn, norderOut) {
-    		if (norderIn>=norderOut) {
-    		}
-    	},
+      ipixToIpix: function(npixIn, norderIn, norderOut) {
+        if (norderIn>=norderOut) {
+            console.log("TODO" + npixIn);
+        }
+      },
 
         getZoomFactorForAngle: function(angleInDegrees, projectionMethod) {
             var p1 = {ra: 0, dec: 0};

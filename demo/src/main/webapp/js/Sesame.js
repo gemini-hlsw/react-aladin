@@ -65,7 +65,7 @@ const Sesame = (function() {
                                  dec: data.Target.Resolver.jdedeg});
                    },
 
-                   function(data) { // error callback
+                   function() { // error callback
                        if (errorCallback) {
                            errorCallback();
                        }
