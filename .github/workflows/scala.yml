@@ -13,6 +13,6 @@ jobs:
         with:
           java-version: adopt@1.11
       - name: Checking your code format
-        run: csbt scalafmtCheckAll
+        run: sbt scalafmtCheckAll
       - name: Run tests
-        run: csbt headerCheck test demo/fastLinkJS
+        run: sbt headerCheck test demo/fastLinkJS
