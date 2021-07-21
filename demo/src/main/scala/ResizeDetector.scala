@@ -6,7 +6,6 @@ package react.resizeDetector
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.facade.JsNumber
 import japgolly.scalajs.react.facade.React
-import japgolly.scalajs.react.vdom.VdomBuilder
 import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom.html
 import react.common._
@@ -17,11 +16,6 @@ import scalajs.js
 import scalajs.js.|
 
 object ResizeDetector {
-
-  implicit class BuilderOps(b: VdomBuilder) {
-    def addRefFn[A](refFn: React.RefFn[A]): Unit =
-      b.addAttr("ref", refFn)
-  }
 
   @js.native
   @JSImport("react-resize-detector", JSImport.Default)
