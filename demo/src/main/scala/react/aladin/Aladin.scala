@@ -9,7 +9,7 @@ import scala.scalajs.js.annotation._
 
 import cats.implicits._
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.raw.JsNumber
+import japgolly.scalajs.react.facade.JsNumber
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.core.math._
 import org.scalajs.dom.ext._

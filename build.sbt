@@ -1,13 +1,13 @@
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-lazy val reactJS                = "16.13.1"
-lazy val scalaJsReact           = "1.7.7"
-lazy val lucumaCoreVersion      = "0.9.1"
-lazy val lucumaUIVersion        = "0.15.0"
+lazy val reactJS                = "17.0.2"
+lazy val scalaJsReact           = "2.0.0-RC2"
+lazy val lucumaCoreVersion      = "0.11.0"
+lazy val lucumaUIVersion        = "0.17.0"
 lazy val aladinLiteVersion      = "0.2.3"
-lazy val reactCommonVersion     = "0.11.3"
-lazy val reactGridLayoutVersion = "0.12.0"
-lazy val munitVersion           = "0.7.26"
+lazy val reactCommonVersion     = "0.13.0"
+lazy val reactGridLayoutVersion = "0.14.0"
+lazy val munitVersion           = "0.7.27"
 lazy val svgdotjsVersion        = "0.1.1"
 
 inThisBuild(
@@ -58,14 +58,14 @@ val demo =
       scalaJSLinkerConfig in (Compile, fastOptJS) ~= { _.withSourceMap(false) },
       scalaJSLinkerConfig in (Compile, fullOptJS) ~= { _.withSourceMap(false) },
       libraryDependencies ++= Seq(
-        "edu.gemini"                        %%% "lucuma-core"       % lucumaCoreVersion,
-        "edu.gemini"                        %%% "lucuma-ui"         % lucumaUIVersion,
-        "edu.gemini"                        %%% "lucuma-svgdotjs"   % svgdotjsVersion,
-        "com.github.japgolly.scalajs-react" %%% "core"              % scalaJsReact,
-        "com.github.japgolly.scalajs-react" %%% "ext-monocle-cats"  % scalaJsReact,
-        "com.github.japgolly.scalajs-react" %%% "test"              % scalaJsReact % Test,
-        "io.github.cquiroz.react"           %%% "common"            % reactCommonVersion,
-        "io.github.cquiroz.react"           %%% "react-grid-layout" % reactGridLayoutVersion
+        "edu.gemini"                        %%% "lucuma-core"        % lucumaCoreVersion,
+        "edu.gemini"                        %%% "lucuma-ui"          % lucumaUIVersion,
+        "edu.gemini"                        %%% "lucuma-svgdotjs"    % svgdotjsVersion,
+        "com.github.japgolly.scalajs-react" %%% "core"               % scalaJsReact,
+        "com.github.japgolly.scalajs-react" %%% "extra-ext-monocle3" % scalaJsReact,
+        "com.github.japgolly.scalajs-react" %%% "test"               % scalaJsReact % Test,
+        "io.github.cquiroz.react"           %%% "common"             % reactCommonVersion,
+        "io.github.cquiroz.react"           %%% "react-grid-layout"  % reactGridLayoutVersion
       ),
       // don't publish the demo
       publish := {},

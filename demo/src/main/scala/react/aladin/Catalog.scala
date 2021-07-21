@@ -7,7 +7,7 @@ import scala.scalajs.js
 import scala.scalajs.js.annotation._
 import scala.scalajs.js.|
 
-import japgolly.scalajs.react.raw.JsNumber
+import japgolly.scalajs.react.facade.JsNumber
 import org.scalajs.dom.CanvasRenderingContext2D
 import org.scalajs.dom.ext._
 import org.scalajs.dom.html.Image
