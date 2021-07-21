@@ -6,7 +6,7 @@ package react.aladin
 import scala.scalajs.js
 import scala.scalajs.js.annotation._
 
-import japgolly.scalajs.react.raw.JsNumber
+import japgolly.scalajs.react.facade.JsNumber
 
 @js.native
 @JSImport("/js/Color", JSImport.Namespace)

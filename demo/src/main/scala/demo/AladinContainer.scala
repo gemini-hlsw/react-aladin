@@ -5,7 +5,7 @@ package demo
 
 import cats.implicits._
 import lucuma.svgdotjs.Svg
-import japgolly.scalajs.react.MonocleReact._
+import japgolly.scalajs.react.ReactMonocle._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.core.geom.jts.interpreter._
@@ -56,7 +56,7 @@ object AladinContainer {
      * @return
      */
     def initialSvgState: Callback =
-      aladinRef.get
+      aladinRef.get.asCBO
         .flatMapCB(_.backend.runOnAladinCB(v => updateSvgState(v.pixelScale)))
         .void
 
@@ -83,7 +83,7 @@ object AladinContainer {
       $.props
         .map(AladinContainer.coordinates.get)
         .toCBO
-        .flatMap(c => aladinRef.get.flatMapCB(_.backend.world2pix(c))) // calculate the offset
+        .flatMap(c => aladinRef.get.asCBO.flatMapCB(_.backend.world2pix(c))) // calculate the offset
         .map {
           case Some((x: Double, y: Double)) =>
             // Delete any viz previously rendered
@@ -139,7 +139,7 @@ object AladinContainer {
 
     def onZoom(v: JsAladin): Callback =
       updateSvgState(v.pixelScale).flatMap { s =>
-        aladinRef.get.flatMapCB(r =>
+        aladinRef.get.asCBO.flatMapCB(r =>
           r.backend.recalculateView *>
             r.backend.runOnAladinCB(updateVisualization(s))
         )
@@ -158,7 +158,7 @@ object AladinContainer {
           // Update the existing visualization in place
           val previous = Option(div.querySelector(".aladin-visualization"))
           (s.svg, previous).mapN { case (svg, previous) =>
-            aladinRef.get
+            aladinRef.get.asCBO
               .flatMapCB(
                 _.backend.world2pix(Coordinates(p.coordinates.ra, p.coordinates.dec))
               )
@@ -180,8 +180,8 @@ object AladinContainer {
         }
         .void
 
-    def recalculateView =
-      aladinRef.get.flatMapCB { r =>
+    def recalculateView: Callback =
+      aladinRef.get.asCBO.flatMapCB { r =>
         r.backend.pixelScale.flatMap { ps =>
           updateSvgState(ps).flatMap { s =>
             r.backend.recalculateView *> r.backend.runOnAladinCB(updateVisualization(s))
