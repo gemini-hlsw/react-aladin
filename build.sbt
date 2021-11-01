@@ -1,12 +1,12 @@
 import org.scalajs.linker.interface.ModuleSplitStyle
 
 lazy val reactJS                = "17.0.2"
-lazy val scalaJsReact           = "2.0.0-RC2"
-lazy val lucumaCoreVersion      = "0.11.0"
-lazy val lucumaUIVersion        = "0.17.0"
+lazy val scalaJsReact           = "2.0.0-RC5"
+lazy val lucumaCoreVersion      = "0.14.2"
+lazy val lucumaUIVersion        = "0.17.2"
 lazy val aladinLiteVersion      = "0.2.3"
 lazy val reactCommonVersion     = "0.13.0"
-lazy val reactGridLayoutVersion = "0.14.0"
+lazy val reactGridLayoutVersion = "0.14.1"
 lazy val munitVersion           = "0.7.27"
 lazy val svgdotjsVersion        = "0.1.1"
 
@@ -25,7 +25,7 @@ addCommandAlias(
   "; demo/fastOptJS::stopWebpackDevServer; demo/fastOptJS::startWebpackDevServer; ~demo/fastOptJS"
 )
 
-skip in publish := true
+publish / skip := true
 
 val demo =
   project
@@ -35,28 +35,26 @@ val demo =
     .settings(lucumaScalaJsSettings: _*)
     .settings(commonSettings: _*)
     .settings(
-      skip in publish := true,
+      publish / skip := true,
       scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
       scalaJSLinkerConfig ~= (_.withModuleSplitStyle(ModuleSplitStyle.SmallestModules)),
-      version in webpack := "4.44.1",
-      version in startWebpackDevServer := "3.11.0",
-      webpackConfigFile in fastOptJS := Some(
+      webpack / version := "4.44.1",
+      startWebpackDevServer / version := "3.11.0",
+      fastOptJS / webpackConfigFile := Some(
         baseDirectory.value / "webpack" / "dev.webpack.config.js"
       ),
-      webpackConfigFile in fullOptJS := Some(
+      fullOptJS / webpackConfigFile := Some(
         baseDirectory.value / "webpack" / "prod.webpack.config.js"
       ),
-      // webpackMonitoredDirectories += (resourceDirectory in Compile).value,
       webpackResources := (baseDirectory.value / "webpack") * "*.js",
-      includeFilter in webpackMonitoredFiles := "*",
+      webpackMonitoredFiles / includeFilter := "*",
       webpackExtraArgs := Seq("--progress"),
-      // webpackExtraArgs                       := Seq("--progress", "--display", "verbose"),
       useYarn := true,
-      webpackBundlingMode in fastOptJS := BundlingMode.LibraryOnly(),
-      webpackBundlingMode in fullOptJS := BundlingMode.Application,
+      fastOptJS / webpackBundlingMode := BundlingMode.LibraryOnly(),
+      fullOptJS / webpackBundlingMode := BundlingMode.Application,
       test := {},
-      scalaJSLinkerConfig in (Compile, fastOptJS) ~= { _.withSourceMap(false) },
-      scalaJSLinkerConfig in (Compile, fullOptJS) ~= { _.withSourceMap(false) },
+      Compile / fastOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(false) },
+      Compile / fullOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(false) },
       libraryDependencies ++= Seq(
         "edu.gemini"                        %%% "lucuma-core"        % lucumaCoreVersion,
         "edu.gemini"                        %%% "lucuma-ui"          % lucumaUIVersion,
@@ -103,23 +101,23 @@ lazy val facade =
     .settings(commonSettings: _*)
     .settings(
       name := "react-aladin",
-      npmDependencies in Compile ++= Seq(
+      Compile / npmDependencies ++= Seq(
         "react"                -> reactJS,
         "react-dom"            -> reactJS,
         "@cquiroz/aladin-lite" -> aladinLiteVersion
       ),
-      npmDevDependencies in Test ++= Seq(
+      Test / npmDevDependencies ++= Seq(
         "chokidar" -> "3.4.2"
       ),
       // Requires the DOM for tests
-      requireJsDomEnv in Test := true,
+      Test / requireJsDomEnv := true,
       // Use yarn as it is faster than npm
       useYarn := true,
-      version in webpack := "4.20.2",
-      version in startWebpackDevServer := "3.1.8",
+      webpack / version := "4.20.2",
+      startWebpackDevServer / version := "3.1.8",
       scalaJSUseMainModuleInitializer := false,
       // Compile tests to JS using fast-optimisation
-      scalaJSStage in Test := FastOptStage,
+      Test / scalaJSStage := FastOptStage,
       libraryDependencies ++= Seq(
         "edu.gemini"                        %%% "lucuma-core"     % lucumaCoreVersion,
         "edu.gemini"                        %%% "lucuma-ui"       % lucumaUIVersion,
@@ -130,7 +128,7 @@ lazy val facade =
         "org.scalameta"                     %%% "munit"           % munitVersion % Test
       ),
       testFrameworks += new TestFramework("munit.Framework"),
-      webpackConfigFile in Test := Some(
+      Test / webpackConfigFile := Some(
         baseDirectory.value / "src" / "webpack" / "test.webpack.config.js"
       ),
       Compile / sourceGenerators += Def.task {
