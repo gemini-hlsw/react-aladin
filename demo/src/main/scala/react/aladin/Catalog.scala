@@ -9,7 +9,6 @@ import scala.scalajs.js.|
 
 import japgolly.scalajs.react.facade.JsNumber
 import org.scalajs.dom.CanvasRenderingContext2D
-import org.scalajs.dom.ext._
 import org.scalajs.dom.html.Image
 
 // This will be the props object used from JS-land
@@ -37,7 +36,7 @@ object CatalogOptions {
 
   def apply(
     name:         js.UndefOr[String] = js.undefined,
-    color:        js.UndefOr[Color] = js.undefined,
+    color:        js.UndefOr[String] = js.undefined,
     sourceSize:   js.UndefOr[JsNumber] = js.undefined,
     shape:        js.UndefOr[String | Image | DrawFunction] = js.undefined,
     limit:        js.UndefOr[JsNumber] = js.undefined,

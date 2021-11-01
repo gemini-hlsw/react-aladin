@@ -12,8 +12,7 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.facade.JsNumber
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.core.math._
-import org.scalajs.dom.ext._
-import org.scalajs.dom.raw.Element
+import org.scalajs.dom.Element
 import react.common._
 
 // This will be the props object used from JS-land
@@ -60,13 +59,13 @@ trait OverlayOptions extends js.Object {
 object OverlayOptions {
   def apply(
     name:      js.UndefOr[String] = js.undefined,
-    color:     js.UndefOr[Color] = js.undefined,
+    color:     js.UndefOr[String] = js.undefined,
     lineWidth: js.UndefOr[JsNumber] = js.undefined
   ): OverlayOptions = {
     val p = (new js.Object()).asInstanceOf[OverlayOptions]
-    p.name = name
-    p.color = color.map(c => c: String)
-    p.lineWidth = lineWidth
+    name.foreach(v => p.name = v)
+    color.foreach(v => p.color = v)
+    lineWidth.foreach(v => p.lineWidth = v)
     p
   }
 }
@@ -78,10 +77,10 @@ trait PolylineOptions extends js.Object {
 
 object PolylineOptions {
   def apply(
-    color: js.UndefOr[Color] = js.undefined
+    color: js.UndefOr[String] = js.undefined
   ): PolylineOptions = {
     val p = (new js.Object()).asInstanceOf[PolylineOptions]
-    p.color = color.map(c => c: String)
+    color.foreach(v => p.color = v)
     p
   }
 }
@@ -196,7 +195,7 @@ final case class Aladin(
   showCoordinates:          js.UndefOr[Boolean] = js.undefined,
   showFov:                  js.UndefOr[Boolean] = js.undefined,
   fullScreen:               js.UndefOr[Boolean] = js.undefined,
-  reticleColor:             js.UndefOr[Color] = js.undefined,
+  reticleColor:             js.UndefOr[String] = js.undefined,
   reticleSize:              js.UndefOr[JsNumber] = js.undefined,
   imageSurvey:              js.UndefOr[String] = js.undefined,
   baseImageLayer:           js.UndefOr[String] = js.undefined,
@@ -304,7 +303,7 @@ object Aladin {
       q.showCoordinates,
       q.showFov,
       q.fullScreen,
-      q.reticleColor.map(Color.apply),
+      q.reticleColor,
       q.reticleSize,
       q.imageSurvey,
       q.baseImageLayer,
@@ -313,26 +312,26 @@ object Aladin {
 
   def fromProps(q: Props): AladinProps = {
     val p = new js.Object().asInstanceOf[AladinProps]
-    p.fov = q.fov
-    p.target = q.target
-    p.survey = q.survey
-    p.cooFrame = q.cooFrame.toJs
-    p.reticleColor = q.reticleColor.map(c => c: String)
-    p.reticleSize = q.reticleSize
-    p.imageSurvey = q.imageSurvey
-    p.baseImageLayer = q.baseImageLayer
-    p.customize = q.customize.map(f => (j: JsAladin) => f(j).runNow())
-    p.showReticle = q.showReticle
-    p.showZoomControl = q.showZoomControl
-    p.showFullscreenControl = q.showFullscreenControl
-    p.showLayersControl = q.showLayersControl
-    p.showGotoControl = q.showGotoControl
-    p.showShareControl = q.showShareControl
-    p.showSimbadPointerControl = q.showSimbadPointerControl
-    p.showFrame = q.showFrame
-    p.showCoordinates = q.showCoordinates
-    p.showFov = q.showFov
-    p.fullScreen = q.fullScreen
+    q.fov.foreach(v => p.fov = v)
+    q.target.foreach(v => p.target = v)
+    q.survey.foreach(v => p.survey = v)
+    q.cooFrame.foreach(v => p.cooFrame = v.toJs)
+    q.reticleColor.foreach(v => p.reticleColor = v: String)
+    q.reticleSize.foreach(v => p.reticleSize = v)
+    q.imageSurvey.foreach(v => p.imageSurvey = v)
+    q.baseImageLayer.foreach(v => p.baseImageLayer = v)
+    q.customize.foreach(v => p.customize = (j: JsAladin) => v(j).runNow())
+    q.showReticle.foreach(v => p.showReticle = v)
+    q.showZoomControl.foreach(v => p.showZoomControl = v)
+    q.showFullscreenControl.foreach(v => p.showFullscreenControl = v)
+    q.showLayersControl.foreach(v => p.showLayersControl = v)
+    q.showGotoControl.foreach(v => p.showGotoControl = v)
+    q.showShareControl.foreach(v => p.showShareControl = v)
+    q.showSimbadPointerControl.foreach(v => p.showSimbadPointerControl = v)
+    q.showFrame.foreach(v => p.showFrame = v)
+    q.showCoordinates.foreach(v => p.showCoordinates = v)
+    q.showFov.foreach(v => p.showFov = v)
+    q.fullScreen.foreach(v => p.fullScreen = v)
     p
   }
 

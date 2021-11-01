@@ -19,7 +19,7 @@ import lucuma.core.geom.jts.JtsShape
 import lucuma.core.geom.svg._
 import lucuma.core.geom.svg.implicits._
 import lucuma.core.math.Angle
-import org.scalajs.dom.raw.Element
+import org.scalajs.dom.Element
 import react.common._
 
 package object visualization {

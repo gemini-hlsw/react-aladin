@@ -13,7 +13,7 @@ import lucuma.core.math._
 import monocle.Lens
 import monocle.macros.GenLens
 import org.scalajs.dom.document
-import org.scalajs.dom.raw.Element
+import org.scalajs.dom.Element
 import react.aladin._
 import react.common._
 
