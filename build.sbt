@@ -59,7 +59,7 @@ val demo =
         "edu.gemini"                        %%% "lucuma-core"        % lucumaCoreVersion,
         "edu.gemini"                        %%% "lucuma-ui"          % lucumaUIVersion,
         "edu.gemini"                        %%% "lucuma-svgdotjs"    % svgdotjsVersion,
-        "com.github.japgolly.scalajs-react" %%% "core"               % scalaJsReact,
+        "com.github.japgolly.scalajs-react" %%% "core-bundle-cb_io"  % scalaJsReact,
         "com.github.japgolly.scalajs-react" %%% "extra-ext-monocle3" % scalaJsReact,
         "com.github.japgolly.scalajs-react" %%% "test"               % scalaJsReact % Test,
         "io.github.cquiroz.react"           %%% "common"             % reactCommonVersion,
@@ -119,13 +119,13 @@ lazy val facade =
       // Compile tests to JS using fast-optimisation
       Test / scalaJSStage := FastOptStage,
       libraryDependencies ++= Seq(
-        "edu.gemini"                        %%% "lucuma-core"     % lucumaCoreVersion,
-        "edu.gemini"                        %%% "lucuma-ui"       % lucumaUIVersion,
-        "edu.gemini"                        %%% "lucuma-svgdotjs" % svgdotjsVersion,
-        "com.github.japgolly.scalajs-react" %%% "core"            % scalaJsReact,
-        "com.github.japgolly.scalajs-react" %%% "test"            % scalaJsReact % Test,
-        "io.github.cquiroz.react"           %%% "common"          % reactCommonVersion,
-        "org.scalameta"                     %%% "munit"           % munitVersion % Test
+        "edu.gemini"                        %%% "lucuma-core"       % lucumaCoreVersion,
+        "edu.gemini"                        %%% "lucuma-ui"         % lucumaUIVersion,
+        "edu.gemini"                        %%% "lucuma-svgdotjs"   % svgdotjsVersion,
+        "com.github.japgolly.scalajs-react" %%% "core-bundle-cb_io" % scalaJsReact,
+        "com.github.japgolly.scalajs-react" %%% "test"              % scalaJsReact % Test,
+        "io.github.cquiroz.react"           %%% "common"            % reactCommonVersion,
+        "org.scalameta"                     %%% "munit"             % munitVersion % Test
       ),
       testFrameworks += new TestFramework("munit.Framework"),
       Test / webpackConfigFile := Some(
