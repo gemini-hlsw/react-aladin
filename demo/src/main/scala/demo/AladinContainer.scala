@@ -125,6 +125,7 @@ object AladinContainer {
         ^.height := 100.pct,
         AladinComp.withRef(aladinRef) {
           Aladin(
+            Css("react-aladin"),
             showReticle = false,
             showFullscreenControl = true,
             // showZoomControl = false,

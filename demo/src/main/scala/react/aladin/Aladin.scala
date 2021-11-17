@@ -26,6 +26,7 @@ trait SourceDraw extends js.Object {
 // This will be the props object used from JS-land
 @js.native
 trait AladinProps extends js.Object {
+  var mountNodeClass: String
   var fov: js.UndefOr[JsNumber]
   var target: js.UndefOr[String]
   var survey: js.UndefOr[String]
@@ -180,6 +181,7 @@ object A extends js.Object {
 }
 
 final case class Aladin(
+  mountNodeClass:           Css,
   target:                   js.UndefOr[String] = js.undefined,
   fov:                      js.UndefOr[JsNumber] = js.undefined,
   survey:                   js.UndefOr[String] = js.undefined,
@@ -203,6 +205,8 @@ final case class Aladin(
 ) {
   def render   = Aladin.component(this)
   def renderJs = Aladin.jsComponent(Aladin.fromProps(this))
+
+  lazy val mountNodeClassSelector = mountNodeClass.htmlClasses.map(cls => s".$cls").mkString
 }
 
 object Aladin {
@@ -234,7 +238,7 @@ object Aladin {
         case _              => Callback.empty
       }
 
-    def render: VdomElement = <.div(^.cls := "react-aladin")
+    def render(props: Props): VdomElement = <.div(props.mountNodeClass)
 
     def gotoRaDec(ra: JsNumber, dec: JsNumber): Callback = runOnAladin(_.gotoRaDec(ra, dec))
 
@@ -276,7 +280,8 @@ object Aladin {
     .renderBackend[Backend]
     .componentDidMount { b =>
       for {
-        aladin <- CallbackTo[JsAladin](A.aladin(".react-aladin", fromProps(b.props)))
+        aladin <-
+          CallbackTo[JsAladin](A.aladin(b.props.mountNodeClassSelector, fromProps(b.props)))
         _      <- Callback(b.props.imageSurvey.toOption.map(aladin.setImageSurvey))
         _      <- Callback(b.props.baseImageLayer.toOption.map(aladin.setBaseImageLayer))
         _      <- Callback(b.props.customize.toOption.map(_(aladin).runNow()))
@@ -288,6 +293,7 @@ object Aladin {
 
   def fromProps(q: AladinProps): Props =
     Aladin(
+      Css(q.mountNodeClass),
       q.target,
       q.fov,
       q.survey,
