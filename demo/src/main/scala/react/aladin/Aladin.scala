@@ -11,6 +11,7 @@ import cats.implicits._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.facade.JsNumber
 import japgolly.scalajs.react.vdom.html_<^._
+import java.util.UUID
 import lucuma.core.math._
 import org.scalajs.dom.Element
 import react.common._
@@ -214,6 +215,8 @@ object Aladin {
   implicit val stateReuse: Reusability[State] = Reusability.by(_.a.isDefined)
 
   class Backend(bs: BackendScope[Aladin, State]) {
+    protected[aladin] val mountNodeClass = s"react-aladin-${UUID.randomUUID()}"
+
     def runOnAladinOpt[A](f: JsAladin => A): CallbackOption[A] =
       bs.state
         .map {
@@ -234,7 +237,7 @@ object Aladin {
         case _              => Callback.empty
       }
 
-    def render: VdomElement = <.div(^.cls := "react-aladin")
+    def render: VdomElement = <.div(^.cls := mountNodeClass)
 
     def gotoRaDec(ra: JsNumber, dec: JsNumber): Callback = runOnAladin(_.gotoRaDec(ra, dec))
 
@@ -276,7 +279,8 @@ object Aladin {
     .renderBackend[Backend]
     .componentDidMount { b =>
       for {
-        aladin <- CallbackTo[JsAladin](A.aladin(".react-aladin", fromProps(b.props)))
+        aladin <-
+          CallbackTo[JsAladin](A.aladin(s".${b.backend.mountNodeClass}", fromProps(b.props)))
         _      <- Callback(b.props.imageSurvey.toOption.map(aladin.setImageSurvey))
         _      <- Callback(b.props.baseImageLayer.toOption.map(aladin.setBaseImageLayer))
         _      <- Callback(b.props.customize.toOption.map(_(aladin).runNow()))
