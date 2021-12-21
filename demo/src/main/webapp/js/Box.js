@@ -64,7 +64,6 @@ const Box = (function() {
             this.changingDim = 'height';
         }
 
-
         this.open = false;
         this._render();
         this.$parentDiv.style.display = '';
@@ -110,12 +109,12 @@ const Box = (function() {
             if (this.changingDim==='width') {
                 this.$parentDiv.find('.aladin-box-title-label').hide();
             }
-            var self = this;
-            var options = {};
+            const self = this;
+            const options = {};
             options[this.changingDim] = 'hide';
-            var delay = this.changingDim==='width' ? 0 : 400;
-                 self.css[self.position] = '0px';
-                 self.updateStyle(self.css);
+            // var delay = this.changingDim==='width' ? 0 : 400;
+            self.css[self.position] = '0px';
+            self.updateStyle(self.css);
             // this.$parentDiv.querySelectorAll('.aladin-box-content').forEach(node => {
             //     animate(options, delay, function() {
             //     self.css[self.position] = '0px';
@@ -161,7 +160,7 @@ const Box = (function() {
 
             // this.$parentDiv.empty();
             while(this.$parentDiv.firstChild)
-                el.removeChild(this.$parentDiv.firstChild);
+                this.$parentDiv.removeChild(this.$parentDiv.firstChild);
             // this.$parentDiv.off();
 
             // var titleDiv = $('<div class="aladin-box-title">');
