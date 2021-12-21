@@ -2,8 +2,8 @@ import org.scalajs.linker.interface.ModuleSplitStyle
 
 lazy val reactJS                = "17.0.2"
 lazy val scalaJsReact           = "2.0.0"
-lazy val lucumaCoreVersion      = "0.14.3"
-lazy val lucumaUIVersion        = "0.18.1"
+lazy val lucumaCoreVersion      = "0.17.0"
+lazy val lucumaUIVersion        = "0.21.0"
 lazy val aladinLiteVersion      = "0.5.1"
 lazy val reactCommonVersion     = "0.14.7"
 lazy val reactGridLayoutVersion = "0.14.2"
@@ -18,6 +18,8 @@ inThisBuild(
   ) ++ lucumaPublishSettings
 )
 
+
+ThisBuild / Test / bspEnabled                                        := false
 Global / resolvers += Resolver.sonatypeRepo("public")
 
 addCommandAlias(
@@ -30,31 +32,21 @@ publish / skip := true
 val demo =
   project
     .in(file("demo"))
-    // .enablePlugins(ScalaJSBundlerPlugin)
     .enablePlugins(ScalaJSPlugin)
     .settings(lucumaScalaJsSettings: _*)
     .settings(commonSettings: _*)
     .settings(
       publish / skip := true,
       scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
-      scalaJSLinkerConfig ~= (_.withModuleSplitStyle(ModuleSplitStyle.SmallestModules)),
-      webpack / version := "4.44.1",
-      startWebpackDevServer / version := "3.11.0",
-      fastOptJS / webpackConfigFile := Some(
-        baseDirectory.value / "webpack" / "dev.webpack.config.js"
-      ),
-      fullOptJS / webpackConfigFile := Some(
-        baseDirectory.value / "webpack" / "prod.webpack.config.js"
-      ),
-      webpackResources := (baseDirectory.value / "webpack") * "*.js",
-      webpackMonitoredFiles / includeFilter := "*",
-      webpackExtraArgs := Seq("--progress"),
-      useYarn := true,
-      fastOptJS / webpackBundlingMode := BundlingMode.LibraryOnly(),
-      fullOptJS / webpackBundlingMode := BundlingMode.Application,
+      Compile / fastLinkJS / scalaJSLinkerConfig ~= (_.withModuleSplitStyle(
+        ModuleSplitStyle.SmallestModules
+      )),
+      Compile / fullLinkJS / scalaJSLinkerConfig ~= (_.withModuleSplitStyle(
+        ModuleSplitStyle.FewestModules
+      )),
+      Compile / fastOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(true) },
+      Compile / fullOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(true) },
       test := {},
-      Compile / fastOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(false) },
-      Compile / fullOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(false) },
       libraryDependencies ++= Seq(
         "edu.gemini"                        %%% "lucuma-core"        % lucumaCoreVersion,
         "edu.gemini"                        %%% "lucuma-ui"          % lucumaUIVersion,

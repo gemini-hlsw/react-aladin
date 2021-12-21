@@ -17,7 +17,7 @@ export default ({ command, mode }) => {
   const suithemes = path.resolve(webappCommon, "suithemes");
   const publicDirProd = path.resolve(common, "src/main/public");
   const publicDirDev = path.resolve(common, "src/main/publicdev");
-  const publicDir = 
+  const publicDir =
     mode == "production"
      ? publicDirProd
      : publicDirDev
@@ -55,10 +55,6 @@ export default ({ command, mode }) => {
     server: {
       strictPort: true,
       port: 9090,
-      https: {
-        key: fs.readFileSync("server.key"),
-        cert: fs.readFileSync("server.cert"),
-      },
       watch: {
         ignored: [
           function ignoreThisPath(_path) {
@@ -72,6 +68,8 @@ export default ({ command, mode }) => {
       },
     },
     build: {
+      sourcemap: true,
+      minify: false,
       terserOptions: {
         sourceMap: false,
       },

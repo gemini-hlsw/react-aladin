@@ -35,7 +35,7 @@ package aladin {
 
   sealed trait CooFrame extends Product with Serializable
   object CooFrame {
-    implicit val enum: EnumValue[CooFrame] = EnumValue.toLowerCaseString
+    implicit val enumCooFrame: EnumValue[CooFrame] = EnumValue.toLowerCaseString
     case object J2000    extends CooFrame
     case object J2000d   extends CooFrame
     case object Galactic extends CooFrame

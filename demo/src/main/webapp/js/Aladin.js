@@ -1609,8 +1609,8 @@ const Aladin = (function () {
  * return a Box GUI element to insert content
  */
 Aladin.prototype.box = function (options) {
-  var box = new Box(options);
-  box.$parentDiv.appendTo(this.aladinDiv);
+  const box = new Box(options);
+  this.aladinDiv.append(box.$parentDiv);
 
   return box;
 };
