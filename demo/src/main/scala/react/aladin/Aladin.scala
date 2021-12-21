@@ -120,6 +120,7 @@ class JsAladin extends js.Object {
   def getParentDiv(): Element     = js.native
   def getSize(): js.Array[Double] = js.native
   def getFov(): js.Array[Double]  = js.native
+  def box(): Unit                 = js.native
   def pix2world(x: Double, y: Double): js.Array[Double] = js.native
   def world2pix(x: Double, y: Double): js.Array[Double] = js.native
   def on(n:        String, f: js.Function): Unit        = js.native
@@ -242,6 +243,7 @@ object Aladin {
 
     def gotoRaDec(ra: JsNumber, dec: JsNumber): Callback = runOnAladin(_.gotoRaDec(ra, dec))
 
+    def box: Callback = runOnAladin(_.box()) *> Callback.log("ABC")
     def world2pix(c: Coordinates): CallbackTo[Option[(Double, Double)]] =
       runOnAladinOpt { j =>
         val ra  = c.ra.toAngle.toDoubleDegrees

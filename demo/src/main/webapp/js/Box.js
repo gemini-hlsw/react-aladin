@@ -30,14 +30,13 @@
  * Author: Thomas Boch [CDS]
  *
  *****************************************************************************/
-import $ from 'jquery';
 const Box = (function() {
 
     // constructor
     const Box = function(properties) {
 
-        this.$parentDiv = $('<div>');
-        this.$parentDiv.addClass('aladin-box');
+        this.$parentDiv = document.createElement("div");
+        this.$parentDiv.classList.add('aladin-box');
 
         properties = properties || {};
 
@@ -68,7 +67,7 @@ const Box = (function() {
 
         this.open = false;
         this._render();
-        this.$parentDiv.show();
+        this.$parentDiv.style.display = '';
         this.open = true;
         this.hide();
     };
@@ -81,11 +80,11 @@ const Box = (function() {
             }
 
             this.open = true;
-            this.$parentDiv.show();
+            this.$parentDiv.style.display = '';
             this._updateChevron();
 
             if (this.changingDim==='width') {
-                this.$parentDiv.find('.aladin-box-title-label').show();
+                this.$parentDiv.find('.aladin-box-title-label').style.display = ''
             }
             var self = this;
             var options = {};
@@ -115,12 +114,16 @@ const Box = (function() {
             var options = {};
             options[this.changingDim] = 'hide';
             var delay = this.changingDim==='width' ? 0 : 400;
-            this.$parentDiv.find('.aladin-box-content').animate(options, delay, function() {
-                self.css[self.position] = '0px';
-                self.updateStyle(self.css);
-
-                typeof self.closeCallback === 'function' && self.closeCallback();
-            });
+                 self.css[self.position] = '0px';
+                 self.updateStyle(self.css);
+            // this.$parentDiv.querySelectorAll('.aladin-box-content').forEach(node => {
+            //     animate(options, delay, function() {
+            //     self.css[self.position] = '0px';
+            //     self.updateStyle(self.css);
+            //
+            //     typeof self.closeCallback === 'function' && self.closeCallback();
+            //     })
+            // });
         },
 
         // complety hide parent div
@@ -131,7 +134,7 @@ const Box = (function() {
 
         updateStyle: function(css) {
             this.css = css;
-            this.$parentDiv.css(css);
+            this.$parentDiv.style = css;
         },
 
         setContent: function(content) {
@@ -156,48 +159,66 @@ const Box = (function() {
         _render: function() {
             var self = this;
 
-            this.$parentDiv.empty();
-            this.$parentDiv.off();
+            // this.$parentDiv.empty();
+            while(this.$parentDiv.firstChild)
+                el.removeChild(this.$parentDiv.firstChild);
+            // this.$parentDiv.off();
 
-            var titleDiv = $('<div class="aladin-box-title">');
+            // var titleDiv = $('<div class="aladin-box-title">');
+            const titleDiv = document.createElement("div");
+            titleDiv.classList.add("aladin-box-title");
             if (this.showHandler) {
-                var chevron = $('<span class="aladin-chevron">');
+                const chevron = document.createElement("span");
+                chevron.classList.add("aladin-chevron");
+                // var chevron = $('<span class="aladin-chevron">');
                 titleDiv.append(chevron);
             }
             if (this.title) {
-                titleDiv.append(' <span class="aladin-box-title-label">' + this.title + '</span>');
+                const titleDiv = document.createElement("span");
+                titleDiv.classList.add("aladin-box-title-label");
+                titleDiv.textContent = this.title;
+                // titleDiv.append(' <span class="aladin-box-title-label">' + this.title + '</span>');
             }
             this.$parentDiv.append(titleDiv);
-            var $content = $('<div class="aladin-box-content">' + (this.content?this.content:'') + '</div>');
-            $content.css(this.contentCss);
+            const $content = document.createElement("div");
+            $content.classList.add("aladin-box-content");
+            $content.content = this.content?this.content:'';
+            // var $content = $('<div class="aladin-box-content">' + (this.content?this.content:'') + '</div>');
+            $content.style = this.contentCss;
             this.$parentDiv.append($content);
 
             this._updateChevron();
             this.updateStyle(this.css);
 
-            titleDiv.on('click', function() {
+            titleDiv.addEventListener('click', function() {
                 if (self.open) {
-                    self.hide();
+                    self.style.display = 'none';
                 }
                 else {
-                    self.show();
+                    self.style.display = '';
                 }
             });
         },
 
         _updateChevron: function() {
-            this.$parentDiv.find('.aladin-chevron').removeClass().addClass('aladin-chevron ' + getChevronClass(this.position, this.open))
-                                                        .attr('title', 'Click to ' + (this.open?'hide ':'show ') + (this.title?this.title:'') + ' panel');
-        }
-    };
+            const chevron = this.$parentDiv.querySelectorAll('.aladin-chevron');
+            chevron.forEach(node => {
+                    node.classList.remove(...node.classList);
+                    node.classList.add('aladin-chevron');
+                    node.classList.add(getChevronClass(this.position, this.open));
+                    node.setAttribute('title', 'Click to ' + (this.open?'hide ':'show ') + (this.title?this.title:'') + ' panel');
+                }
+            )
+            }
+        };
 
-    // return the jquery object corresponding to the given position and open/close state
-    var getChevronClass = function(position, isOpen) {
-        if (( position==='top' && isOpen ) || ( position==='bottom' && !isOpen )) {
-            return 'aladin-chevron-up';
-        }
-        if (( position==='bottom' && isOpen ) || ( position==='top' && !isOpen )) {
-            return 'aladin-chevron-down';
+        // return the jquery object corresponding to the given position and open/close state
+        var getChevronClass = function(position, isOpen) {
+            if (( position==='top' && isOpen ) || ( position==='bottom' && !isOpen )) {
+                return 'aladin-chevron-up';
+            }
+            if (( position==='bottom' && isOpen ) || ( position==='top' && !isOpen )) {
+                return 'aladin-chevron-down';
         }
         if (( position==='right' && isOpen) || ( position==='left' && !isOpen )) {
             return 'aladin-chevron-right';
