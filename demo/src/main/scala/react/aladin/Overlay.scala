@@ -11,7 +11,7 @@ import scala.scalajs.js.|
 @JSImport("@cquiroz/aladin-lite/lib/Overlay", JSImport.Namespace)
 class AladinOverlay extends js.Object {
   def addFootprints(s: js.Array[AladinOverlay.Shapes]): Unit = js.native
-  def add(s:           AladinOverlay.Shapes): Unit           = js.native
+  def add(s: AladinOverlay.Shapes): Unit                     = js.native
 }
 
 object AladinOverlay {

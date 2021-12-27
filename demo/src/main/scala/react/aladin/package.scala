@@ -16,8 +16,10 @@ package aladin {
   /**
    * ALadin field of view angles horizontally and vertically
    *
-   * @param x Horizontal (RA) field of view
-   * @param y Vertical (Dec) field of view
+   * @param x
+   *   Horizontal (RA) field of view
+   * @param y
+   *   Vertical (Dec) field of view
    */
   final case class Fov(x: Angle, y: Angle)
 
@@ -34,7 +36,7 @@ package aladin {
   }
 
   sealed trait CooFrame extends Product with Serializable
-  object CooFrame {
+  object CooFrame   {
     implicit val enumCooFrame: EnumValue[CooFrame] = EnumValue.toLowerCaseString
     case object J2000    extends CooFrame
     case object J2000d   extends CooFrame
@@ -100,19 +102,19 @@ package object aladin {
         a.on("positionChanged", (o: JsPositionChanged) => cb(PositionChanged.fromJs(o)).runNow())
       )
 
-    def onZoom(cb:             Fov => Callback): Callback        =
+    def onZoom(cb: Fov => Callback): Callback =
       Callback(a.on("zoomChanged", (_: Double) => cb(fov).runNow()))
 
-    def onZoom(cb:             => Callback): Callback            =
+    def onZoom(cb: => Callback): Callback =
       Callback(a.on("zoomChanged", (_: Double) => cb.runNow()))
 
-    def onFullScreenToggle(cb: Boolean => Callback): Callback    =
+    def onFullScreenToggle(cb: Boolean => Callback): Callback =
       Callback(a.on("fullScreenToggled", (t: Boolean) => cb(t).runNow()))
 
-    def onFullScreenToggle(cb: => Callback): Callback            =
+    def onFullScreenToggle(cb: => Callback): Callback =
       Callback(a.on("fullScreenToggled", (a: Boolean) => cb.runNow()))
 
-    def onMouseMove(cb:        MouseMoved => Callback): Callback =
+    def onMouseMove(cb: MouseMoved => Callback): Callback =
       Callback(a.on("mouseMove", (t: JsMouseMoved) => cb(MouseMoved.fromJs(t)).runNow()))
 
     def pixelScale: PixelScale =
