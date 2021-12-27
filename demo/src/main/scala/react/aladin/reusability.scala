@@ -8,7 +8,7 @@ import japgolly.scalajs.react.Reusability._
 import lucuma.ui.reusability._
 
 object reusability {
-  implicit val fovReuse: Reusability[Fov] = Reusability.derive
+  implicit val fovReuse: Reusability[Fov]               = Reusability.derive
   implicit val pixelScaleReuse: Reusability[PixelScale] = {
     implicit val dr = Reusability.double(0.001)
     Reusability.by(x => (x.x, x.y))

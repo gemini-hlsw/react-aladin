@@ -9,8 +9,7 @@ import japgolly.scalajs.react.Callback
 import japgolly.scalajs.react.facade.JsNumber
 
 class GoToObjectCallback(succ: (JsNumber, JsNumber) => Callback, e: Callback) extends js.Object {
-  val success: js.Function1[js.Array[JsNumber], Unit] = (raDec: js.Array[JsNumber]) => {
+  val success: js.Function1[js.Array[JsNumber], Unit] = (raDec: js.Array[JsNumber]) =>
     succ(raDec(0), raDec(1)).runNow()
-  }
   val error: js.Function0[Unit]                       = () => e.runNow()
 }

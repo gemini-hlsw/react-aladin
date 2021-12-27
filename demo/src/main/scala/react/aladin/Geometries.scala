@@ -34,5 +34,5 @@ class AladinCircle extends js.Object {}
 @JSImport("/js/HpxImageSurvey", JSImport.Namespace)
 class HpxImageSurvey extends js.Object {
   def setAlpha(a: JsNumber): Unit = js.native
-  def getColorMap(): ColorMap = js.native
+  def getColorMap(): ColorMap     = js.native
 }

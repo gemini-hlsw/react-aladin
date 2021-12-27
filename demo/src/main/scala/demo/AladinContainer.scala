@@ -121,7 +121,7 @@ object AladinContainer {
 
     def render(props: Props) =
       <.div(
-        ^.width := 100.pct,
+        ^.width  := 100.pct,
         ^.height := 100.pct,
         AladinComp.withRef(aladinRef) {
           Aladin(

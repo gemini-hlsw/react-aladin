@@ -97,11 +97,11 @@ class AladinSource extends js.Object {
 @js.native
 @JSImport("/js/Aladin", JSImport.Namespace)
 class JsAladin extends js.Object {
-  def setImageSurvey(s:    String): Unit = js.native
-  def setBaseImageLayer(s: String): Unit = js.native
-  def getBaseImageLayer(): HpxImageSurvey = js.native
-  def setOverlayImageLayer(i: HpxImageSurvey): Unit = js.native
-  def getOverlayImageLayer(): HpxImageSurvey = js.native
+  def setImageSurvey(s: String): Unit                                   = js.native
+  def setBaseImageLayer(s: String): Unit                                = js.native
+  def getBaseImageLayer(): HpxImageSurvey                               = js.native
+  def setOverlayImageLayer(i: HpxImageSurvey): Unit                     = js.native
+  def getOverlayImageLayer(): HpxImageSurvey                            = js.native
   def createImageSurvey(
     id:       String,
     name:     String,
@@ -110,32 +110,32 @@ class JsAladin extends js.Object {
     maxOrder: JsNumber,
     options:  js.Object
   ): HpxImageSurvey = js.native
-  def addCatalog(c: AladinCatalog): Unit = js.native
-  def addOverlay(c: AladinOverlay): Unit = js.native
-  def gotoRaDec(ra: JsNumber, dec: JsNumber): Unit = js.native
-  def getRaDec(): js.Array[Double] = js.native
-  def gotoObject(q:      String, cb:    GoToObjectCallback): Unit = js.native
+  def addCatalog(c: AladinCatalog): Unit                                = js.native
+  def addOverlay(c: AladinOverlay): Unit                                = js.native
+  def gotoRaDec(ra: JsNumber, dec: JsNumber): Unit                      = js.native
+  def getRaDec(): js.Array[Double]                                      = js.native
+  def gotoObject(q: String, cb: GoToObjectCallback): Unit               = js.native
   def animateToRaDec(ra: JsNumber, dec: JsNumber, time: JsNumber): Unit = js.native
-  def recalculateView(): Unit     = js.native
-  def getParentDiv(): Element     = js.native
-  def getSize(): js.Array[Double] = js.native
-  def getFov(): js.Array[Double]  = js.native
-  def box(): Unit                 = js.native
-  def pix2world(x: Double, y: Double): js.Array[Double] = js.native
-  def world2pix(x: Double, y: Double): js.Array[Double] = js.native
-  def on(n:        String, f: js.Function): Unit        = js.native
+  def recalculateView(): Unit                                           = js.native
+  def getParentDiv(): Element                                           = js.native
+  def getSize(): js.Array[Double]                                       = js.native
+  def getFov(): js.Array[Double]                                        = js.native
+  def box(): Unit                                                       = js.native
+  def pix2world(x: Double, y: Double): js.Array[Double]                 = js.native
+  def world2pix(x: Double, y: Double): js.Array[Double]                 = js.native
+  def on(n: String, f: js.Function): Unit                               = js.native
 }
 
 @js.native
 @JSImport("/js/A", JSImport.Namespace)
 object A extends js.Object {
-  def aladin(divSelector: String, options: AladinProps): JsAladin = js.native
-  def catalog(c:          CatalogOptions): AladinCatalog = js.native
-  def graphicOverlay(c:   OverlayOptions): AladinOverlay               = js.native
+  def aladin(divSelector: String, options: AladinProps): JsAladin      = js.native
+  def catalog(c: CatalogOptions): AladinCatalog                        = js.native
+  def graphicOverlay(c: OverlayOptions): AladinOverlay                 = js.native
   def polygon(raDecArray: js.Array[js.Array[Double]]): AladinFootprint = js.native
   def polyline(
-    raDecArray:           js.Array[js.Array[Double]],
-    o:                    js.UndefOr[PolylineOptions]
+    raDecArray: js.Array[js.Array[Double]],
+    o:          js.UndefOr[PolylineOptions]
   ): AladinPolyline = js.native
   def circle(
     ra:        JsNumber,
@@ -243,7 +243,7 @@ object Aladin {
 
     def gotoRaDec(ra: JsNumber, dec: JsNumber): Callback = runOnAladin(_.gotoRaDec(ra, dec))
 
-    def box: Callback = runOnAladin(_.box()) *> Callback.log("ABC")
+    def box: Callback                                                   = runOnAladin(_.box()) *> Callback.log("ABC")
     def world2pix(c: Coordinates): CallbackTo[Option[(Double, Double)]] =
       runOnAladinOpt { j =>
         val ra  = c.ra.toAngle.toDoubleDegrees
@@ -349,5 +349,5 @@ object Aladin {
     component
       .cmapCtorProps[AladinProps](fromProps) // Change props from JS to Scala
       .toJsComponent                         // Create a new, real JS component
-      .raw                                   // Leave the nice Scala wrappers behind and obtain the underlying JS value
+      .raw // Leave the nice Scala wrappers behind and obtain the underlying JS value
 }

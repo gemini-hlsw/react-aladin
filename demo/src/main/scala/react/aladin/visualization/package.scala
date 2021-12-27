@@ -174,9 +174,9 @@ package object visualization {
   }
 
   /**
-   * This method will build an svg appropriate to show on aladin.
-   * Note we need to transform the svg to get the correct size and location
-   * This particular method uses just svg but it doesn't properly work on Safari
+   * This method will build an svg appropriate to show on aladin. Note we need to transform the svg
+   * to get the correct size and location This particular method uses just svg but it doesn't
+   * properly work on Safari
    */
   def geometryForAladin(
     shapes:      NonEmptyMap[String, ShapeExpression],
