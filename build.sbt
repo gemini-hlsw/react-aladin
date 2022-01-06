@@ -2,8 +2,8 @@ import org.scalajs.linker.interface.ModuleSplitStyle
 
 lazy val reactJS                = "17.0.2"
 lazy val scalaJsReact           = "2.0.0"
-lazy val lucumaCoreVersion      = "0.22.0"
-lazy val lucumaUIVersion        = "0.22.0"
+lazy val lucumaCoreVersion      = "0.23.0"
+lazy val lucumaUIVersion        = "0.23.0"
 lazy val aladinLiteVersion      = "0.5.1"
 lazy val reactCommonVersion     = "0.14.7"
 lazy val reactGridLayoutVersion = "0.14.2"
@@ -12,14 +12,13 @@ lazy val svgdotjsVersion        = "0.2.1"
 
 inThisBuild(
   Seq(
-    homepage := Some(url("https://github.com/gemini-hlsw/react-aladin")),
+    homepage                      := Some(url("https://github.com/gemini-hlsw/react-aladin")),
     Global / onChangedBuildSource := ReloadOnSourceChanges,
     scalacOptions += "-Ymacro-annotations"
   ) ++ lucumaPublishSettings
 )
 
-
-ThisBuild / Test / bspEnabled                                        := false
+ThisBuild / Test / bspEnabled := false
 Global / resolvers += Resolver.sonatypeRepo("public")
 
 addCommandAlias(
@@ -36,7 +35,7 @@ val demo =
     .settings(lucumaScalaJsSettings: _*)
     .settings(commonSettings: _*)
     .settings(
-      publish / skip := true,
+      publish / skip  := true,
       scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
       Compile / fastLinkJS / scalaJSLinkerConfig ~= (_.withModuleSplitStyle(
         ModuleSplitStyle.SmallestModules
@@ -46,7 +45,7 @@ val demo =
       )),
       Compile / fastOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(true) },
       Compile / fullOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(true) },
-      test := {},
+      test            := {},
       libraryDependencies ++= Seq(
         "edu.gemini"                        %%% "lucuma-core"        % lucumaCoreVersion,
         "edu.gemini"                        %%% "lucuma-ui"          % lucumaUIVersion,
@@ -58,10 +57,10 @@ val demo =
         "io.github.cquiroz.react"           %%% "react-grid-layout"  % reactGridLayoutVersion
       ),
       // don't publish the demo
-      publish := {},
-      publishLocal := {},
+      publish         := {},
+      publishLocal    := {},
       publishArtifact := false,
-      Keys.`package` := file("")
+      Keys.`package`  := file("")
     )
 
 def copyAndReplace(srcFiles: Seq[File], srcRoot: File, destinationDir: File): Seq[File] = {
@@ -83,7 +82,7 @@ def copyAndReplace(srcFiles: Seq[File], srcRoot: File, destinationDir: File): Se
   }
 }
 
-lazy val facade =
+lazy val facade                                                                         =
   project
     .in(file("facade"))
     .enablePlugins(ScalaJSPlugin)
@@ -92,7 +91,7 @@ lazy val facade =
     .settings(lucumaScalaJsSettings: _*)
     .settings(commonSettings: _*)
     .settings(
-      name := "react-aladin",
+      name                            := "react-aladin",
       Compile / npmDependencies ++= Seq(
         "react"                -> reactJS,
         "react-dom"            -> reactJS,
@@ -102,14 +101,14 @@ lazy val facade =
         "chokidar" -> "3.4.2"
       ),
       // Requires the DOM for tests
-      Test / requireJsDomEnv := true,
+      Test / requireJsDomEnv          := true,
       // Use yarn as it is faster than npm
-      useYarn := true,
-      webpack / version := "4.20.2",
+      useYarn                         := true,
+      webpack / version               := "4.20.2",
       startWebpackDevServer / version := "3.1.8",
       scalaJSUseMainModuleInitializer := false,
       // Compile tests to JS using fast-optimisation
-      Test / scalaJSStage := FastOptStage,
+      Test / scalaJSStage             := FastOptStage,
       libraryDependencies ++= Seq(
         "edu.gemini"                        %%% "lucuma-core"       % lucumaCoreVersion,
         "edu.gemini"                        %%% "lucuma-ui"         % lucumaUIVersion,
@@ -120,7 +119,7 @@ lazy val facade =
         "org.scalameta"                     %%% "munit"             % munitVersion % Test
       ),
       testFrameworks += new TestFramework("munit.Framework"),
-      Test / webpackConfigFile := Some(
+      Test / webpackConfigFile        := Some(
         baseDirectory.value / "src" / "webpack" / "test.webpack.config.js"
       ),
       Compile / sourceGenerators += Def.task {
@@ -131,7 +130,7 @@ lazy val facade =
       }.taskValue
     )
 
-lazy val commonSettings = Seq(
+lazy val commonSettings                                                                 = Seq(
   description := "react component for aladin",
   scalacOptions ~= (_.filterNot(
     Set(
