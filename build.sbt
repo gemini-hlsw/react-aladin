@@ -15,6 +15,7 @@ ThisBuild / tlCiReleaseBranches := Seq("master")
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 ThisBuild / scalacOptions += "-Ymacro-annotations"
+ThisBuild / coverageEnabled   := false
 ThisBuild / Test / bspEnabled := false
 Global / resolvers += Resolver.sonatypeRepo("public")
 
@@ -31,7 +32,6 @@ val demo =
     .enablePlugins(ScalaJSPlugin, NoPublishPlugin)
     .settings(commonSettings: _*)
     .settings(
-      coverageEnabled := false,
       scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
       Compile / fastLinkJS / scalaJSLinkerConfig ~= (_.withModuleSplitStyle(
         ModuleSplitStyle.SmallestModules
@@ -41,7 +41,7 @@ val demo =
       )),
       Compile / fastOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(true) },
       Compile / fullOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(true) },
-      test            := {
+      test := {
         (Compile / fastLinkJS).value // test linking
       },
       libraryDependencies ++= Seq(
