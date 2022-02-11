@@ -37,7 +37,7 @@ object AladinContainer {
   final case class State(svg: Option[Svg])
 
   implicit val propsReuse: Reusability[Props] =
-    Reusability.by_== //by(p => (p.aladinCoordsStr, p.s.width.toDouble, p.s.height.toDouble))
+    Reusability.by_== // by(p => (p.aladinCoordsStr, p.s.width.toDouble, p.s.height.toDouble))
   implicit val stateReuse = Reusability.always[State]
 
   object State {

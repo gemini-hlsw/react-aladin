@@ -10,14 +10,11 @@ lazy val reactGridLayoutVersion = "0.14.2"
 lazy val munitVersion           = "0.7.29"
 lazy val svgdotjsVersion        = "0.2.1"
 
-inThisBuild(
-  Seq(
-    homepage                      := Some(url("https://github.com/gemini-hlsw/react-aladin")),
-    Global / onChangedBuildSource := ReloadOnSourceChanges,
-    scalacOptions += "-Ymacro-annotations"
-  ) ++ lucumaPublishSettings
-)
+ThisBuild / tlBaseVersion       := "0.13"
+ThisBuild / tlCiReleaseBranches := Seq("master")
 
+Global / onChangedBuildSource := ReloadOnSourceChanges
+ThisBuild / scalacOptions += "-Ymacro-annotations"
 ThisBuild / Test / bspEnabled := false
 Global / resolvers += Resolver.sonatypeRepo("public")
 
@@ -26,16 +23,14 @@ addCommandAlias(
   "; demo/fastOptJS::stopWebpackDevServer; demo/fastOptJS::startWebpackDevServer; ~demo/fastOptJS"
 )
 
-publish / skip := true
+enablePlugins(NoPublishPlugin)
 
 val demo =
   project
     .in(file("demo"))
-    .enablePlugins(ScalaJSPlugin)
-    .settings(lucumaScalaJsSettings: _*)
+    .enablePlugins(ScalaJSPlugin, NoPublishPlugin)
     .settings(commonSettings: _*)
     .settings(
-      publish / skip  := true,
       scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
       Compile / fastLinkJS / scalaJSLinkerConfig ~= (_.withModuleSplitStyle(
         ModuleSplitStyle.SmallestModules
@@ -45,7 +40,9 @@ val demo =
       )),
       Compile / fastOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(true) },
       Compile / fullOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(true) },
-      test            := {},
+      test := {
+        (Compile / fastLinkJS).value // test linking
+      },
       libraryDependencies ++= Seq(
         "edu.gemini"                        %%% "lucuma-core"        % lucumaCoreVersion,
         "edu.gemini"                        %%% "lucuma-ui"          % lucumaUIVersion,
@@ -55,12 +52,7 @@ val demo =
         "com.github.japgolly.scalajs-react" %%% "test"               % scalaJsReact % Test,
         "io.github.cquiroz.react"           %%% "common"             % reactCommonVersion,
         "io.github.cquiroz.react"           %%% "react-grid-layout"  % reactGridLayoutVersion
-      ),
-      // don't publish the demo
-      publish         := {},
-      publishLocal    := {},
-      publishArtifact := false,
-      Keys.`package`  := file("")
+      )
     )
 
 def copyAndReplace(srcFiles: Seq[File], srcRoot: File, destinationDir: File): Seq[File] = {
@@ -82,13 +74,11 @@ def copyAndReplace(srcFiles: Seq[File], srcRoot: File, destinationDir: File): Se
   }
 }
 
-lazy val facade                                                                         =
+lazy val facade =
   project
     .in(file("facade"))
     .enablePlugins(ScalaJSPlugin)
     .enablePlugins(ScalaJSBundlerPlugin)
-    .enablePlugins(AutomateHeaderPlugin)
-    .settings(lucumaScalaJsSettings: _*)
     .settings(commonSettings: _*)
     .settings(
       name                            := "react-aladin",
@@ -130,14 +120,8 @@ lazy val facade                                                                 
       }.taskValue
     )
 
-lazy val commonSettings                                                                 = Seq(
-  description := "react component for aladin",
-  scalacOptions ~= (_.filterNot(
-    Set(
-      // By necessity facades will have unused params
-      "-Wdead-code",
-      "-Wunused:params",
-      "-Wunused:explicits"
-    )
-  ))
+lazy val commonSettings = Seq(
+  description     := "react component for aladin",
+  // By necessity facades will have unused params
+  tlFatalWarnings := false
 )
