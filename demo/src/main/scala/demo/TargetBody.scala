@@ -47,14 +47,14 @@ object AladinTile {
   val targetH    = 16
   val targetW    = 12
 
-  private val layoutLg: Layout                                 = Layout(
+  private val layoutLg: Layout = Layout(
     List(
       LayoutItem(x = 0, y = 0, w = targetW, h = 16, i = "target"),
       LayoutItem(x = 0, y = 8, w = 12, h = 8, i = "constraints")
     )
   )
 
-  private val layoutMd: Layout                                 = Layout(
+  private val layoutMd: Layout = Layout(
     List(
       LayoutItem(x = 0, y = 0, w = targetW, h = 16, i = "target"),
       LayoutItem(x = 0, y = 8, w = 12, h = 8, i = "constraints")

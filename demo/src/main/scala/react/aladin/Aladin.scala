@@ -349,5 +349,5 @@ object Aladin {
     component
       .cmapCtorProps[AladinProps](fromProps) // Change props from JS to Scala
       .toJsComponent                         // Create a new, real JS component
-      .raw // Leave the nice Scala wrappers behind and obtain the underlying JS value
+      .raw                                   // Leave the nice Scala wrappers behind and obtain the underlying JS value
 }
