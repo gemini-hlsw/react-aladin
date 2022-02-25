@@ -10,6 +10,7 @@ import scala.scalajs.js.|
 import japgolly.scalajs.react.facade.JsNumber
 import org.scalajs.dom.CanvasRenderingContext2D
 import org.scalajs.dom.html.Image
+import scala.annotation.nowarn
 
 // This will be the props object used from JS-land
 @js.native
@@ -81,6 +82,7 @@ object CatalogOptions {
 
 @js.native
 @JSImport("@cquiroz/aladin-lite/lib/js/Catalog", JSImport.Namespace)
+@nowarn
 class AladinCatalog extends js.Object {
   def addSources(s: AladinSource | js.Array[AladinSource]): Unit = js.native
 }

@@ -15,6 +15,7 @@ ThisBuild / tlCiReleaseBranches := Seq("master")
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 ThisBuild / scalacOptions += "-Ymacro-annotations"
+ThisBuild / scalacOptions ~= { _.filterNot(Set("-Wunused:params")) }
 ThisBuild / coverageEnabled   := false
 ThisBuild / Test / bspEnabled := false
 Global / resolvers += Resolver.sonatypeRepo("public")

@@ -7,6 +7,7 @@ import scala.scalajs.js
 import scala.scalajs.js.annotation._
 
 import japgolly.scalajs.react.facade.JsNumber
+import scala.annotation.nowarn
 
 @js.native
 @JSImport("/js/Color", JSImport.Namespace)
@@ -14,6 +15,7 @@ class AladinColor extends js.Object {}
 
 @js.native
 @JSImport("/js/ColorMap", JSImport.Namespace)
+@nowarn
 class ColorMap extends js.Object {
   def update(a: String): Unit = js.native
 }
@@ -32,6 +34,7 @@ class AladinCircle extends js.Object {}
 
 @js.native
 @JSImport("/js/HpxImageSurvey", JSImport.Namespace)
+@nowarn
 class HpxImageSurvey extends js.Object {
   def setAlpha(a: JsNumber): Unit = js.native
   def getColorMap(): ColorMap     = js.native

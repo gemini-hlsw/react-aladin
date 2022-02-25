@@ -16,6 +16,7 @@ import org.scalajs.dom.document
 import org.scalajs.dom.Element
 import react.aladin._
 import react.common._
+import scala.annotation.nowarn
 
 final case class AladinContainer(
   s:           Size,
@@ -55,10 +56,10 @@ object AladinContainer {
      *
      * @return
      */
-    def initialSvgState: Callback =
-      aladinRef.get.asCBO
-        .flatMapCB(_.backend.runOnAladinCB(v => updateSvgState(v.pixelScale)))
-        .void
+    // def initialSvgState: Callback =
+    //   aladinRef.get.asCBO
+    //     .flatMapCB(_.backend.runOnAladinCB(v => updateSvgState(v.pixelScale)))
+    //     .void
 
     /**
      * Recalculate svg and store it on state
@@ -66,11 +67,11 @@ object AladinContainer {
      * @param pixelScale
      * @return
      */
-    def updateSvgState(pixelScale: PixelScale): CallbackTo[Svg] =
+    def updateSvgState: CallbackTo[Svg] =
       CallbackTo
         .pure(
           visualization
-            .shapesToSvg(GmosGeometry.shapes, GmosGeometry.pp, pixelScale, GmosGeometry.ScaleFactor)
+            .shapesToSvg(GmosGeometry.shapes, GmosGeometry.pp, GmosGeometry.ScaleFactor)
         )
         .flatTap(svg => $.setStateL(State.svg)(svg.some))
 
@@ -128,6 +129,7 @@ object AladinContainer {
             Css("react-aladin"),
             showReticle = false,
             showFullscreenControl = true,
+            // showLayersControl = true,
             // showZoomControl = false,
             target = props.aladinCoordsStr,
             // target = "ngc 1055",
@@ -138,8 +140,8 @@ object AladinContainer {
         }
       )
 
-    def onZoom(v: JsAladin): Callback =
-      updateSvgState(v.pixelScale).flatMap { s =>
+    val onZoom = (_: JsAladin) =>
+      updateSvgState.flatMap { s =>
         aladinRef.get.asCBO.flatMapCB(r =>
           r.backend.recalculateView *>
             r.backend.runOnAladinCB(updateVisualization(s))
@@ -150,6 +152,7 @@ object AladinContainer {
      * Called when the position changes, i.e. aladin pans. We want to offset the visualization to
      * keep the internal target correct
      */
+    @nowarn
     def onPositionChanged(v: JsAladin)(s: PositionChanged): Callback =
       $.props
         .zip($.state)
@@ -183,10 +186,8 @@ object AladinContainer {
 
     def recalculateView: Callback =
       aladinRef.get.asCBO.flatMapCB { r =>
-        r.backend.pixelScale.flatMap { ps =>
-          updateSvgState(ps).flatMap { s =>
-            r.backend.recalculateView *> r.backend.runOnAladinCB(updateVisualization(s))
-          }
+        updateSvgState.flatMap { s =>
+          r.backend.recalculateView *> r.backend.runOnAladinCB(updateVisualization(s))
         }
       }
   }
@@ -196,7 +197,7 @@ object AladinContainer {
       .builder[Props]
       .initialState(State.Zero)
       .renderBackend[Backend]
-      .componentDidMount(_.backend.initialSvgState)
+      .componentDidMount(_.backend.updateSvgState.void)
       .componentDidUpdate(_.backend.recalculateView)
       .configure(Reusability.shouldComponentUpdate)
       .build

@@ -112,7 +112,7 @@ package object aladin {
       Callback(a.on("fullScreenToggled", (t: Boolean) => cb(t).runNow()))
 
     def onFullScreenToggle(cb: => Callback): Callback =
-      Callback(a.on("fullScreenToggled", (a: Boolean) => cb.runNow()))
+      Callback(a.on("fullScreenToggled", (_: Boolean) => cb.runNow()))
 
     def onMouseMove(cb: MouseMoved => Callback): Callback =
       Callback(a.on("mouseMove", (t: JsMouseMoved) => cb(MouseMoved.fromJs(t)).runNow()))
