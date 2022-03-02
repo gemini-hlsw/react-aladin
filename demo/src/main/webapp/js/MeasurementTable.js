@@ -29,40 +29,53 @@
  * Author: Thomas Boch[CDS]
  *
  *****************************************************************************/
-import $ from 'jquery';
-
 const MeasurementTable = (function() {
+    let divEl = null;
 
     // constructor
     const MeasurementTable = function(aladinLiteDiv) {
-        this.isShowing = false;
+        // this.divEl = $('<div class="aladin-measurement-div"></div>');
+        divEl = document.createElement("div");
+        divEl.classList.add("aladin-measurement-div");
 
-        this.divEl = $('<div class="aladin-measurement-div"></div>');
-
-        $(aladinLiteDiv).append(this.divEl);
+        aladinLiteDiv.appendChild(divEl);
     }
 
     // show measurement associated with a given source
     MeasurementTable.prototype.showMeasurement = function(source) {
-        this.divEl.empty();
-        var header = '<thead><tr>';
-        var content = '<tr>';
+        // this.divEl.empty();
+
+        while(divEl.firstChild)
+          divEl.removeChild(divEl.firstChild);
+
+        const header = document.createElement("thead");
+        const content = document.createElement("tr");
         for (var key in source.data) {
-            header += '<th>' + key + '</th>';
-            content += '<td>' + source.data[key] + '</td>';
+            const th = document.createElement("th");
+            th.textContent = key;
+            header.appendChild(th);
+            const td = document.createElement("td");
+            td.textContent = source.data[key];
+            content.appendChild(td);
+
+            // header += '<th>' + key + '</th>';
+            // content += '<td>' + source.data[key] + '</td>';
         }
-        header += '</tr></thead>';
-        content += '</tr>';
-        this.divEl.append('<table>' + header + content + '</table>');
+        // header += '</tr></thead>';
+        // content += '</tr>';
+        const table = document.createElement("table");
+        table.appendChild(header);
+        table.appendChild(content);
+        divEl.appendChild(table);
         this.show();
     };
 
     MeasurementTable.prototype.show = function() {
-        this.divEl.show();
+        divEl.style.display = '';
     };
 
     MeasurementTable.prototype.hide = function() {
-        this.divEl.hide();
+        divEl.style.display = 'none';
     };
 
 
