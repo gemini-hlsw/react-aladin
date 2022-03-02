@@ -12,12 +12,15 @@ import lucuma.core.math._
 import react.aladin._
 import react.common._
 import react.gridlayout._
-import react.resizeDetector.ResizeDetector
+import react.resizeDetector._
+import react.resizeDetector.hooks._
+import scala.annotation.nowarn
 
 final case class TargetBody(
-) extends ReactProps[TargetBody](TargetBody.component) {}
+) extends ReactFnProps[TargetBody](TargetBody.component) {}
 
 @js.native
+@nowarn
 trait SourceData extends js.Object {
   var name: String  = js.native
   var size: Double  = js.native
@@ -36,7 +39,7 @@ object SourceData {
 }
 
 final case class AladinTile(s: Size, c: Coordinates)
-    extends ReactProps[AladinTile](AladinTile.component)
+    extends ReactFnProps[AladinTile](AladinTile.component)
 
 object AladinTile {
   type Props = AladinTile
@@ -69,9 +72,11 @@ object AladinTile {
       // (BreakpointName.xs, (480, 6, layout))
     )
 
-  class Backend(bs: BackendScope[Props, Unit]) {
-    def render(props: Props) =
-      ResizeDetector() { s =>
+  val component =
+    ScalaFnComponent
+      .withHooks[Props]
+      .useResizeDetector()
+      .renderWithReuse { (props, s) =>
         <.div(
           ^.height := "100%",
           ^.width  := "100%",
@@ -98,13 +103,6 @@ object AladinTile {
           )
         )
       }
-  }
-
-  val component =
-    ScalaComponent
-      .builder[Props]
-      .renderBackend[Backend]
-      .build
 
 }
 
@@ -114,17 +112,14 @@ object TargetBody {
   protected implicit val propsReuse: Reusability[Props] = Reusability.derive
 
   val component =
-    ScalaComponent
-      .builder[Props]
-      .stateless
-      .render { _ =>
-        ResizeDetector() { s =>
-          AladinTile(
-            Size(s.height.orEmpty, s.width.orEmpty),
-            Coordinates.Zero
-          )
-        }
+    ScalaFnComponent
+      .withHooks[TargetBody]
+      .useResizeDetector()
+      .renderWithReuse { (_, s) =>
+        AladinTile(
+          Size(s.height.orEmpty, s.width.orEmpty),
+          Coordinates.Zero
+        )
       }
-      .build
 
 }

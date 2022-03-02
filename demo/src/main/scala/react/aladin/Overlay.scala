@@ -6,9 +6,11 @@ package react.aladin
 import scala.scalajs.js
 import scala.scalajs.js.annotation._
 import scala.scalajs.js.|
+import scala.annotation.nowarn
 
 @js.native
 @JSImport("@cquiroz/aladin-lite/lib/Overlay", JSImport.Namespace)
+@nowarn
 class AladinOverlay extends js.Object {
   def addFootprints(s: js.Array[AladinOverlay.Shapes]): Unit = js.native
   def add(s: AladinOverlay.Shapes): Unit                     = js.native

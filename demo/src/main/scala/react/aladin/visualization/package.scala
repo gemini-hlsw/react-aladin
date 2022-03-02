@@ -37,7 +37,6 @@ package object visualization {
   def shapesToSvg(
     shapes:      NonEmptyMap[String, ShapeExpression],
     pp:          SvgPostProcessor,
-    pixelScale:  PixelScale,
     scaleFactor: Int
   )(implicit si: ShapeInterpreter): Svg = {
     val scalingFn: ScalingFn = (v: Double) => rint(v / scaleFactor)
@@ -94,7 +93,7 @@ package object visualization {
     val (x, y) = (svgBase.viewbox().x_Box, svgBase.viewbox().y_Box)
 
     // Transform the group at the root of the svg
-    svgBase.children().each { (svg: Container) =>
+    svgBase.children().each { (_: Container) =>
       // Angular size of the geometry
       val hAngle       = Angle.fromMicroarcseconds((h.toLong * scaleFactor).toLong)
       val wAngle       = Angle.fromMicroarcseconds((w.toLong * scaleFactor).toLong)
@@ -184,7 +183,7 @@ package object visualization {
     pixelScale:  PixelScale,
     scaleFactor: Int
   )(implicit si: ShapeInterpreter): Svg = {
-    val svg    = shapesToSvg(shapes, pp, pixelScale, scaleFactor)
+    val svg    = shapesToSvg(shapes, pp, scaleFactor)
     // Viewbox size
     val (h, w) = (svg.viewbox().height_Box, svg.viewbox().width_Box)
     val (x, y) = (svg.viewbox().x_Box, svg.viewbox().y_Box)

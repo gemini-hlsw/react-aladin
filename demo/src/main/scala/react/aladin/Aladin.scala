@@ -14,6 +14,7 @@ import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.core.math._
 import org.scalajs.dom.Element
 import react.common._
+import scala.annotation.nowarn
 
 // This will be the props object used from JS-land
 @js.native
@@ -88,6 +89,7 @@ object PolylineOptions {
 
 @js.native
 @JSImport("/js/Source", JSImport.Namespace)
+@nowarn
 class AladinSource extends js.Object {
   val x: Double       = js.native
   val y: Double       = js.native
@@ -96,6 +98,7 @@ class AladinSource extends js.Object {
 
 @js.native
 @JSImport("/js/Aladin", JSImport.Namespace)
+@nowarn
 class JsAladin extends js.Object {
   def setImageSurvey(s: String): Unit                                   = js.native
   def setBaseImageLayer(s: String): Unit                                = js.native
@@ -128,6 +131,7 @@ class JsAladin extends js.Object {
 
 @js.native
 @JSImport("/js/A", JSImport.Namespace)
+@nowarn
 object A extends js.Object {
   def aladin(divSelector: String, options: AladinProps): JsAladin      = js.native
   def catalog(c: CatalogOptions): AladinCatalog                        = js.native
@@ -243,7 +247,7 @@ object Aladin {
 
     def gotoRaDec(ra: JsNumber, dec: JsNumber): Callback = runOnAladin(_.gotoRaDec(ra, dec))
 
-    def box: Callback                                                   = runOnAladin(_.box()) *> Callback.log("ABC")
+    def box: Callback                                                   = runOnAladin(_.box())
     def world2pix(c: Coordinates): CallbackTo[Option[(Double, Double)]] =
       runOnAladinOpt { j =>
         val ra  = c.ra.toAngle.toDoubleDegrees
