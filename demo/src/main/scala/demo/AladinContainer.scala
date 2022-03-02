@@ -176,15 +176,15 @@ object AladinContainer {
         .void
 
     def recalculateView: Callback =
-        aladinRef.get.asCBO.flatMapCB { r =>
-          val cat    = A.catalog(CatalogOptions(onClick = "showTable"))
-          val source = A.source(0.01, 0.01, data = js.Dynamic.literal(name = "foobar"))
-          cat.addSources(source)
-          r.backend.addCatalog(cat) *>
-            updateSvgState.flatMap { s =>
-              r.backend.recalculateView *> r.backend.runOnAladinCB(updateVisualization(s))
-            }
-        }
+      aladinRef.get.asCBO.flatMapCB { r =>
+        val cat    = A.catalog(CatalogOptions(onClick = "showTable"))
+        val source = A.source(0.01, 0.01, data = js.Dynamic.literal(name = "foobar"))
+        cat.addSources(source)
+        r.backend.addCatalog(cat) *>
+          updateSvgState.flatMap { s =>
+            r.backend.recalculateView *> r.backend.runOnAladinCB(updateVisualization(s))
+          }
+      }
   }
 
   val component =
