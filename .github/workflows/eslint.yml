@@ -8,4 +8,4 @@ jobs:
     - name: Install modules
       run: npm install
     - name: Run ESLint
-      run: npm run eslint demo/src/main/webapp/ --ext .js
+      run: npx eslint demo/src/main/webapp/ --ext .js
