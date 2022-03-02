@@ -40,7 +40,12 @@ export const MOCFromJSON = function (jsonMOC, options) {
 };
 // TODO: try first without proxy, and then with, if param useProxy not set
 // API
-export const catalogFromURL = function (url, options, successCallback, useProxy) {
+export const catalogFromURL = function (
+  url,
+  options,
+  successCallback,
+  useProxy
+) {
   var cat = catalog(options);
   // TODO: should be self-contained in Catalog class
   Catalog.parseVOTable(
@@ -62,7 +67,12 @@ export const catalogFromURL = function (url, options, successCallback, useProxy)
 
 // API
 // @param target: can be either a string representing a position or an object name, or can be an object with keys 'ra' and 'dec' (values being in decimal degrees)
-export const catalogFromSimbad = function (target, radius, options, successCallback) {
+export const catalogFromSimbad = function (
+  target,
+  radius,
+  options,
+  successCallback
+) {
   options = options || {};
   if (!("name" in options)) {
     options["name"] = "Simbad";
@@ -72,7 +82,12 @@ export const catalogFromSimbad = function (target, radius, options, successCallb
 };
 
 // API
-export const catalogFromNED = function (target, radius, options, successCallback) {
+export const catalogFromNED = function (
+  target,
+  radius,
+  options,
+  successCallback
+) {
   options = options || {};
   if (!("name" in options)) {
     options["name"] = "NED";
@@ -160,7 +175,7 @@ export const source = function (ra, dec, data, options) {
 };
 
 // @API
-export const marker = function (ra, dec,  data, options) {
+export const marker = function (ra, dec, data, options) {
   options = options || {};
   options["marker"] = true;
   return source(ra, dec, data, options);
@@ -200,4 +215,3 @@ export const graphicOverlay = function (options) {
 export const catalogHiPS = function (rootURL, options) {
   return new ProgressiveCat(rootURL, null, null, options);
 };
-

@@ -206,7 +206,9 @@ const Aladin = (function () {
       });
     }
     // react to fullscreenchange event to restore initial width/height (if user pressed ESC to go back from full screen)
-    document.addEventListener("fullscreenchange webkitfullscreenchange mozfullscreenchange MSFullscreenChange", () => {
+    document.addEventListener(
+      "fullscreenchange webkitfullscreenchange mozfullscreenchange MSFullscreenChange",
+      () => {
         var fullscreenElt =
           document.fullscreenElement ||
           document.webkitFullscreenElement ||
@@ -220,9 +222,8 @@ const Aladin = (function () {
 
           var fullScreenToggledFn =
             self.callbacksByEventName["fullScreenToggled"];
-          var isInFullscreen = self.fullScreenBtn.classList.contains(
-            "aladin-restore"
-          );
+          var isInFullscreen =
+            self.fullScreenBtn.classList.contains("aladin-restore");
           typeof fullScreenToggledFn === "function" &&
             fullScreenToggledFn(isInFullscreen);
         }
@@ -230,18 +231,18 @@ const Aladin = (function () {
     );
 
     // Aladin logo
-    const logo = document.createElement("div")
-    logo.classList.add("aladin-logo-container")
-    const logoRef = document.createElement("a")
-    logoRef.href = "http://aladin.unistra.fr"
-    logoRef.title = "Powored by Alading Lite"
-    logoRef.target = "_blank"
-    logoRef.target = "_blank"
-    const logoLogo = document.createElement("div")
-    logoLogo.classList.add("aladin-logo")
-    logoRef.appendChild(logoLogo)
-    logo.appendChild(logoRef)
-    aladinDiv.appendChild(logo)
+    const logo = document.createElement("div");
+    logo.classList.add("aladin-logo-container");
+    const logoRef = document.createElement("a");
+    logoRef.href = "http://aladin.unistra.fr";
+    logoRef.title = "Powored by Alading Lite";
+    logoRef.target = "_blank";
+    logoRef.target = "_blank";
+    const logoLogo = document.createElement("div");
+    logoLogo.classList.add("aladin-logo");
+    logoRef.appendChild(logoLogo);
+    logo.appendChild(logoRef);
+    aladinDiv.appendChild(logo);
 
     // $(
     //   "<div class='aladin-logo-container'><a href='http://aladin.unistra.fr/' title='Powered by Aladin Lite' target='_blank'><div class='aladin-logo'></div></a></div>"
@@ -506,9 +507,8 @@ const Aladin = (function () {
 
     this.fullScreenBtn.classList.toggle("aladin-maximize");
     this.fullScreenBtn.classList.toggle("aladin-restore");
-    var isInFullscreen = this.fullScreenBtn.classList.contains(
-      "aladin-restore"
-    );
+    var isInFullscreen =
+      this.fullScreenBtn.classList.contains("aladin-restore");
     this.fullScreenBtn.setAttribute(
       "title",
       isInFullscreen ? "Restore original size" : "Full screen"
@@ -1295,9 +1295,8 @@ const Aladin = (function () {
     this.updateSurveysDropdownList(HpxImageSurvey.getAvailableSurveys());
     var surveySelection = $(this.aladinDiv).find(".aladin-surveySelection");
     surveySelection.change(function () {
-      var survey = HpxImageSurvey.getAvailableSurveys()[
-        $(this)[0].selectedIndex
-      ];
+      var survey =
+        HpxImageSurvey.getAvailableSurveys()[$(this)[0].selectedIndex];
       self.setImageSurvey(survey.id, function () {
         var baseImgLayer = self.getBaseImageLayer();
 

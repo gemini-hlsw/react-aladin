@@ -1,4 +1,3 @@
-
 // The Aladin Lite program is distributed under the terms
 // of the GNU General Public License version 3.
 //
@@ -17,8 +16,6 @@
 //    along with Aladin Lite.
 //
 
-
-
 /******************************************************************************
  * Aladin Lite project
  *
@@ -28,39 +25,33 @@
  *
  *****************************************************************************/
 
-const CooFrameEnum = (function() {
+const CooFrameEnum = (function () {
+  const systems = { J2000: "J2000", GAL: "Galactic" };
+  return {
+    SYSTEMS: systems,
 
-    const systems = {J2000: 'J2000', GAL: 'Galactic'};
-    return {
-        SYSTEMS: systems,
-
-        J2000: {label: "J2000", system: systems.J2000},
-        J2000d: {label: "J2000d", system: systems.J2000},
-        GAL:  {label: "Galactic", system: systems.GAL}
-    };
-
+    J2000: { label: "J2000", system: systems.J2000 },
+    J2000d: { label: "J2000d", system: systems.J2000 },
+    GAL: { label: "Galactic", system: systems.GAL },
+  };
 })();
 
+CooFrameEnum.fromString = function (str, defaultValue) {
+  if (!str) {
+    return defaultValue ? defaultValue : null;
+  }
 
-CooFrameEnum.fromString = function(str, defaultValue) {
-    if (! str) {
-        return defaultValue ? defaultValue : null;
-    }
+  str = str.toLowerCase().replace(/^\s+|\s+$/g, ""); // convert to lowercase and trim
 
-    str = str.toLowerCase().replace(/^\s+|\s+$/g, ''); // convert to lowercase and trim
-
-    if (str.indexOf('j2000d')===0 || str.indexOf('icrsd')===0) {
-        return CooFrameEnum.J2000d;
-    }
-    else if (str.indexOf('j2000')===0 || str.indexOf('icrs')===0) {
-        return CooFrameEnum.J2000;
-    }
-    else if (str.indexOf('gal')===0) {
-        return CooFrameEnum.GAL;
-    }
-    else {
-        return defaultValue ? defaultValue : null;
-    }
+  if (str.indexOf("j2000d") === 0 || str.indexOf("icrsd") === 0) {
+    return CooFrameEnum.J2000d;
+  } else if (str.indexOf("j2000") === 0 || str.indexOf("icrs") === 0) {
+    return CooFrameEnum.J2000;
+  } else if (str.indexOf("gal") === 0) {
+    return CooFrameEnum.GAL;
+  } else {
+    return defaultValue ? defaultValue : null;
+  }
 };
 
 export default CooFrameEnum;

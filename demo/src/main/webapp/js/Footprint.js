@@ -17,8 +17,6 @@
 //    along with Aladin Lite.
 //
 
-
-
 /******************************************************************************
  * Aladin Lite project
  *
@@ -27,65 +25,67 @@
  * Author: Thomas Boch[CDS]
  *
  *****************************************************************************/
-import Utils from './Utils';
+import Utils from "./Utils";
 
-const Footprint = (function() {
-    // constructor
-    const Footprint = function(polygons) {
-        this.polygons = polygons;
-      this.overlay = null;
+const Footprint = (function () {
+  // constructor
+  const Footprint = function (polygons) {
+    this.polygons = polygons;
+    this.overlay = null;
 
-        // TODO : all graphic overlays should have an id
-        this.id = 'footprint-' + Utils.uuidv4();
+    // TODO : all graphic overlays should have an id
+    this.id = "footprint-" + Utils.uuidv4();
 
-      this.isShowing = true;
-      this.isSelected = false;
-    };
+    this.isShowing = true;
+    this.isSelected = false;
+  };
 
-    Footprint.prototype.setOverlay = function(overlay) {
-        this.overlay = overlay;
-    };
+  Footprint.prototype.setOverlay = function (overlay) {
+    this.overlay = overlay;
+  };
 
-    Footprint.prototype.show = function() {
-        if (this.isShowing) {
-            return;
-        }
-        this.isShowing = true;
-        if (this.overlay) {
-            this.overlay.reportChange();
-        }
-    };
+  Footprint.prototype.show = function () {
+    if (this.isShowing) {
+      return;
+    }
+    this.isShowing = true;
+    if (this.overlay) {
+      this.overlay.reportChange();
+    }
+  };
 
-    Footprint.prototype.hide = function() {
-        if (! this.isShowing) {
-            return;
-        }
-        this.isShowing = false;
-        if (this.overlay) {
-            this.overlay.reportChange();
-        }
-    };
+  Footprint.prototype.hide = function () {
+    if (!this.isShowing) {
+      return;
+    }
+    this.isShowing = false;
+    if (this.overlay) {
+      this.overlay.reportChange();
+    }
+  };
 
-    Footprint.prototype.dispatchClickEvent = function() {
-        if (this.overlay) {
-            // footprint selection code adapted from Fabrizio Giordano dev. from Serco for ESA/ESDC
-            //window.dispatchEvent(new CustomEvent("footprintClicked", {
-            this.overlay.view.aladinDiv.dispatchEvent(new CustomEvent("footprintClicked", {
-                detail: {
-                    footprintId: this.id,
-                    overlayName: this.overlay.name
-                }
-            }));
-        }
-    };
+  Footprint.prototype.dispatchClickEvent = function () {
+    if (this.overlay) {
+      // footprint selection code adapted from Fabrizio Giordano dev. from Serco for ESA/ESDC
+      //window.dispatchEvent(new CustomEvent("footprintClicked", {
+      this.overlay.view.aladinDiv.dispatchEvent(
+        new CustomEvent("footprintClicked", {
+          detail: {
+            footprintId: this.id,
+            overlayName: this.overlay.name,
+          },
+        })
+      );
+    }
+  };
 
-    Footprint.prototype.select = function() {
-        if (this.isSelected) {
-            return;
-        }
-        this.isSelected = true;
-        if (this.overlay) {
-/*
+  Footprint.prototype.select = function () {
+    if (this.isSelected) {
+      return;
+    }
+    this.isSelected = true;
+    if (this.overlay) {
+      /*
             // footprint selection code adapted from Fabrizio Giordano dev. from Serco for ESA/ESDC
             //window.dispatchEvent(new CustomEvent("footprintClicked", {
             this.overlay.view.aladinDiv.dispatchEvent(new CustomEvent("footprintClicked", {
@@ -96,21 +96,21 @@ const Footprint = (function() {
             }));
 */
 
-            this.overlay.reportChange();
-        }
-    };
+      this.overlay.reportChange();
+    }
+  };
 
-    Footprint.prototype.deselect = function() {
-        if (! this.isSelected) {
-            return;
-        }
-        this.isSelected = false;
-        if (this.overlay) {
-            this.overlay.reportChange();
-        }
-    };
+  Footprint.prototype.deselect = function () {
+    if (!this.isSelected) {
+      return;
+    }
+    this.isSelected = false;
+    if (this.overlay) {
+      this.overlay.reportChange();
+    }
+  };
 
-    return Footprint;
+  return Footprint;
 })();
 
 export default Footprint;

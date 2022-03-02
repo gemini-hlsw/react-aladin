@@ -17,8 +17,6 @@
 //    along with Aladin Lite.
 //
 
-
-
 /******************************************************************************
  * Aladin Lite project
  *
@@ -27,9 +25,9 @@
  * Author: Thomas Boch[CDS]
  *
  *****************************************************************************/
-import Tile from './Tile';
+import Tile from "./Tile";
 
-const TileBuffer = (function() {
+const TileBuffer = (function () {
   var NB_MAX_TILES = 800; // buffer size
 
   // constructor
@@ -38,37 +36,37 @@ const TileBuffer = (function() {
     this.tilesMap = {};
     this.tilesArray = new Array(NB_MAX_TILES);
 
-    for (var i=0; i<NB_MAX_TILES; i++) {
+    for (var i = 0; i < NB_MAX_TILES; i++) {
       this.tilesArray[i] = new Tile(new Image(), null);
     }
   }
 
-  TileBuffer.prototype.addTile = function(url) {
-      // return null if already in buffer
-        if (this.getTile(url)) {
-            return null;
-        }
+  TileBuffer.prototype.addTile = function (url) {
+    // return null if already in buffer
+    if (this.getTile(url)) {
+      return null;
+    }
 
-        // delete existing tile
-        var curTile = this.tilesArray[this.pointer];
-        if (curTile.url != null) {
-            curTile.img.src = null;
-            delete this.tilesMap[curTile.url];
-        }
+    // delete existing tile
+    var curTile = this.tilesArray[this.pointer];
+    if (curTile.url != null) {
+      curTile.img.src = null;
+      delete this.tilesMap[curTile.url];
+    }
 
-        this.tilesArray[this.pointer].url = url;
-        this.tilesMap[url] = this.tilesArray[this.pointer];
+    this.tilesArray[this.pointer].url = url;
+    this.tilesMap[url] = this.tilesArray[this.pointer];
 
-        this.pointer++;
-        if (this.pointer>=NB_MAX_TILES) {
-            this.pointer = 0;
-        }
+    this.pointer++;
+    if (this.pointer >= NB_MAX_TILES) {
+      this.pointer = 0;
+    }
 
-        return this.tilesMap[url];
+    return this.tilesMap[url];
   };
 
-  TileBuffer.prototype.getTile = function(url) {
-        return this.tilesMap[url];
+  TileBuffer.prototype.getTile = function (url) {
+    return this.tilesMap[url];
   };
 
   return TileBuffer;

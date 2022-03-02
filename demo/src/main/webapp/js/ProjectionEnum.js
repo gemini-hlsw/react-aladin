@@ -17,8 +17,6 @@
 //    along with Aladin Lite.
 //
 
-
-
 /******************************************************************************
  * Aladin Lite project
  *
@@ -27,11 +25,11 @@
  * Author: Thomas Boch[CDS]
  *
  *****************************************************************************/
-import {Projection} from './projection';
+import { Projection } from "./projection";
 
- const ProjectionEnum = {
-    SIN: Projection.PROJ_SIN,
-    AITOFF:  Projection.PROJ_AITOFF
- };
+const ProjectionEnum = {
+  SIN: Projection.PROJ_SIN,
+  AITOFF: Projection.PROJ_AITOFF,
+};
 
 export default ProjectionEnum;

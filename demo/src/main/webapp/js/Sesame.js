@@ -17,8 +17,6 @@
 //    along with Aladin Lite.
 //
 
-
-
 /******************************************************************************
  * Aladin Lite project
  *
@@ -27,78 +25,85 @@
  * Author: Thomas Boch[CDS]
  *
  *****************************************************************************/
-import Utils from './Utils';
-import Coo from './coo';
-import $ from 'jquery';
+import Utils from "./Utils";
+import Coo from "./coo";
+import $ from "jquery";
 
-const Sesame = (function() {
-    const Sesame = {};
+const Sesame = (function () {
+  const Sesame = {};
 
-    Sesame.cache = {};
+  Sesame.cache = {};
 
-    Sesame.SESAME_URL = "http://cds.u-strasbg.fr/cgi-bin/nph-sesame.jsonp";
+  Sesame.SESAME_URL = "http://cds.u-strasbg.fr/cgi-bin/nph-sesame.jsonp";
 
-    /** find RA, DEC for any target (object name or position)
-     *  if successful, callback is called with an object {ra: <ra-value>, dec: <dec-value>}
-     *  if not successful, errorCallback is called
-     */
-    Sesame.getTargetRADec = function(target, callback, errorCallback) {
-        if (!callback) {
-            return;
+  /** find RA, DEC for any target (object name or position)
+   *  if successful, callback is called with an object {ra: <ra-value>, dec: <dec-value>}
+   *  if not successful, errorCallback is called
+   */
+  Sesame.getTargetRADec = function (target, callback, errorCallback) {
+    if (!callback) {
+      return;
+    }
+    var isObjectName = /[a-zA-Z]/.test(target);
+
+    // try to parse as a position
+    if (!isObjectName) {
+      var coo = new Coo();
+
+      coo.parse(target);
+      if (callback) {
+        callback({ ra: coo.lon, dec: coo.lat });
+      }
+    }
+    // ask resolution by Sesame
+    else {
+      Sesame.resolve(
+        target,
+        function (data) {
+          // success callback
+          callback({
+            ra: data.Target.Resolver.jradeg,
+            dec: data.Target.Resolver.jdedeg,
+          });
+        },
+
+        function () {
+          // error callback
+          if (errorCallback) {
+            errorCallback();
+          }
         }
-        var isObjectName = /[a-zA-Z]/.test(target);
+      );
+    }
+  };
 
-        // try to parse as a position
-        if ( ! isObjectName) {
-            var coo = new Coo();
+  Sesame.resolve = function (
+    objectName,
+    callbackFunctionSuccess,
+    callbackFunctionError
+  ) {
+    var sesameUrl = Sesame.SESAME_URL;
+    if (Utils.isHttpsContext()) {
+      sesameUrl = sesameUrl.replace("http://", "https://");
+    }
 
-            coo.parse(target);
-            if (callback) {
-                callback({ra: coo.lon, dec: coo.lat});
-            }
+    $.ajax({
+      url: sesameUrl,
+      data: { object: objectName },
+      method: "GET",
+      dataType: "jsonp",
+      success: function (data) {
+        if (data.Target && data.Target.Resolver) {
+          callbackFunctionSuccess(data);
+        } else {
+          callbackFunctionError(data);
         }
-        // ask resolution by Sesame
-        else {
-            Sesame.resolve(target,
-                   function(data) { // success callback
-                       callback({ra:  data.Target.Resolver.jradeg,
-                                 dec: data.Target.Resolver.jdedeg});
-                   },
+      },
+      error: callbackFunctionError,
+    });
+  };
 
-                   function() { // error callback
-                       if (errorCallback) {
-                           errorCallback();
-                       }
-                   }
-           );
-        }
-    };
-
-    Sesame.resolve = function(objectName, callbackFunctionSuccess, callbackFunctionError) {
-        var sesameUrl = Sesame.SESAME_URL;
-        if (Utils.isHttpsContext()) {
-            sesameUrl = sesameUrl.replace('http://', 'https://')
-        }
-
-
-        $.ajax({
-            url: sesameUrl ,
-            data: {"object": objectName},
-            method: 'GET',
-            dataType: 'jsonp',
-            success: function(data) {
-                if (data.Target && data.Target.Resolver) {
-                    callbackFunctionSuccess(data);
-                }
-                else {
-                    callbackFunctionError(data);
-                }
-            },
-            error: callbackFunctionError
-            });
-    };
-
-    return Sesame;
+  return Sesame;
 })();
 
 export default Sesame;

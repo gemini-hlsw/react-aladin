@@ -1,5 +1,5 @@
 // Extracted and improved from healpix.min.js
-const Constants = (function() {
+const Constants = (function () {
   const Constants = {};
   Constants.PI = Math.PI;
   Constants.C_PR = Math.PI / 180;
