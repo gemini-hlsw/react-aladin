@@ -17,6 +17,7 @@ import org.scalajs.dom.Element
 import react.aladin._
 import react.common._
 import scala.annotation.nowarn
+import scala.scalajs.js
 
 final case class AladinContainer(
   s:           Size,
@@ -50,16 +51,6 @@ object AladinContainer {
   class Backend($ : BackendScope[Props, State]) {
     // Create a mutable reference
     private val aladinRef = Ref.toScalaComponent(AladinComp)
-
-    /**
-     * Recalculate the svg, we keep it on the state for better performance
-     *
-     * @return
-     */
-    // def initialSvgState: Callback =
-    //   aladinRef.get.asCBO
-    //     .flatMapCB(_.backend.runOnAladinCB(v => updateSvgState(v.pixelScale)))
-    //     .void
 
     /**
      * Recalculate svg and store it on state
@@ -186,9 +177,13 @@ object AladinContainer {
 
     def recalculateView: Callback =
       aladinRef.get.asCBO.flatMapCB { r =>
-        updateSvgState.flatMap { s =>
-          r.backend.recalculateView *> r.backend.runOnAladinCB(updateVisualization(s))
-        }
+        val cat    = A.catalog(CatalogOptions(onClick = "showTable"))
+        val source = A.source(0.01, 0.01, data = js.Dynamic.literal(name = "foobar"))
+        cat.addSources(source)
+        r.backend.addCatalog(cat) *>
+          updateSvgState.flatMap { s =>
+            r.backend.recalculateView *> r.backend.runOnAladinCB(updateVisualization(s))
+          }
       }
   }
 

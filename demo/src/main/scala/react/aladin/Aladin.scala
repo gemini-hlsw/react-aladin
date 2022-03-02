@@ -247,7 +247,8 @@ object Aladin {
 
     def gotoRaDec(ra: JsNumber, dec: JsNumber): Callback = runOnAladin(_.gotoRaDec(ra, dec))
 
-    def box: Callback                                                   = runOnAladin(_.box())
+    def box: Callback = runOnAladin(_.box())
+
     def world2pix(c: Coordinates): CallbackTo[Option[(Double, Double)]] =
       runOnAladinOpt { j =>
         val ra  = c.ra.toAngle.toDoubleDegrees
@@ -272,6 +273,9 @@ object Aladin {
 
     def recalculateView: Callback =
       runOnAladin(_.recalculateView())
+
+    def addCatalog(cat: AladinCatalog): Callback =
+      runOnAladin(_.addCatalog(cat))
 
     def pixelScale: CallbackTo[PixelScale] =
       runOnAladinOpt(a =>
