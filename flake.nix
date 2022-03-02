@@ -20,7 +20,6 @@
           packages = [
             pkgs.nodePackages.vscode-langservers-extracted
             pkgs.nodePackages.prettier
-            pkgs.nodePackages.eslint
           ];
           typelevelShell = {
             nodejs.enable = true;
