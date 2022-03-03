@@ -635,37 +635,34 @@ const Aladin = (function () {
   };
 
   Aladin.prototype.getFovForObject = function (objectName, callback) {
-    var query =
-      "SELECT galdim_majaxis, V FROM basic JOIN ident ON oid=ident.oidref JOIN allfluxes ON oid=allfluxes.oidref WHERE id='" +
-      objectName +
-      "'";
-    var url =
-      "//simbad.u-strasbg.fr/simbad/sim-tap/sync?query=" +
-      encodeURIComponent(query) +
-      "&request=doQuery&lang=adql&format=json&phase=run";
+    const query =
+      `SELECT galdim_majaxis, V FROM basic JOIN ident ON oid=ident.oidref JOIN allfluxes ON oid=allfluxes.oidref WHERE id='${objectName}'`;
+    const url =
+      `//simbad.u-strasbg.fr/simbad/sim-tap/sync?query=${encodeURIComponent(query)}&request=doQuery&lang=adql&format=json&phase=run`;
 
-    var ajax = Utils.getAjaxObject(url, "GET", "json", false);
-    ajax.done(function (result) {
-      var defaultFov = 4 / 60; // 4 arcmin
-      var fov = defaultFov;
+    fetch(url)
+      .then(response => response.json())
+      .then(result => {
+        const defaultFov = 4 / 60; // 4 arcmin
+        let fov = defaultFov;
 
-      if ("data" in result && result.data.length > 0) {
-        var galdimMajAxis = Utils.isNumber(result.data[0][0])
-          ? result.data[0][0] / 60.0
-          : null; // result gives galdim in arcmin
-        var magV = Utils.isNumber(result.data[0][1]) ? result.data[0][1] : null;
+        if ("data" in result && result.data.length > 0) {
+          const galdimMajAxis = Utils.isNumber(result.data[0][0])
+            ? result.data[0][0] / 60.0
+            : null; // result gives galdim in arcmin
+          const magV = Utils.isNumber(result.data[0][1]) ? result.data[0][1] : null;
 
-        if (galdimMajAxis !== null) {
-          fov = 2 * galdimMajAxis;
-        } else if (magV !== null) {
-          if (magV < 10) {
-            fov = (2 * Math.pow(2.0, 6 - magV / 2.0)) / 60;
+          if (galdimMajAxis !== null) {
+            fov = 2 * galdimMajAxis;
+          } else if (magV !== null) {
+            if (magV < 10) {
+              fov = (2 * Math.pow(2.0, 6 - magV / 2.0)) / 60;
+            }
           }
         }
-      }
 
-      typeof callback === "function" && callback(fov);
-    });
+        callback(fov);
+      });
   };
 
   Aladin.prototype.setFrame = function (frameName) {

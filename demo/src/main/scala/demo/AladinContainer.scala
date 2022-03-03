@@ -180,7 +180,8 @@ object AladinContainer {
         val cat    = A.catalog(CatalogOptions(onClick = "showTable"))
         val source = A.source(0.01, 0.01, data = js.Dynamic.literal(name = "foobar"))
         cat.addSources(source)
-        r.backend.addCatalog(cat) *>
+        r.backend.getFovForObject("vega", f => Callback.log(s"fov $f")) *>
+          r.backend.addCatalog(cat) *>
           updateSvgState.flatMap { s =>
             r.backend.recalculateView *> r.backend.runOnAladinCB(updateVisualization(s))
           }
