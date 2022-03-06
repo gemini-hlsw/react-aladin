@@ -43,7 +43,6 @@ import ProgressiveCat from "./ProgressiveCat";
 import Color from "./Color";
 import ColorMap from "./ColorMap";
 import Box from "./Box";
-import Sesame from "./Sesame";
 import Source from "./Source";
 import { catalog, footprintsFromSTCS, catalogFromURL, marker } from "./A";
 
@@ -734,27 +733,28 @@ const Aladin = (function () {
     }
     // ask resolution by Sesame
     else {
-      var self = this;
-      Sesame.resolve(
-        targetName,
-        function (data) {
-          // success callback
-          var ra = data.Target.Resolver.jradeg;
-          var dec = data.Target.Resolver.jdedeg;
-          self.view.pointTo(ra, dec);
-
-          typeof successCallback === "function" &&
-            successCallback(self.getRaDec());
-        },
-        function (data) {
-          // errror callback
-          if (console) {
-            console.log("Could not resolve object name " + targetName);
-            console.log(data);
-          }
-          typeof errorCallback === "function" && errorCallback();
-        }
-      );
+      // TODO implement sesame resolution
+      // var self = this;
+      // Sesame.resolve(
+      //   targetName,
+      //   function (data) {
+      //     // success callback
+      //     var ra = data.Target.Resolver.jradeg;
+      //     var dec = data.Target.Resolver.jdedeg;
+      //     self.view.pointTo(ra, dec);
+      //
+      //     typeof successCallback === "function" &&
+      //       successCallback(self.getRaDec());
+      //   },
+      //   function (data) {
+      //     // errror callback
+      //     if (console) {
+      //       console.log("Could not resolve object name " + targetName);
+      //       console.log(data);
+      //     }
+      //     typeof errorCallback === "function" && errorCallback();
+      //   }
+      // );
     }
   };
 
