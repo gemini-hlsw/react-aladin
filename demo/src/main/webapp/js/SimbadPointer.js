@@ -77,7 +77,7 @@ const SimbadPointer = (function() {
                 }
                 const cdsLink = document.createElement("a");
                 cdsLink.setAttribute("href", `http://cdsportal.u-strasbg.fr/?target=${encodeURIComponent(objName)}`);
-                cdsLinx.textContent = "Query in CDS portal";
+                cdsLink.textContent = "Query in CDS portal";
                 cdsLink.setAttribute("target", "_blank");
                 content.appendChild(cdsLink);
                 aladinInstance.showPopup(objCoo.lon, objCoo.lat, title, content);
@@ -86,6 +86,7 @@ const SimbadPointer = (function() {
                 aladinInstance.hidePopup();
             }
         };
+
         var failureCallback = function() {
             aladinInstance.view.setCursor('pointer');
             aladinInstance.hidePopup();

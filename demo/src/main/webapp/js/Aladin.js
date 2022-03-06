@@ -701,19 +701,19 @@ const Aladin = (function () {
    *
    */
   Aladin.prototype.gotoObject = function (targetName, callbackOptions) {
-    var errorCallback = undefined;
+    // var errorCallback = undefined;
     var successCallback = undefined;
     if (typeof callbackOptions === "object") {
       if (Object.prototype.hasOwnProperty.call(callbackOptions, "success")) {
         successCallback = callbackOptions.success;
       }
       if (Object.prototype.hasOwnProperty.call(callbackOptions, "error")) {
-        errorCallback = callbackOptions.error;
+        // errorCallback = callbackOptions.error;
       }
     }
     // this is for compatibility reason with the previous method signature which was function(targetName, errorCallback)
     else if (typeof callbackOptions === "function") {
-      errorCallback = callbackOptions;
+      // errorCallback = callbackOptions;
     }
 
     var isObjectName = /[a-zA-Z]/.test(targetName);
