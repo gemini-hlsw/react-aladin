@@ -100,15 +100,23 @@ export default class Source{
                 this.select();
             }
             else if (this.catalog.onClick==='showPopup') {
-                view.popup.setTitle('<br><br>');
-                var m = '<div class="aladin-marker-measurement">';
-                m += '<table>';
+                const title = document.createElement("br");
+                view.popup.setTitle(title);
+                const measurement = document.createElement("div");
+                measurement.classList.add("aladin-marker-measurement");
+                const table = document.createElement("table");
+                measurement.appendChild(table);
                 for (var key in this.data) {
-                    m += '<tr><td>' + key + '</td><td>' + this.data[key] + '</td></tr>';
+                    const row = document.createElement("tr");
+                    const dataI = document.createElement("td");
+                    dataI.textContent = key;
+                    row.appendChild(dataI);
+                    const dataV = document.createElement("td");
+                    dataV.textContent = this.data[key];
+                    row.appendChild(dataV);
+                    table.appendChild(row);
                 }
-                m += '</table>';
-                m += '</div>';
-                view.popup.setText(m);
+                view.popup.setText(measurement);
                 view.popup.setSource(this);
                 view.popup.show();
             }

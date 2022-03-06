@@ -53,21 +53,40 @@ const SimbadPointer = (function() {
                 var objCoo = new Coo();
                 objCoo.parse(match[1]);
                 var objName = match[2];
-                var title = '<div class="aladin-sp-title"><a target="_blank" href="http://simbad.u-strasbg.fr/simbad/sim-id?Ident=' + encodeURIComponent(objName) + '">' + objName + '</a></div>';
-                var content = '<div class="aladin-sp-content">';
-                content += '<em>Type: </em>' + match[4] + '<br>';
-                var magnitude = match[3];
+                const title = document.createElement("div");
+                title.classList.add("aladin-sp-title");
+                const link = document.createElement("a");
+                link.setAttribute("href", `http://simbad.u-strasbg.fr/simbad/sim-id?Ident=${encodeURIComponent(objName)}`);
+                link.setAttribute("target", "_blank");
+                title.appendChild(link);
+
+                const content = document.createElement("div");
+                content.classList.add("aladin-sp-content");
+                // var content = '<div class="aladin-sp-content">';
+                const em = document.createElement("em");
+                em.textContent = `Type: ${match[4]}`;
+                em.appendChild(document.createElement("br"));
+                content.appendChild(em);
+
+                let magnitude = match[3];
                 if (Utils.isNumber(magnitude)) {
-                    content += '<em>Mag: </em>' + magnitude + '<br>';
+                    const magContent = document.createElement("em");
+                    magContent.textContnt = `Mag: $magnitude`;
+                    magContent.appendChild(document.createElement("br"));
+                    content.appendChild(magContent);
                 }
-                content += '<br><a target="_blank" href="http://cdsportal.u-strasbg.fr/?target=' + encodeURIComponent(objName) + '">Query in CDS portal</a>';
-                content += '</div>';
+                const cdsLink = document.createElement("a");
+                cdsLink.setAttribute("href", `http://cdsportal.u-strasbg.fr/?target=${encodeURIComponent(objName)}`);
+                cdsLink.textContent = "Query in CDS portal";
+                cdsLink.setAttribute("target", "_blank");
+                content.appendChild(cdsLink);
                 aladinInstance.showPopup(objCoo.lon, objCoo.lat, title, content);
             }
             else {
                 aladinInstance.hidePopup();
             }
         };
+
         var failureCallback = function() {
             aladinInstance.view.setCursor('pointer');
             aladinInstance.hidePopup();

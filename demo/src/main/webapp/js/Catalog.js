@@ -28,7 +28,6 @@
  * Author: Thomas Boch[CDS]
  *
  *****************************************************************************/
-import $ from 'jquery';
 import Color from './Color';
 import { HealpixIndex } from './HealpixIndex';
 import Utils from './Utils';
@@ -73,7 +72,7 @@ const Catalog = (function() {
             this.sourceSize = this.shape.width;
         }
         this._shapeIsFunction = false; // if true, the shape is a function drawing on the canvas
-        if ($.isFunction(this.shape)) {
+        if (typeof x === "function") {
             this._shapeIsFunction = true;
         }
 
@@ -208,7 +207,7 @@ const Catalog = (function() {
                 let field = fields[l];
                 if ( ! raFieldIdx) {
                     if (field.ucd) {
-                        let ucd = $.trim(field.ucd.toLowerCase());
+                        let ucd = field.ucd.toLowerCase().trim();
                         if (ucd.indexOf('pos.eq.ra')===0 || ucd.indexOf('pos_eq_ra')===0) {
                             raFieldIdx = l;
                             continue;
@@ -218,7 +217,7 @@ const Catalog = (function() {
 
                 if ( ! decFieldIdx) {
                     if (field.ucd) {
-                        let ucd = $.trim(field.ucd.toLowerCase());
+                        let ucd = field.ucd.toLowerCase().trim();
                         if (ucd.indexOf('pos.eq.dec')===0 || ucd.indexOf('pos_eq_dec')===0) {
                             decFieldIdx = l;
                             continue;
@@ -265,24 +264,23 @@ const Catalog = (function() {
     Catalog.parseVOTable = function(url, callback, maxNbSources, useProxy, raField, decField) {
 
         // adapted from votable.js
-        function getPrefix($xml) {
-            var prefix;
+        function getPrefix(xml) {
+            let prefix;
             // If Webkit chrome/safari/... (no need prefix)
-            if($xml.find('RESOURCE').length>0) {
+            if(xml.querySelectorAll('RESOURCE').length>0) {
                 prefix = '';
             }
             else {
                 // Select all data in the document
-                prefix = $xml.find("*").first();
+                prefix = xml.querySelector("*");
 
                 if (prefix.length===0) {
                     return '';
                 }
 
-                // get name of the first tag
-                prefix = prefix.prop("tagName");
+                prefix = prefix.tagName;
 
-                var idx = prefix.indexOf(':');
+                const idx = prefix.indexOf(':');
 
                 prefix = prefix.substring(0, idx) + "\\:";
             }
@@ -296,14 +294,15 @@ const Catalog = (function() {
 
             var fields = [];
             var k = 0;
-            var $xml = $($.parseXML(xml));
-            var prefix = getPrefix($xml);
-            $xml.find(prefix + "FIELD").each(function() {
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xml, "text/xml");
+            const prefix = getPrefix(xmlDoc);
+            xmlDoc.querySelectorAll(prefix + "FIELD").forEach(function(item) {
                 var f = {};
                 for (var i=0; i<attributes.length; i++) {
                     var attribute = attributes[i];
-                    if ($(this).attr(attribute)) {
-                        f[attribute] = $(this).attr(attribute);
+                    if (item.getAttribute(attribute)) {
+                        f[attribute] = item.getAttribute(attribute);
                     }
                 }
                 if ( ! f.ID) {
@@ -322,12 +321,12 @@ const Catalog = (function() {
 
             var coo = new Coo();
             var ra, dec;
-            $xml.find(prefix + "TR").each(function() {
+            xmlDoc.querySelectorAll(prefix + "TR").forEach(function(item) {
                var mesures = {};
                var k = 0;
-               $(this).find(prefix + "TD").each(function() {
+               item.querySelectorAll(prefix + "TD").forEach(function(item) {
                    var key = fields[k].name ? fields[k].name : fields[k].id;
-                   mesures[key] = $(this).text();
+                   mesures[key] = item.textContent;
                    k++;
                });
                var keyRa = fields[raFieldIdx].name ? fields[raFieldIdx].name : fields[raFieldIdx].id;
@@ -353,10 +352,7 @@ const Catalog = (function() {
             }
         }
 
-        var ajax = Utils.getAjaxObject(url, 'GET', 'text', useProxy);
-        ajax.done(function(xml) {
-            doParseVOTable(xml, callback);
-        });
+        fetch(url).then(xml => xml.text()).then(xml => doParseVOTable(xml, callback));
     };
 
     // API

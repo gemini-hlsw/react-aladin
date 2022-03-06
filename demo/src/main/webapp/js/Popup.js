@@ -27,42 +27,54 @@
  * Author: Thomas Boch [CDS]
  *
  *****************************************************************************/
-import $ from 'jquery';
-
 const Popup = (function() {
     // constructor
     const Popup = function(parentDiv, view) {
-        this.domEl = $('<div class="aladin-popup-container"><div class="aladin-popup"><a class="aladin-closeBtn">&times;</a><div class="aladin-popupTitle"></div><div class="aladin-popupText"></div></div><div class="aladin-popup-arrow"></div></div>');
-        this.domEl.appendTo(parentDiv);
+        this.domEl = document.createElement("div");
+        this.domEl.classList.add("aladin-popup-container");
+        const domPopup = document.createElement("div");
+        domPopup.classList.add("aladin-popup");
+        this.domEl.appendChild(domPopup);
+        const domPopupLink = document.createElement("a");
+        domPopupLink.classList.add("aladin-closeBtn");
+        domPopupLink.textContent = "x";
+
+        // close popup
+        const self = this;
+        domPopupLink.addEventListener('click', function () {self.hide();}, false);
+        domPopup.appendChild(domPopupLink);
+        this.domPopupTitle = document.createElement("div");
+        this.domPopupTitle.classList.add("aladin-popupTitle");
+        this.domPopupText = document.createElement("div");
+        domPopup.appendChild(this.domPopupTitle);
+        domPopup.appendChild(this.domPopupText);
+        this.domPopupText.classList.add("aladin-popupText");
+        parentDiv.appendChild(this.domEl);
 
         this.view = view;
 
 
-        var self = this;
-        // close popup
-        this.domEl.find('.aladin-closeBtn').click(function() {self.hide();});
-
     };
 
     Popup.prototype.hide = function() {
-        this.domEl.hide();
+        this.domEl.style.display = 'none';
 
         this.view.mustClearCatalog=true;
         this.view.catalogForPopup.hide();
     };
 
     Popup.prototype.show = function() {
-        this.domEl.show();
+        this.domEl.style.display = 'block';
     };
 
     Popup.prototype.setTitle = function(title) {
-        this.domEl.find('.aladin-popupTitle').html(title || '');
+        this.domPopupTitle.appendChild(title);
     };
 
     Popup.prototype.setText = function(text) {
-        this.domEl.find('.aladin-popupText').html(text || '');
-        this.w = this.domEl.outerWidth();
-        this.h = this.domEl.outerHeight();
+        this.domPopupText.appendChild(text);
+        this.w = this.domEl.offsetWidth;
+        this.h = this.domEl.offsetHeight;
     };
 
     Popup.prototype.setSource = function(source) {
@@ -76,14 +88,14 @@ const Popup = (function() {
     };
 
     Popup.prototype.setPosition = function(x, y) {
-        var newX = x - this.w/2;
-        var newY = y - this.h;
+        let newX = x - this.w/2;
+        let newY = y - this.h;
         if (this.source) {
             newY += this.source.catalog.sourceSize/2;
         }
 
-        this.domEl[0].style.left = newX + 'px';
-        this.domEl[0].style.top  = newY + 'px';
+        this.domEl.style.left = newX + 'px';
+        this.domEl.style.top  = newY + 'px';
     };
 
     return Popup;

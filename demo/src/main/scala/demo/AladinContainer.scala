@@ -177,10 +177,17 @@ object AladinContainer {
 
     def recalculateView: Callback =
       aladinRef.get.asCBO.flatMapCB { r =>
-        val cat    = A.catalog(CatalogOptions(onClick = "showTable"))
+        val cat    = A.catalog(CatalogOptions(onClick = "showPopup"))
         val source = A.source(0.01, 0.01, data = js.Dynamic.literal(name = "foobar"))
         cat.addSources(source)
-        r.backend.getFovForObject("vega", f => Callback.log(s"fov $f")) *>
+        Callback(
+          A.catalogFromURL(
+            "https://vizier.u-strasbg.fr/viz-bin/votable?-source=HIP2&-c=LMC&-out.add=_RAJ,_DEJ&-oc.form=dm&-out.meta=DhuL&-out.max=9999&-c.rm=180",
+            CatalogOptions(),
+            useProxy = false
+          )
+        ) *>
+          r.backend.getFovForObject("vega", f => Callback.log(s"fov $f")) *>
           r.backend.addCatalog(cat) *>
           updateSvgState.flatMap { s =>
             r.backend.recalculateView *> r.backend.runOnAladinCB(updateVisualization(s))

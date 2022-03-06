@@ -163,7 +163,8 @@ object A extends js.Object {
   def catalogFromURL(
     url:             String,
     options:         CatalogOptions,
-    successCallback: js.UndefOr[js.Object] = js.undefined
+    successCallback: js.UndefOr[js.Object] = js.undefined,
+    useProxy:        Boolean = false
   ): AladinCatalog = js.native
   def catalogFromSimbad(
     url:             String,
