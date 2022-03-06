@@ -177,7 +177,7 @@ object AladinContainer {
 
     def recalculateView: Callback =
       aladinRef.get.asCBO.flatMapCB { r =>
-        val cat    = A.catalog(CatalogOptions(onClick = "showTable"))
+        val cat    = A.catalog(CatalogOptions(onClick = "showPopup"))
         val source = A.source(0.01, 0.01, data = js.Dynamic.literal(name = "foobar"))
         cat.addSources(source)
         Callback(
