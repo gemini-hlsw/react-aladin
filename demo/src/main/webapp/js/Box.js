@@ -211,7 +211,6 @@ const Box = (function() {
             }
         };
 
-        // return the jquery object corresponding to the given position and open/close state
         var getChevronClass = function(position, isOpen) {
             if (( position==='top' && isOpen ) || ( position==='bottom' && !isOpen )) {
                 return 'aladin-chevron-up';
