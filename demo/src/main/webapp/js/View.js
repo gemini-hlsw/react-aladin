@@ -25,7 +25,6 @@
  * Author: Thomas Boch[CDS]
  *
  *****************************************************************************/
-import $ from 'jquery';
 import CooFrameEnum from './CooFrameEnum';
 import Circle from './Circle';
 import CooConversion from './CooConversion';
@@ -165,8 +164,8 @@ const View = (function() {
             // this results in canvas dimension to be incorrect.
             // The following line tries to fix this issue
             setTimeout(function() {
-                var computedWidth = $(self.aladinDiv).width();
-                var computedHeight = $(self.aladinDiv).height();
+                const computedWidth = self.aladinDiv.clientWidth;
+                const computedHeight = self.aladinDiv.clienhHeight;
 
                 if (self.width!==computedWidth || self.height===computedHeight) {
                     self.fixLayoutDimensions();
@@ -190,17 +189,30 @@ const View = (function() {
 
     // (re)create needed canvases
     View.prototype.createCanvases = function() {
-        var a = $(this.aladinDiv);
-        a.find('.aladin-imageCanvas').remove();
-        a.find('.aladin-catalogCanvas').remove();
-        a.find('.aladin-reticleCanvas').remove();
+        const aladin = this.aladinDiv;
+        aladin.querySelectorAll('.aladin-imageCanvas').forEach((item) => item.parentNode.removeChild(item));
+        aladin.querySelectorAll('.aladin-catalogCanvas').forEach((item) => item.parentNode.removeChild(item));
+        aladin.querySelectorAll('.aladin-reticleCanvas').forEach((item) => item.parentNode.removeChild(item));
+        // a.find('.aladin-imageCanvas').remove();
+        // a.find('.aladin-catalogCanvas').remove();
+        // a.find('.aladin-reticleCanvas').remove();
+
+        // this.imageCanvas = $("<canvas class='aladin-imageCanvas'></canvas>").appendTo(this.aladinDiv)[0];
+        // this.catalogCanvas = $("<canvas class='aladin-catalogCanvas'></canvas>").appendTo(this.aladinDiv)[0];
+        // this.reticleCanvas = $("<canvas class='aladin-reticleCanvas'></canvas>").appendTo(this.aladinDiv)[0];
 
         // canvas to draw the images
-        this.imageCanvas = $("<canvas class='aladin-imageCanvas'></canvas>").appendTo(this.aladinDiv)[0];
+        this.imageCanvas = document.createElement("canvas");
+        this.imageCanvas.classList.add('aladin-imageCanvas')
+        this.aladinDiv.appendChild(this.imageCanvas);
         // canvas to draw the catalogs
-        this.catalogCanvas = $("<canvas class='aladin-catalogCanvas'></canvas>").appendTo(this.aladinDiv)[0];
+        this.catalogCanvas = document.createElement("canvas");
+        this.catalogCanvas.classList.add('aladin-catalogCanvas')
+        this.aladinDiv.appendChild(this.catalogCanvas);
         // canvas to draw the reticle
-        this.reticleCanvas = $("<canvas class='aladin-reticleCanvas'></canvas>").appendTo(this.aladinDiv)[0];
+        this.reticleCanvas = document.createElement("canvas");
+        this.reticleCanvas.classList.add('aladin-reticleCanvas')
+        this.aladinDiv.appendChild(this.reticleCanvas);
     };
 
 
@@ -208,8 +220,10 @@ const View = (function() {
     View.prototype.fixLayoutDimensions = function() {
         Utils.cssScale = undefined;
 
-        var computedWidth = $(this.aladinDiv).width();
-        var computedHeight = $(this.aladinDiv).height();
+        // const computedWidth = self.aladinDiv.clientWidth;
+        // const computedHeight = self.aladinDiv.clienhHeight;
+        const computedWidth =  this.aladinDiv.clientWidth;
+        const computedHeight =  this.aladinDiv.clientHeight;
 
         this.width = Math.max(computedWidth, 1);
         this.height = Math.max(computedHeight, 1); // this prevents many problems when div size is equal to 0
@@ -241,17 +255,17 @@ const View = (function() {
 
         // change logo
         if (!this.logoDiv) {
-            this.logoDiv = $(this.aladinDiv).find('.aladin-logo')[0];
+            this.logoDiv = this.aladinDiv.querySelectorAll('.aladin-logo')[0];
         }
         if (this.width>800) {
-            $(this.logoDiv).removeClass('aladin-logo-small');
-            $(this.logoDiv).addClass('aladin-logo-large');
-            $(this.logoDiv).css('width', '90px');
+            this.logoDiv.classList.remove('aladin-logo-small');
+            this.logoDiv.classList.add('aladin-logo-large');
+            this.logoDiv.style.width = '90px';
         }
         else {
-            $(this.logoDiv).addClass('aladin-logo-small');
-            $(this.logoDiv).removeClass('aladin-logo-large');
-            $(this.logoDiv).css('width', '32px');
+            this.logoDiv.classList.add('aladin-logo-small');
+            this.logoDiv.classList.remove('aladin-logo-large');
+            this.logoDiv.style.width = '32px';
         }
 
         this.computeNorder();
@@ -275,7 +289,7 @@ const View = (function() {
         else if (this.mode===View.TOOL_SIMBAD_POINTER) {
             this.popup.hide();
             this.reticleCanvas.style.cursor = '';
-            $(this.reticleCanvas).addClass('aladin-sp-cursor');
+            this.reticleCanvas.classList.add('aladin-sp-cursor');
         }
         else {
             this.setCursor('default');
@@ -394,11 +408,11 @@ const View = (function() {
             view.pointTo(radec[0], radec[1]);
         };
         if (! hasTouchEvents) {
-            $(view.reticleCanvas).dblclick(onDblClick);
+            view.reticleCanvas.addEventListener("dblclick", onDblClick);
         }
 
 
-        $(view.reticleCanvas).bind("mousedown touchstart", function(e) {
+        const mouseDownEvent = function(e) {
             // zoom pinching
             if (e.type==='touchstart' && e.originalEvent && e.originalEvent.targetTouches && e.originalEvent.targetTouches.length===2) {
                 view.dragging = false;
@@ -434,10 +448,12 @@ const View = (function() {
                 view.selectStartCoo = {x: view.dragx, y: view.dragy};
             }
             return false; // to disable text selection
-        });
+        };
+        view.reticleCanvas.addEventListener("mousedown", mouseDownEvent);
+        view.reticleCanvas.addEventListener("touchstart", mouseDownEvent);
 
         //$(view.reticleCanvas).bind("mouseup mouseout touchend", function(e) {
-        $(view.reticleCanvas).bind("click mouseout touchend", function(e) { // reacting on 'click' rather on 'mouseup' is more reliable when panning the view
+        const clickEvent = function(e) { // reacting on 'click' rather on 'mouseup' is more reliable when panning the view
             if (e.type==='touchend' && view.pinchZoomParameters.isPinching) {
                 view.pinchZoomParameters.isPinching = false;
                 view.pinchZoomParameters.initialFov = view.pinchZoomParameters.initialDistance = undefined;
@@ -575,10 +591,14 @@ const View = (function() {
             view.refreshProgressiveCats();
 
             view.requestRedraw(true);
-        });
+        };
+
+        view.reticleCanvas.addEventListener("click", clickEvent);
+        view.reticleCanvas.addEventListener("mouseout", clickEvent);
+        view.reticleCanvas.addEventListener("touchend", clickEvent);
         var lastHoveredObject; // save last object hovered by mouse
         var lastMouseMovePos = null;
-        $(view.reticleCanvas).bind("mousemove touchmove", function(e) {
+        const mouseMoveEvent = function(e) {
             e.preventDefault();
 
             if (e.type==='touchmove' && view.pinchZoomParameters.isPinching && e.originalEvent && e.originalEvent.touches && e.originalEvent.touches.length===2) {
@@ -717,10 +737,12 @@ const View = (function() {
             }
             view.realDragging = true;
             view.requestRedraw();
-        }); //// endof mousemove ////
+        }; //// endof mousemove ////
+        view.reticleCanvas.addEventListener("mousemove", mouseMoveEvent);
+        view.reticleCanvas.addEventListener("touchmove", mouseMoveEvent);
 
         // disable text selection on IE
-        $(view.aladinDiv).onselectstart = function () { return false; }
+        view.aladinDiv.onselectstart = function () { return false; }
 
         view.reticleCanvas.onwheel = function(event) {
             event.preventDefault();
@@ -749,9 +771,10 @@ const View = (function() {
     var init = function(view) {
         var stats = new Stats();
         stats.domElement.style.top = '50px';
-        if ($('#aladin-statsDiv').length>0) {
-            $('#aladin-statsDiv')[0].appendChild( stats.domElement );
-        }
+        document.querySelectorAll('#aladin-statsDiv').forEach((item) => item.appendChild(stats.domElement));
+        // if ($('#aladin-statsDiv').length>0) {
+        //     $('#aladin-statsDiv')[0].appendChild( stats.domElement );
+        // }
 
         view.stats = stats;
 
@@ -1579,7 +1602,7 @@ const View = (function() {
 
         // reset canvas to "untaint" canvas if needed
         // we test if the previous base image layer was using CORS or not
-        if ($.support.cors && this.overlayImageSurvey && ! this.overlayImageSurvey.useCors) {
+        if (this.overlayImageSurvey && ! this.overlayImageSurvey.useCors) {
             this.untaintCanvases();
         }
 
@@ -1626,7 +1649,7 @@ const View = (function() {
 
         // reset canvas to "untaint" canvas if needed
         // we test if the previous base image layer was using CORS or not
-        if ($.support.cors && this.imageSurvey && ! this.imageSurvey.useCors) {
+        if (this.imageSurvey && ! this.imageSurvey.useCors) {
             this.untaintCanvases();
         }
 
