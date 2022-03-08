@@ -41,7 +41,7 @@ import HealpixGrid from './HealpixGrid';
 import ProjectionEnum from './ProjectionEnum';
 import SimbadPointer from './SimbadPointer';
 import requestAnimFrame from 'raf';
-import Stats from 'stats.js';
+// import Stats from 'stats.js';
 import Popup from './Popup';
 import {Projection} from './projection';
 import Downloader from './Downloader';
@@ -769,14 +769,14 @@ const View = (function() {
     };
 
     var init = function(view) {
-        var stats = new Stats();
-        stats.domElement.style.top = '50px';
-        document.querySelectorAll('#aladin-statsDiv').forEach((item) => item.appendChild(stats.domElement));
+        // var stats = new Stats();
+        // stats.domElement.style.top = '50px';
+        // document.querySelectorAll('#aladin-statsDiv').forEach((item) => item.appendChild(stats.domElement));
         // if ($('#aladin-statsDiv').length>0) {
         //     $('#aladin-statsDiv')[0].appendChild( stats.domElement );
         // }
 
-        view.stats = stats;
+        // view.stats = stats;
 
         view.createListeners(view);
 
@@ -903,7 +903,7 @@ const View = (function() {
                 this.flagForceRedraw = false;
             }
         }
-        this.stats.update();
+        // this.stats.update();
 
 
         var imageCtx = this.imageCtx;
