@@ -35,11 +35,17 @@ object GmosGeometry {
   val port: PortDisposition =
     PortDisposition.Side
 
+  val fullPatrolField = GmosOiwfsProbeArm.fullPatrolFieldAt(posAngle, offsetPos)
+
+  val patrolField = GmosOiwfsProbeArm.patrolFieldAt(posAngle, offsetPos, fpu, port)
+
   // Shape to display
   val shapes: NonEmptyMap[String, ShapeExpression] =
     NonEmptyMap.of(
       ("probe", GmosOiwfsProbeArm.shapeAt(posAngle, guideStarOffset, offsetPos, fpu, port)),
-      ("patrol-field", GmosOiwfsProbeArm.patrolFieldAt(posAngle, offsetPos, fpu, port)),
+      ("patrol-field", patrolField),
+      // ("full-patrol-field1", GmosOiwfsProbeArm.fullPatrolField),
+      // ("full-patrol-field", fullPatrolField),
       ("science-ccd", GmosScienceAreaGeometry.imaging ⟲ posAngle),
       ("science-ccd-offset", GmosScienceAreaGeometry.imaging ↗ offsetPos ⟲ posAngle)
     )

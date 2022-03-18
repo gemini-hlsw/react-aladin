@@ -21,13 +21,17 @@ import lucuma.core.geom.svg.implicits._
 import lucuma.core.math.Angle
 import org.scalajs.dom.Element
 import react.common._
+import scala.collection.immutable.SortedMap
 
 package object visualization {
   implicit class SvgOps(val svg: Svg) extends AnyVal {
     def setSize(s: Size): Svg = svg.size(s.width.toDouble, s.height.toDouble)
   }
 
-  val pp: SvgPostProcessor = {
+  val boxProcessor: SvgPostProcessor = { case a =>
+    if (a.id().endsWith("bbox")) a.addClass("bbox") else a
+  }
+  val pp: SvgPostProcessor           = {
     case p: Polygon   => p.addClass("jts-polygon")
     case g: Group     => g.addClass("jts-group")
     case c: Container => c.addClass("jts")
@@ -41,9 +45,10 @@ package object visualization {
   )(implicit si: ShapeInterpreter): Svg = {
     val scalingFn: ScalingFn = (v: Double) => rint(v / scaleFactor)
 
-    val svg: Svg    = new Svg()
+    val svg: Svg = new Svg()
+
     // Render the svg
-    val evaldShapes = shapes
+    val evaldShapes: SortedMap[String, JtsShape] = shapes
       .map(_.eval)
       .toSortedMap
       .map {
@@ -55,6 +60,25 @@ package object visualization {
     NonEmptyMap
       .fromMapUnsafe(evaldShapes)
       .toSvg(svg, pp, scalingFn = scalingFn)
+
+    // Render the svg boxes
+    // val evaldShapesBoundingBoxes: SortedMap[String, JtsShape] = shapes
+    //   .map(_.eval)
+    //   .toSortedMap
+    //   .map {
+    //     case (id, jts: JtsShape) =>
+    //       (s"$id-bbox",
+    //        ShapeExpression.Rectangle(jts.boundingBox._1, jts.boundingBox._3).eval match {
+    //          case jts: JtsShape => jts
+    //          case x             => sys.error(s"Whoa unexpected shape type: $x")
+    //        }
+    //       )
+    //     case x                   => sys.error(s"Whoa unexpected shape type: $x")
+    //   }
+    //
+    // NonEmptyMap
+    //   .fromMapUnsafe(evaldShapesBoundingBoxes)
+    //   .toSvg(svg, pp.andThen(boxProcessor), scalingFn = scalingFn)
     svg
   }
 
@@ -69,6 +93,7 @@ package object visualization {
   val ReticleSize = 14
 
   def addCross(svg: Container, reticleSize: Double): Group = {
+    println(s"Add cross $reticleSize")
     val g = svg.group()
     g.attr("class", "jts-svg-reticle")
 
@@ -151,6 +176,7 @@ package object visualization {
 
       // center cross
       val reticleSizeX = ReticleSize * x / dx
+      println(s"$x $dx $reticleSizeX")
       addCross(svg, reticleSizeX)
 
       // Border to the whole svg, usually hidden

@@ -5,23 +5,29 @@ package demo
 
 import scala.scalajs.js
 
+import cats.effect._
 import org.scalajs.dom
-
+import org.http4s.dom._
 import js.annotation._
 
 @JSExportTopLevel("Main")
-object AladinDemo {
+object AladinDemo extends IOApp.Simple {
+  @JSExport
+  def resetIOApp(): Unit =
+    // https://github.com/typelevel/cats-effect/pull/2114#issue-687064738
+    cats.effect.unsafe.IORuntime.asInstanceOf[{ def resetGlobal(): Unit }].resetGlobal()
 
   @JSExport
-  def main(): Unit = {
+  def runIOApp(): Unit = main(Array.empty)
+
+  override final def run: IO[Unit] = IO {
     val container = Option(dom.document.getElementById("root")).getOrElse {
       val elem = dom.document.createElement("div")
       elem.id = "root"
       dom.document.body.appendChild(elem)
       elem
     }
-    TargetBody().renderIntoDOM(container)
-
+    TargetBody(FetchClientBuilder[IO].create).renderIntoDOM(container)
     ()
   }
 }

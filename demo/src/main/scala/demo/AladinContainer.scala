@@ -4,25 +4,40 @@
 package demo
 
 import cats.implicits._
-import lucuma.svgdotjs.Svg
+import cats.data.Validated.Valid
 import japgolly.scalajs.react.ReactMonocle._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
-import lucuma.core.geom.jts.interpreter._
 import lucuma.core.math._
+import lucuma.core.enum.CatalogName
 import monocle.Lens
 import monocle.macros.GenLens
 import org.scalajs.dom.document
 import org.scalajs.dom.Element
 import react.aladin._
+import react.aladin.reusability._
 import react.common._
 import scala.annotation.nowarn
-import scala.scalajs.js
+import lucuma.catalog._
+import lucuma.ui.reusability._
+import lucuma.svgdotjs.Svg
+import org.http4s.client.Client
+import org.http4s.Method._
+import org.http4s.Uri
+import org.http4s.syntax.all._
+import org.http4s.client.dsl.io._
+import cats.effect.IO
+import fs2.text
+import japgolly.scalajs.react.util._
+import lucuma.core.geom.jts.interpreter._
+import lucuma.core.geom.ShapeInterpreter
+import monocle.Focus
 
 final case class AladinContainer(
   s:           Size,
-  coordinates: Coordinates
-) extends ReactProps[AladinContainer](AladinContainer.component) {
+  coordinates: Coordinates,
+  client:      Client[IO]
+) extends ReactFnProps[AladinContainer](AladinContainer.component) {
   val aladinCoordsStr: String = Coordinates.fromHmsDms.reverseGet(coordinates)
 }
 
@@ -36,126 +51,247 @@ object AladinContainer {
   /**
    * On the state we keep the svg to avoid recalculations during panning
    */
-  final case class State(svg: Option[Svg])
+  final case class State(
+    gs: List[Coordinates]
+  )
 
   implicit val propsReuse: Reusability[Props] =
     Reusability.by_== // by(p => (p.aladinCoordsStr, p.s.width.toDouble, p.s.height.toDouble))
-  implicit val stateReuse = Reusability.always[State]
+  implicit val stateReuse: Reusability[State] =
+    Reusability.by(s => (s.gs.length))
 
   object State {
-    val Zero: State = State(None)
+    val Zero: State = State(Nil)
 
-    val svg: Lens[State, Option[Svg]] = Lens[State, Option[Svg]](_.svg)(a => s => s.copy(svg = a))
+    val gs: Lens[State, List[Coordinates]] = Focus[State](_.gs)
+
   }
 
-  class Backend($ : BackendScope[Props, State]) {
-    // Create a mutable reference
-    private val aladinRef = Ref.toScalaComponent(AladinComp)
+  implicit class ConeSearchCatalogQueryOps(val c: ConeSearchCatalogQuery) extends AnyVal {
 
-    /**
-     * Recalculate svg and store it on state
-     *
-     * @param pixelScale
-     * @return
-     */
-    def updateSvgState: CallbackTo[Svg] =
-      CallbackTo
-        .pure(
-          visualization
-            .shapesToSvg(GmosGeometry.shapes, GmosGeometry.pp, GmosGeometry.ScaleFactor)
-        )
-        .flatTap(svg => $.setStateL(State.svg)(svg.some))
+    def adqlGeom(implicit ev: CatalogQueryInterpreter): String = {
+      val (p1, _, p3, _) = c.radiusConstraint.eval(ev.shapeInterpreter).boundingBox
+      val halfP          =
+        Offset.p.andThen(Offset.P.angle).modify(x => Angle.microarcseconds.modify(_ / 2)(x))
+      val halfQ          =
+        Offset.q.andThen(Offset.Q.angle).modify(x => Angle.microarcseconds.modify(_ / 2)(x))
+      val center         = p1 - p3
+      val box            = halfP(halfQ(p1)) - halfP(halfQ(p3))
+      println(center)
+      println(box.p.toAngle.toDoubleDegrees)
+      println(box.q.toAngle.toSignedDoubleDegrees)
+      // println(p1.q.toAngle.toSignedDoubleDegrees)
+      // println(p3.q.toAngle.toSignedDoubleDegrees)
+      // println((p1 - p3).q.toAngle.toSignedDoubleDegrees)
+      println(center.q.toAngle.toSignedDoubleDegrees)
+      f"BOX('ICRS', ${c.base.ra.toAngle.toDoubleDegrees}%9.8f, ${c.base.dec.toAngle.toSignedDoubleDegrees}%9.8f, ${center.p.toAngle.toDoubleDegrees}%9.8f, ${center.q.toAngle.toSignedDoubleDegrees.abs}%9.8f)"
+    }
+  }
 
-    def renderVisualization(
-      svgBase:    Svg,
-      div:        Element,
-      size:       => Size,
-      pixelScale: => PixelScale
-    ): Callback =
-      $.props
-        .map(AladinContainer.coordinates.get)
-        .toCBO
-        .flatMap(c => aladinRef.get.asCBO.flatMapCB(_.backend.world2pix(c))) // calculate the offset
-        .map {
-          case Some((x: Double, y: Double)) =>
-            // Delete any viz previously rendered
-            val previous = Option(div.querySelector(".aladin-visualization"))
-            previous.foreach(div.removeChild)
-            val g        = document.createElement("div")
-            g.classList.add("aladin-visualization")
-            visualization.geometryForAladin(svgBase,
-                                            g,
-                                            size,
-                                            pixelScale,
-                                            GmosGeometry.ScaleFactor,
-                                            (x, y)
-            )
-            // Include visibility on the dom
-            div.appendChild(g)
-          case _                            =>
-        }
-        .void
+  sealed trait GaiaBackend {
+    val MaxResultCount              = 5
+    val ProperMotionLimitMasYr: Int = 100
 
-    def includeSvg(v: JsAladin): Callback =
-      v.onFullScreenToggle(recalculateView) *>    // re render on screen toggle
-        v.onZoom(onZoom(v)) *>                    // re render on zoom
-        v.onPositionChanged(onPositionChanged(v)) // *>
-    // v.onMouseMove(s => Callback.log(s"$s"))
+    val gaia = CatalogAdapter.GaiaAdapter
 
-    def updateVisualization(s: Svg)(v: JsAladin): Callback = {
-      val size = Size(v.getParentDiv().clientHeight.toDouble, v.getParentDiv().clientWidth.toDouble)
-      val div  = v.getParentDiv()
-      renderVisualization(s, div, size, v.pixelScale)
+    def adql(cs: ConeSearchCatalogQuery)(implicit ci: CatalogQueryInterpreter): String = {
+      //
+      val fields    = gaia.allFields.map(_.id.value.toLowerCase).mkString(",")
+      //       |     WHERE CONTAINS(POINT('ICRS',${gaia.raField.id},${gaia.decField.id}),CIRCLE('ICRS', ${cs.base.ra.toDegrees}%9.8f, ${cs.base.dec.toDegrees}%9.8f, ${cs.radiusConstraint.maxLimit.toDegrees}%9.8f))=1
+      //       |       AND (${gaia.plxField.id} > 0)
+      //       |       AND (${gaia.gMagField.id} BETWEEN $BrightLimit AND $FaintLimit)
+      //       |       AND (${gaia.bpRpField.id} IS NOT NULL)
+      //       |       AND (SQRT(POWER(${gaia.pmRaField.id}, 2.0) + POWER(${gaia.pmDecField.id}, 2.0)) < ${ProperMotionLimitMasYr})
+      // println(cs.radiusConstraint)
+      val shapeAdql = cs.adqlGeom
+
+      f"""|SELECT TOP ${ci.MaxCount} $fields, DISTANCE(POINT(${cs.base.ra.toAngle.toDoubleDegrees}%9.8f, ${cs.base.dec.toAngle.toSignedDoubleDegrees}%9.8f), POINT(ra, dec)) AS ang_sep
+        |     FROM gaiadr2.gaia_source
+        |     WHERE CONTAINS(POINT('ICRS',${gaia.raField.id},${gaia.decField.id}),$shapeAdql)=1
+        |  ORDER BY ang_sep ASC
+      """.stripMargin
     }
 
-    def updateVisualization(v: JsAladin): Callback =
-      $.state.flatMap(s => s.svg.map(updateVisualization(_)(v)).getOrEmpty)
+  }
 
-    def render(props: Props) =
-      <.div(
-        ^.width  := 100.pct,
-        ^.height := 100.pct,
-        AladinComp.withRef(aladinRef) {
-          Aladin(
-            Css("react-aladin"),
-            showReticle = false,
-            showFullscreenControl = true,
-            // showLayersControl = true,
-            // showZoomControl = false,
-            target = props.aladinCoordsStr,
-            // target = "ngc 1055",
-            fov = Angle.fromDMS(0, 15, 0, 0, 0),
-            showGotoControl = false,
-            customize = includeSvg _
+  object GaiaBackend extends GaiaBackend
+
+  class Backend($ : BackendScope[Props, State]) {
+    implicit val ci = new CatalogQueryInterpreter {
+      val MaxCount         = 5
+      val shapeInterpreter = implicitly[ShapeInterpreter]
+    }
+
+    /**
+     * Takes a catalog query and builds a list of urls to do the actual query
+     */
+    def queryUri[F[_]](
+      query:       CatalogQuery
+    )(implicit ci: CatalogQueryInterpreter): Option[Uri] =
+      query match {
+        case NameCatalogQuery(_) =>
+          None
+
+        case c: ConeSearchCatalogQuery =>
+          Some(
+            uri"https://lucuma-cors-proxy.herokuapp.com/https://gea.esac.esa.int/tap-server/tap/sync"
+              .withQueryParam("REQUEST", "doQuery")
+              .withQueryParam("LANG", "ADQL")
+              .withQueryParam("FORMAT", "votable_plain")
+              .withQueryParam("QUERY", GaiaBackend.adql(c))
           )
-        }
-      )
+      }
 
-    val onZoom = (_: JsAladin) =>
-      updateSvgState.flatMap { s =>
-        aladinRef.get.asCBO.flatMapCB(r =>
-          r.backend.recalculateView *>
-            r.backend.runOnAladinCB(updateVisualization(s))
+    // def setWorldPixFn: Callback =
+    //   world2pixFn.flatMapCB { f =>
+    //     $.setStateL(State.world2pix)(Some(f))
+    //   }
+    //
+    def loadGuideStars: Callback =
+      $.props.flatMap { props =>
+        val patrolFieldPos =
+          props.coordinates.offset(HourAngle.angle.reverseGet(-GmosGeometry.offsetPos.p.toAngle),
+                                   GmosGeometry.offsetPos.q.toAngle
+          )
+        Callback(
+          implicitly[Effect.Dispatch[IO]].dispatch(
+            queryUri(
+              ConeSearchCatalogQuery(patrolFieldPos,
+                                     GmosGeometry.fullPatrolField,
+                                     Nil,
+                                     CatalogName.Gaia
+              )
+            ).map { url =>
+              val request = GET(url)
+              props.client
+                .stream(request)
+                .flatMap(
+                  _.body
+                    .through(text.utf8.decode)
+                    .through(CatalogSearch.targets[IO](CatalogName.Gaia))
+                )
+                // .evalTap(t => IO.println(t))
+                .compile
+                .toList
+                .flatMap { r =>
+                  val u = r.collect { case Valid(v) =>
+                    v.target.tracking.baseCoordinates
+                  }
+                  IO($.setStateL(State.gs)(u).runNow())
+                }
+            // .drain
+            }.getOrElse(IO.unit)
+          )
         )
       }
 
-    /**
-     * Called when the position changes, i.e. aladin pans. We want to offset the visualization to
-     * keep the internal target correct
-     */
-    @nowarn
-    def onPositionChanged(v: JsAladin)(s: PositionChanged): Callback =
-      $.props
-        .zip($.state)
-        .flatMap { case (p, s) =>
+    // def updateVisualization(v: JsAladin): Callback =
+    //   $.state.flatMap(s => s.svg.map(updateVisualization(_)(v)).getOrEmpty)
+
+    // def render(props: Props, state: State) = {
+    //
+    //   val points =
+    //     state.world2pix.toList.flatMap(state.gs.map).collect { case Some((a, b)) => (a, b) }
+    //   <.div(
+    //     ^.cls := "top-container",
+    //     <.label("p", ^.htmlFor := "p_select"),
+    //     <.select(^.id          := "p_select", <.option("-60"), <.option("0"), <.option("60")),
+    //     <.label("q", ^.htmlFor := "q_select"),
+    //     <.select(^.id          := "q_select", <.option("-60"), <.option("0"), <.option("60")),
+    //     React.Fragment(
+    //       AGSCanvas(props.s, points),
+    //       AladinComp.withRef(aladinRef) {
+    //         Aladin(
+    //           Css("react-aladin"),
+    //           showReticle = false,
+    //           showFullscreenControl = true,
+    //           // showLayersControl = true,
+    //           // showZoomControl = false,
+    //           target = props.aladinCoordsStr,
+    //           // target = "ngc 1055",
+    //           fov = 0.25,
+    //           showGotoControl = false,
+    //           customize = includeSvg _
+    //         )
+    //       }
+    //     )
+    //   )
+    // }
+    //
+    // val world2pixFn: CallbackOption[Coordinates => Option[(Double, Double)]] =
+    //   aladinRef.get.asCBO.flatMapCB(r => r.backend.world2pixFn)
+
+  }
+
+  def updateVisualization(svg: Svg, off: (Double, Double))(v: JsAladin): Callback = {
+    val size = Size(v.getParentDiv().clientHeight, v.getParentDiv().clientWidth)
+    val div  = v.getParentDiv()
+    renderVisualization(svg, off, div, size, v.pixelScale)
+  }
+
+  def renderVisualization(
+    svg:        Svg,
+    offset:     (Double, Double),
+    div:        Element,
+    size:       => Size,
+    pixelScale: => PixelScale
+  ): Callback =
+    Callback {
+      val (x, y)   = offset
+      // Delete any viz previously rendered
+      val previous = Option(div.querySelector(".aladin-visualization"))
+      previous.foreach(div.removeChild)
+      val g        = document.createElement("div")
+      g.classList.add("aladin-visualization")
+      visualization.geometryForAladin(svg, g, size, pixelScale, GmosGeometry.ScaleFactor, (x, y))
+      // Include visibility on the dom
+      div.appendChild(g)
+    }
+
+  val component =
+    ScalaFnComponent
+      .withHooks[Props]
+      .useRefToScalaComponent(AladinComp)
+      .useState(Offset.Zero)
+      .useState(Fov(Angle.fromDoubleDegrees(0.25), Angle.fromDoubleDegrees(0.25)))
+      .useState(none[Coordinates => Option[(Double, Double)]])
+      .useMemoBy((_, _, o, f, _) => (o, f))((_, _, _, _, _) =>
+        _ =>
+          visualization
+            .shapesToSvg(GmosGeometry.shapes, GmosGeometry.pp, GmosGeometry.ScaleFactor)
+      )
+      .useEffectWithDepsBy((_, ref, o, _, _, _) => (o, Option(ref.raw.current).isDefined)) {
+        (_, ref, _, _, w, _) => _ =>
+          ref.get.asCBO.flatMapCB(r => r.backend.world2pixFn.flatMap(x => w.setState(x.some)))
+      }
+      .useEffectBy { (p, ref, _, _, w, svg) =>
+        w.value
+          .flatMap(_(p.coordinates))
+          .map(off =>
+            ref.get.asCBO
+              .flatMapCB(v => v.backend.runOnAladinCB(updateVisualization(svg, off)))
+              .toCallback
+          )
+          .getOrEmpty
+      }
+      .useState(State.Zero)
+      .render { (props, aladinRef, _, fov, world2pix, svg, state) =>
+        /**
+         * Called when the position changes, i.e. aladin pans. We want to offset the visualization
+         * to keep the internal target correct
+         */
+        @nowarn
+        def onPositionChanged(v: JsAladin)(
+          s:                     PositionChanged
+        ): Callback = {
           val size     = Size(v.getParentDiv().clientHeight, v.getParentDiv().clientWidth)
           val div      = v.getParentDiv()
           // Update the existing visualization in place
           val previous = Option(div.querySelector(".aladin-visualization"))
-          (s.svg, previous).mapN { case (svg, previous) =>
+          (svg.some, previous).mapN { case (svg, previous) =>
             aladinRef.get.asCBO
               .flatMapCB(
-                _.backend.world2pix(Coordinates(p.coordinates.ra, p.coordinates.dec))
+                _.backend.world2pix(props.coordinates)
               )
               .flatMapCB { off =>
                 Callback {
@@ -173,42 +309,41 @@ object AladinContainer {
               .toCallback
           }.getOrEmpty
         }
-        .void
 
-    def recalculateView: Callback =
-      aladinRef.get.asCBO.flatMapCB { r =>
-        val cat       = A.catalog(CatalogOptions(onClick = "showPopup"))
-        val source    = A.source(0.01, 0.01, data = js.Dynamic.literal(name = "foobar"))
-        val testCoord =
-          Coordinates(RightAscension.fromDoubleDegrees(-10), Declination.fromDoubleDegrees(-10).get)
-        cat.addSources(source)
-        Callback(
-          A.catalogFromURL(
-            "https://vizier.u-strasbg.fr/viz-bin/votable?-source=HIP2&-c=LMC&-out.add=_RAJ,_DEJ&-oc.form=dm&-out.meta=DhuL&-out.max=9999&-c.rm=180",
-            CatalogOptions(),
-            useProxy = false
+        def includeSvg(v: JsAladin): Callback =
+          v.onZoom(onZoom(v)) *>                      // re render on zoom
+            v.onPositionChanged(onPositionChanged(v)) // *>
+
+        def onZoom = (v: JsAladin) => fov.setState(v.fov)
+
+        val points =
+          world2pix.value.toList.flatMap(state.value.gs.map).collect { case Some((a, b)) =>
+            (a, b)
+          }
+        <.div(
+          ^.cls := "top-container",
+          <.label("p", ^.htmlFor := "p_select"),
+          <.select(^.id          := "p_select", <.option("-60"), <.option("0"), <.option("60")),
+          <.label("q", ^.htmlFor := "q_select"),
+          <.select(^.id          := "q_select", <.option("-60"), <.option("0"), <.option("60")),
+          React.Fragment(
+            AGSCanvas(props.s, points),
+            AladinComp.withRef(aladinRef) {
+              Aladin(
+                Css("react-aladin"),
+                showReticle = false,
+                showFullscreenControl = true,
+                // showLayersControl = true,
+                // showZoomControl = false,
+                target = props.aladinCoordsStr,
+                // target = "ngc 1055",
+                fov = fov.value.x,
+                showGotoControl = false,
+                customize = includeSvg _
+              )
+            }
           )
-        ) *>
-          r.backend.getFovForObject("vega", f => Callback.log(s"fov $f")) *>
-          r.backend.addCatalog(cat) *>
-          updateSvgState.flatMap { s =>
-            r.backend.recalculateView *> r.backend.runOnAladinCB(updateVisualization(s))
-          } *>
-          r.backend.world2pixFn
-            .flatMap(f => Callback.log(s"${f(testCoord).get._1}x${f(testCoord).get._2}")) *>
-          r.backend.pix2worldFn
-            .flatMap(f => Callback.log(s"${f(48742, 49134).get}"))
+        )
       }
-  }
-
-  val component =
-    ScalaComponent
-      .builder[Props]
-      .initialState(State.Zero)
-      .renderBackend[Backend]
-      .componentDidMount(_.backend.updateSvgState.void)
-      .componentDidUpdate(_.backend.recalculateView)
-      .configure(Reusability.shouldComponentUpdate)
-      .build
 
 }

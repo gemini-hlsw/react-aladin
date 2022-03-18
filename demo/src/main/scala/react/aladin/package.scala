@@ -115,7 +115,7 @@ package object aladin {
       Callback(a.on("fullScreenToggled", (_: Boolean) => cb.runNow()))
 
     def onMouseMove(cb: MouseMoved => Callback): Callback =
-      Callback(a.on("mouseMove", (t: JsMouseMoved) => cb(MouseMoved.fromJs(t)).runNow()))
+      Callback(a.on("mouseMove", (t: JsMouseMoved) => {org.scalajs.dom.window.console.log(t);cb(MouseMoved.fromJs(t)).runNow()}))
 
     def pixelScale: PixelScale =
       PixelScale(a.getSize()(0) / a.getFov()(0), a.getSize()(1) / a.getFov()(1))

@@ -7,16 +7,18 @@ import scala.scalajs.js
 
 import japgolly.scalajs.react._
 import cats.syntax.all._
+import cats.effect.IO
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.core.math._
+import org.http4s.client.Client
 import react.aladin._
 import react.common._
 import react.gridlayout._
-import react.resizeDetector._
 import react.resizeDetector.hooks._
 import scala.annotation.nowarn
 
 final case class TargetBody(
+  client: Client[IO]
 ) extends ReactFnProps[TargetBody](TargetBody.component) {}
 
 @js.native
@@ -38,7 +40,7 @@ object SourceData {
 
 }
 
-final case class AladinTile(s: Size, c: Coordinates)
+final case class AladinTile(c: Coordinates, client: Client[IO])
     extends ReactFnProps[AladinTile](AladinTile.component)
 
 object AladinTile {
@@ -98,12 +100,13 @@ object AladinTile {
               ^.cls    := "tile",
               ResizeDetector() { s =>
                 AladinContainer(Size(s.height.foldMap(_.toDouble), s.width.foldMap(_.toDouble)),
-                                props.c
+                                props.c,
+                                props.client
                 )
               }
             )
           )
-        )
+        ).withRef(s.ref)
       }
 
 }
@@ -111,16 +114,20 @@ object AladinTile {
 object TargetBody {
   type Props = TargetBody
 
-  protected implicit val propsReuse: Reusability[Props] = Reusability.derive
+  // protected implicit val propsReuse: Reusability[Props] = Reusability.always
+  //
+  val m81Coords = (RightAscension.fromStringHMS.getOption("16:17:2.410"),
+                   Declination.fromStringSignedDMS.getOption("-22:58:33.90")
+  ).mapN(Coordinates.apply).getOrElse(Coordinates.Zero)
 
   val component =
     ScalaFnComponent
       .withHooks[TargetBody]
-      .useResizeDetector()
-      .renderWithReuse { (_, s) =>
+      .render { p =>
         AladinTile(
           Size(s.height.foldMap(_.toDouble), s.width.foldMap(_.toDouble)),
-          Coordinates.Zero
+          m81Coords,
+          p.client
         )
       }
 

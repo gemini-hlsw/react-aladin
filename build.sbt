@@ -8,7 +8,9 @@ lazy val aladinLiteVersion      = "0.6.2"
 lazy val reactCommonVersion     = "0.16.0"
 lazy val reactGridLayoutVersion = "0.15.0"
 lazy val munitVersion           = "0.7.29"
+lazy val catsEffectVersion      = "3.3.5"
 lazy val svgdotjsVersion        = "0.2.1"
+lazy val http4sClientVersion    = "0.2.0"
 
 ThisBuild / tlBaseVersion       := "0.18"
 ThisBuild / tlCiReleaseBranches := Seq("master")
@@ -49,11 +51,13 @@ val demo =
         "edu.gemini"                        %%% "lucuma-core"        % lucumaCoreVersion,
         "edu.gemini"                        %%% "lucuma-ui"          % lucumaUIVersion,
         "edu.gemini"                        %%% "lucuma-svgdotjs"    % svgdotjsVersion,
+        "edu.gemini"                        %%% "lucuma-catalog"     % lucumaCatalogVersion,
         "com.github.japgolly.scalajs-react" %%% "core-bundle-cb_io"  % scalaJsReact,
         "com.github.japgolly.scalajs-react" %%% "extra-ext-monocle3" % scalaJsReact,
-        "com.github.japgolly.scalajs-react" %%% "test"               % scalaJsReact % Test,
         "io.github.cquiroz.react"           %%% "common"             % reactCommonVersion,
-        "io.github.cquiroz.react"           %%% "react-grid-layout"  % reactGridLayoutVersion
+        "io.github.cquiroz.react"           %%% "react-grid-layout"  % reactGridLayoutVersion,
+        "org.typelevel"                     %%% "cats-effect"        % catsEffectVersion,
+        "org.http4s"                        %%% "http4s-dom"         % http4sClientVersion
       )
     )
 
