@@ -190,7 +190,7 @@ object A extends js.Object {
 final case class Aladin(
   mountNodeClass:           Css,
   target:                   js.UndefOr[String] = js.undefined,
-  fov:                      js.UndefOr[JsNumber] = js.undefined,
+  fov:                      js.UndefOr[Angle] = js.undefined,
   survey:                   js.UndefOr[String] = js.undefined,
   cooFrame:                 js.UndefOr[CooFrame] = js.undefined,
   showReticle:              js.UndefOr[Boolean] = js.undefined,
@@ -313,7 +313,7 @@ object Aladin {
     Aladin(
       Css(q.mountNodeClass),
       q.target,
-      q.fov,
+      q.fov.map(f => Angle.fromDoubleDegrees(f.toDouble)),
       q.survey,
       q.cooFrame.flatMap(CooFrame.fromString(_).orUndefined),
       q.showReticle,
@@ -336,7 +336,7 @@ object Aladin {
 
   def fromProps(q: Props): AladinProps = {
     val p = new js.Object().asInstanceOf[AladinProps]
-    q.fov.foreach(v => p.fov = v)
+    q.fov.foreach(v => p.fov = v.toDoubleDegrees)
     q.target.foreach(v => p.target = v)
     q.survey.foreach(v => p.survey = v)
     q.cooFrame.foreach(v => p.cooFrame = v.toJs)

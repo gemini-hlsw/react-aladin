@@ -165,7 +165,7 @@ const View = (function() {
             // The following line tries to fix this issue
             setTimeout(function() {
                 const computedWidth = self.aladinDiv.clientWidth;
-                const computedHeight = self.aladinDiv.clienhHeight;
+                const computedHeight = self.aladinDiv.clientHeight;
 
                 if (self.width!==computedWidth || self.height===computedHeight) {
                     self.fixLayoutDimensions();

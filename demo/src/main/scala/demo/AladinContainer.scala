@@ -124,7 +124,7 @@ object AladinContainer {
             // showZoomControl = false,
             target = props.aladinCoordsStr,
             // target = "ngc 1055",
-            fov = 0.25,
+            fov = Angle.fromDMS(0, 15, 0, 0, 0),
             showGotoControl = false,
             customize = includeSvg _
           )
