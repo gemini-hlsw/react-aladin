@@ -1,5 +1,6 @@
 import "/css/aladin.css";
 import "/css/style.css";
+import 'virtual:fonts.css';
 
 import { Main } from "@sjs/main.js";
 

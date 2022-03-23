@@ -1,5 +1,6 @@
 import react from "@vitejs/plugin-react";
 import path from "path";
+import ViteFonts from 'vite-plugin-fonts'
 
 // https://vitejs.dev/config/
 export default ({ command, mode }) => {
@@ -74,6 +75,10 @@ export default ({ command, mode }) => {
       },
       outDir: path.resolve(__dirname, "static"),
     },
-    plugins: [react()],
+    plugins: [react(), ViteFonts({
+      google: {
+        families: ['Lato']
+      },
+    })],
   };
 };

@@ -78,6 +78,12 @@ body {
   width: 100vw;
   padding: 0px;
   margin: 0px;
+  background-color: lightgray;
+  font-family: 'Lato';
+}
+label {
+  margin-right: 0.3em;
+  margin-left: 0.3em;
 }
 #root {
   height: 100%;
