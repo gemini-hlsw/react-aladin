@@ -31,6 +31,7 @@ import fs2.text
 import japgolly.scalajs.react.util._
 import lucuma.core.geom.jts.interpreter._
 import lucuma.core.geom.ShapeInterpreter
+import lucuma.core.syntax.string._
 import monocle.Focus
 
 final case class AladinContainer(
@@ -275,7 +276,7 @@ object AladinContainer {
           .getOrEmpty
       }
       .useState(State.Zero)
-      .render { (props, aladinRef, _, fov, world2pix, svg, state) =>
+      .render { (props, aladinRef, offset, fov, world2pix, svg, state) =>
         /**
          * Called when the position changes, i.e. aladin pans. We want to offset the visualization
          * to keep the internal target correct
@@ -320,12 +321,38 @@ object AladinContainer {
           world2pix.value.toList.flatMap(state.value.gs.map).collect { case Some((a, b)) =>
             (a, b)
           }
+
+        def changeQOffset(e: ReactEventFromInput) =
+          e.target.value.parseDoubleOption
+            .map(x => offset.modState(Offset.qAngle.replace(Angle.fromDoubleArcseconds(x))))
+            .getOrEmpty
+
+        def changePOffset(e: ReactEventFromInput) =
+          e.target.value.parseDoubleOption
+            .map(x => offset.modState(Offset.pAngle.replace(Angle.fromDoubleArcseconds(x))))
+            .getOrEmpty
+
+        println(Angle.arcseconds.get(Offset.pAngle.get(offset.value)))
         <.div(
           ^.cls := "top-container",
           <.label("p", ^.htmlFor := "p_select"),
-          <.select(^.id          := "p_select", <.option("-60"), <.option("0"), <.option("60")),
+          <.select(
+            ^.id                 := "p_select",
+            ^.onChange ==> changePOffset,
+            ^.value              := (Angle.arcseconds.get(Offset.pAngle.get(offset.value))),
+            <.option("-60"),
+            <.option("0"),
+            <.option("60")
+          ),
           <.label("q", ^.htmlFor := "q_select"),
-          <.select(^.id          := "q_select", <.option("-60"), <.option("0"), <.option("60")),
+          <.select(
+            ^.id                 := "q_select",
+            ^.onChange ==> changeQOffset,
+            ^.value              := (Angle.arcseconds.get(Offset.qAngle.get(offset.value))),
+            <.option("-60"),
+            <.option("0"),
+            <.option("60")
+          ),
           React.Fragment(
             AGSCanvas(props.s, points),
             AladinComp.withRef(aladinRef) {

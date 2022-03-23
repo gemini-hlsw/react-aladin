@@ -93,7 +93,6 @@ package object visualization {
   val ReticleSize = 14
 
   def addCross(svg: Container, reticleSize: Double): Group = {
-    println(s"Add cross $reticleSize")
     val g = svg.group()
     g.attr("class", "jts-svg-reticle")
 
@@ -176,7 +175,6 @@ package object visualization {
 
       // center cross
       val reticleSizeX = ReticleSize * x / dx
-      println(s"$x $dx $reticleSizeX")
       addCross(svg, reticleSizeX)
 
       // Border to the whole svg, usually hidden
