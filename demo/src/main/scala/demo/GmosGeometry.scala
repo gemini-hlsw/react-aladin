@@ -26,8 +26,8 @@ object GmosGeometry {
   val guideStarOffset: Offset =
     Offset(170543999.µas.p, -24177003.µas.q)
 
-  val offsetPos: Offset =
-    Offset(-60.arcsec.p, 60.arcsec.q)
+  // val offsetPos: Offset =
+  //   Offset(-60.arcsec.p, 60.arcsec.q)
 
   val fpu: Option[Either[GmosNorthFpu, GmosSouthFpu]] =
     Some(Right(GmosSouthFpu.LongSlit_5_00))
@@ -35,17 +35,18 @@ object GmosGeometry {
   val port: PortDisposition =
     PortDisposition.Side
 
-  val fullPatrolField = GmosOiwfsProbeArm.fullPatrolFieldAt(posAngle, offsetPos)
+  def fullPatrolField(offsetPos: Offset) = GmosOiwfsProbeArm.fullPatrolFieldAt(posAngle, offsetPos)
 
-  val patrolField = GmosOiwfsProbeArm.patrolFieldAt(posAngle, offsetPos, fpu, port)
+  def patrolField(offsetPos: Offset) =
+    GmosOiwfsProbeArm.patrolFieldAt(posAngle, offsetPos, fpu, port)
 
   // Shape to display
-  val shapes: NonEmptyMap[String, ShapeExpression] =
+  def shapes(offsetPos: Offset): NonEmptyMap[String, ShapeExpression] =
     NonEmptyMap.of(
       ("probe", GmosOiwfsProbeArm.shapeAt(posAngle, guideStarOffset, offsetPos, fpu, port)),
-      ("patrol-field", patrolField),
-      // ("full-patrol-field1", GmosOiwfsProbeArm.fullPatrolField),
-      // ("full-patrol-field", fullPatrolField),
+      ("patrol-field", patrolField(offsetPos)),
+      ("full-patrol-field1", GmosOiwfsProbeArm.fullPatrolField),
+      ("full-patrol-field", fullPatrolField(offsetPos)),
       ("science-ccd", GmosScienceAreaGeometry.imaging ⟲ posAngle),
       ("science-ccd-offset", GmosScienceAreaGeometry.imaging ↗ offsetPos ⟲ posAngle)
     )

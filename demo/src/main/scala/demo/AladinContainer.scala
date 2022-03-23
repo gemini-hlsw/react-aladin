@@ -148,43 +148,43 @@ object AladinContainer {
     //     $.setStateL(State.world2pix)(Some(f))
     //   }
     //
-    def loadGuideStars: Callback =
-      $.props.flatMap { props =>
-        val patrolFieldPos =
-          props.coordinates.offset(HourAngle.angle.reverseGet(-GmosGeometry.offsetPos.p.toAngle),
-                                   GmosGeometry.offsetPos.q.toAngle
-          )
-        Callback(
-          implicitly[Effect.Dispatch[IO]].dispatch(
-            queryUri(
-              ConeSearchCatalogQuery(patrolFieldPos,
-                                     GmosGeometry.fullPatrolField,
-                                     Nil,
-                                     CatalogName.Gaia
-              )
-            ).map { url =>
-              val request = GET(url)
-              props.client
-                .stream(request)
-                .flatMap(
-                  _.body
-                    .through(text.utf8.decode)
-                    .through(CatalogSearch.targets[IO](CatalogName.Gaia))
-                )
-                // .evalTap(t => IO.println(t))
-                .compile
-                .toList
-                .flatMap { r =>
-                  val u = r.collect { case Valid(v) =>
-                    v.target.tracking.baseCoordinates
-                  }
-                  IO($.setStateL(State.gs)(u).runNow())
-                }
-            // .drain
-            }.getOrElse(IO.unit)
-          )
-        )
-      }
+    // def loadGuideStars: Callback =
+    //   $.props.flatMap { props =>
+    //     val patrolFieldPos =
+    //       props.coordinates.offset(HourAngle.angle.reverseGet(-GmosGeometry.offsetPos.p.toAngle),
+    //                                GmosGeometry.offsetPos.q.toAngle
+    //       )
+    //     Callback(
+    //       implicitly[Effect.Dispatch[IO]].dispatch(
+    //         queryUri(
+    //           ConeSearchCatalogQuery(patrolFieldPos,
+    //                                  GmosGeometry.fullPatrolField,
+    //                                  Nil,
+    //                                  CatalogName.Gaia
+    //           )
+    //         ).map { url =>
+    //           val request = GET(url)
+    //           props.client
+    //             .stream(request)
+    //             .flatMap(
+    //               _.body
+    //                 .through(text.utf8.decode)
+    //                 .through(CatalogSearch.targets[IO](CatalogName.Gaia))
+    //             )
+    //             // .evalTap(t => IO.println(t))
+    //             .compile
+    //             .toList
+    //             .flatMap { r =>
+    //               val u = r.collect { case Valid(v) =>
+    //                 v.target.tracking.baseCoordinates
+    //               }
+    //               IO($.setStateL(State.gs)(u).runNow())
+    //             }
+    //         // .drain
+    //         }.getOrElse(IO.unit)
+    //       )
+    //     )
+    //   }
 
     // def updateVisualization(v: JsAladin): Callback =
     //   $.state.flatMap(s => s.svg.map(updateVisualization(_)(v)).getOrEmpty)
@@ -256,11 +256,12 @@ object AladinContainer {
       .useState(Offset.Zero)
       .useState(Fov(Angle.fromDoubleDegrees(0.25), Angle.fromDoubleDegrees(0.25)))
       .useState(none[Coordinates => Option[(Double, Double)]])
-      .useMemoBy((_, _, o, f, _) => (o, f))((_, _, _, _, _) =>
-        _ =>
-          visualization
-            .shapesToSvg(GmosGeometry.shapes, GmosGeometry.pp, GmosGeometry.ScaleFactor)
-      )
+      .useMemoBy((_, _, o, f, _) => (o, f))((_, _, _, _, _) => { case (offset, fov) =>
+        println(offset.value)
+        println(fov.value)
+        visualization
+          .shapesToSvg(GmosGeometry.shapes(offset.value), GmosGeometry.pp, GmosGeometry.ScaleFactor)
+      })
       .useEffectWithDepsBy((_, ref, o, _, _, _) => (o, Option(ref.raw.current).isDefined)) {
         (_, ref, _, _, w, _) => _ =>
           ref.get.asCBO.flatMapCB(r => r.backend.world2pixFn.flatMap(x => w.setState(x.some)))
@@ -332,7 +333,6 @@ object AladinContainer {
             .map(x => offset.modState(Offset.pAngle.replace(Angle.fromDoubleArcseconds(x))))
             .getOrEmpty
 
-        println(Angle.arcseconds.get(Offset.pAngle.get(offset.value)))
         <.div(
           ^.cls := "top-container",
           <.label("p", ^.htmlFor := "p_select"),
