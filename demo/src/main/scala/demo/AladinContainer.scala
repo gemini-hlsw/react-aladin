@@ -344,6 +344,5 @@ object AladinContainer {
             }
           )
         )
-      }
 
 }
