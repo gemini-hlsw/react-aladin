@@ -263,7 +263,7 @@ object Aladin {
         val dec = c.dec.toAngle.toSignedDoubleDegrees
         val p   = j.world2pix(ra, dec)
         Option(p).filter(_.length == 2).map(p => (p(0), p(1)))
-      }.getOrElse { (_: Coordinates) => println("DEF"); None }
+      }.getOrElse { (_: Coordinates) => None }
 
     def pix2worldFn: CallbackTo[(Int, Int) => Option[Coordinates]] =
       runOnAladinOpt { j => (x: Int, y: Int) =>
