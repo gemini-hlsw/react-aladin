@@ -26,8 +26,8 @@ object GmosGeometry {
   val guideStarOffset: Offset =
     Offset(170543999.µas.p, -24177003.µas.q)
 
-  // val offsetPos: Offset =
-  //   Offset(-60.arcsec.p, 60.arcsec.q)
+  val offsetPos: Offset =
+    Offset(-60.arcsec.p, 60.arcsec.q)
 
   val fpu: Option[Either[GmosNorthFpu, GmosSouthFpu]] =
     Some(Right(GmosSouthFpu.LongSlit_5_00))

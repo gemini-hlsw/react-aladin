@@ -237,32 +237,32 @@ object AladinContainer {
     size:       => Size,
     pixelScale: => PixelScale
   ): Callback =
-    Callback {
-      val (x, y)   = offset
-      // Delete any viz previously rendered
-      val previous = Option(div.querySelector(".aladin-visualization"))
-      previous.foreach(div.removeChild)
-      val g        = document.createElement("div")
-      g.classList.add("aladin-visualization")
-      visualization.geometryForAladin(svg, g, size, pixelScale, GmosGeometry.ScaleFactor, (x, y))
-      // Include visibility on the dom
-      div.appendChild(g)
-    }
+      Callback {
+        val (x, y)   = offset
+        // Delete any viz previously rendered
+        val previous = Option(div.querySelector(".aladin-visualization"))
+        previous.foreach(div.removeChild)
+        val g        = document.createElement("div")
+        g.classList.add("aladin-visualization")
+        visualization.geometryForAladin(svg, g, size, pixelScale, GmosGeometry.ScaleFactor, (x, y))
+        // Include visibility on the dom
+        div.appendChild(g)
+      }
 
   val component =
     ScalaFnComponent
       .withHooks[Props]
       .useRefToScalaComponent(AladinComp)
-      .useState(Offset.Zero)
+      .useState(GmosGeometry.offsetPos)
       .useState(Fov(Angle.fromDoubleDegrees(0.25), Angle.fromDoubleDegrees(0.25)))
       .useState(none[Coordinates => Option[(Double, Double)]])
       .useMemoBy((_, _, o, f, _) => (o, f))((_, _, _, _, _) => { case (offset, fov) =>
-        println(offset.value)
-        println(fov.value)
+        // println(offset.value)
+        // println(fov.value)
         visualization
           .shapesToSvg(GmosGeometry.shapes(offset.value), GmosGeometry.pp, GmosGeometry.ScaleFactor)
       })
-      .useEffectWithDepsBy((_, ref, o, _, _, _) => (o, Option(ref.raw.current).isDefined)) {
+      .useEffectWithDepsBy((_, ref, _, _, _, _) => Option(ref.raw.current).isDefined) {
         (_, ref, _, _, w, _) => _ =>
           ref.get.asCBO.flatMapCB(r => r.backend.world2pixFn.flatMap(x => w.setState(x.some)))
       }
@@ -296,17 +296,17 @@ object AladinContainer {
                 _.backend.world2pix(props.coordinates)
               )
               .flatMapCB { off =>
-                Callback {
-                  // Offset the visualization
-                  visualization
-                    .updatePosition(svg,
-                                    previous,
-                                    size,
-                                    v.pixelScale,
-                                    GmosGeometry.ScaleFactor,
-                                    off.getOrElse((0, 0))
-                    )
-                }
+                  Callback {
+                    // Offset the visualization
+                    visualization
+                      .updatePosition(svg,
+                                      previous,
+                                      size,
+                                      v.pixelScale,
+                                      GmosGeometry.ScaleFactor,
+                                      off.getOrElse((0, 0))
+                      )
+                  }
               }
               .toCallback
           }.getOrEmpty
