@@ -177,8 +177,10 @@ object AladinContainer {
 
     def recalculateView: Callback =
       aladinRef.get.asCBO.flatMapCB { r =>
-        val cat    = A.catalog(CatalogOptions(onClick = "showPopup"))
-        val source = A.source(0.01, 0.01, data = js.Dynamic.literal(name = "foobar"))
+        val cat       = A.catalog(CatalogOptions(onClick = "showPopup"))
+        val source    = A.source(0.01, 0.01, data = js.Dynamic.literal(name = "foobar"))
+        val testCoord =
+          Coordinates(RightAscension.fromDoubleDegrees(-10), Declination.fromDoubleDegrees(-10).get)
         cat.addSources(source)
         Callback(
           A.catalogFromURL(
@@ -191,7 +193,11 @@ object AladinContainer {
           r.backend.addCatalog(cat) *>
           updateSvgState.flatMap { s =>
             r.backend.recalculateView *> r.backend.runOnAladinCB(updateVisualization(s))
-          }
+          } *>
+          r.backend.world2pixFn
+            .flatMap(f => Callback.log(s"${f(testCoord).get._1}x${f(testCoord).get._2}")) *>
+          r.backend.pix2worldFn
+            .flatMap(f => Callback.log(s"${f(48742, 49134).get}"))
       }
   }
 
