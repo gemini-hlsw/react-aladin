@@ -257,12 +257,42 @@ object Aladin {
     ): Callback =
       runOnAladin(_.getFovForObject(objectName, (fov: JsNumber) => cb(fov).runNow()))
 
+    def world2pixFn: CallbackTo[Coordinates => Option[(Double, Double)]] =
+      runOnAladinOpt { j => (c: Coordinates) =>
+        val ra  = c.ra.toAngle.toDoubleDegrees
+        val dec = c.dec.toAngle.toSignedDoubleDegrees
+        val p   = j.world2pix(ra, dec)
+        Option(p).filter(_.length == 2).map(p => (p(0), p(1)))
+      }.getOrElse((_: Coordinates) => None)
+
+    def pix2worldFn: CallbackTo[(Int, Int) => Option[Coordinates]] =
+      runOnAladinOpt { j => (x: Int, y: Int) =>
+        {
+          val p = j.pix2world(x.toDouble, y.toDouble)
+          Option(p).filter(_.length == 2).flatMap { p =>
+            val ra  = RightAscension.fromDoubleDegrees(p(0))
+            val dec = Declination.fromDoubleDegrees(p(1))
+            dec.map(Coordinates(ra, _))
+          }
+        }
+      }.getOrElse((_, _) => None)
+
     def world2pix(c: Coordinates): CallbackTo[Option[(Double, Double)]] =
       runOnAladinOpt { j =>
         val ra  = c.ra.toAngle.toDoubleDegrees
         val dec = c.dec.toAngle.toSignedDoubleDegrees
         val p   = j.world2pix(ra, dec)
         Option(p).filter(_.length == 2).map(p => (p(0), p(1)))
+      }.getOrElse(None)
+
+    def pix2world(x: Int, y: Int): CallbackTo[Option[Coordinates]] =
+      runOnAladinOpt { j =>
+        val p = j.pix2world(x.toDouble, y.toDouble)
+        Option(p).filter(_.length == 2).flatMap { p =>
+          val ra  = RightAscension.fromDoubleDegrees(p(0))
+          val dec = Declination.fromDoubleDegrees(p(1))
+          dec.map(Coordinates(ra, _))
+        }
       }.getOrElse(None)
 
     def getRaDec: CallbackTo[Coordinates] =
