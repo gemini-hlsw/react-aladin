@@ -72,11 +72,11 @@ package aladin {
   trait JsMouseMoved extends js.Object {
     val ra: Double
     val dec: Double
-    val x: Int
-    val y: Int
+    val x: Double
+    val y: Double
   }
 
-  final case class MouseMoved(ra: RightAscension, dec: Declination, x: Int, y: Int)
+  final case class MouseMoved(ra: RightAscension, dec: Declination, x: Double, y: Double)
 
   object MouseMoved   {
     def fromJs(p: JsMouseMoved): MouseMoved =
