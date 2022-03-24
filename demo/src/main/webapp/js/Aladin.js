@@ -261,28 +261,22 @@ const Aladin = (function () {
     this.view.setShowGrid(options.showCooGrid);
 
     // retrieve available surveys
-    // TODO: replace call with MocServer
-    $.ajax({
-      url: "//aladin.unistra.fr/java/nph-aladin.pl",
-      data: { frame: "aladinLiteDic" },
-      method: "GET",
-      dataType: "jsonp", // could this be repaced by json ??
-      success: function (data) {
-        var map = {};
-        for (let k = 0; k < data.length; k++) {
-          map[data[k].id] = true;
-        }
-        // retrieve existing surveys
-        for (let k = 0; k < HpxImageSurvey.SURVEYS.length; k++) {
-          if (!map[HpxImageSurvey.SURVEYS[k].id]) {
-            data.push(HpxImageSurvey.SURVEYS[k]);
+    fetch("https://lucuma-cors-proxy.herokuapp.com/http://aladin.unistra.fr/java/nph-aladin.pl?frame=aladinLiteDic")
+      .then(response => response.json())
+      .then(data => {
+          var map = {};
+          for (let k = 0; k < data.length; k++) {
+            map[data[k].id] = true;
           }
-        }
-        HpxImageSurvey.SURVEYS = data;
-        self.view.setUnknownSurveyIfNeeded();
-      },
-      error: function () {},
-    });
+          // retrieve existing surveys
+          for (let k = 0; k < HpxImageSurvey.SURVEYS.length; k++) {
+            if (!map[HpxImageSurvey.SURVEYS[k].id]) {
+              data.push(HpxImageSurvey.SURVEYS[k]);
+            }
+          }
+          HpxImageSurvey.SURVEYS = data;
+          self.view.setUnknownSurveyIfNeeded();
+        });
 
     // layers control panel
     // TODO : valeur des checkbox en fonction des options

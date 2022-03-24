@@ -40,8 +40,8 @@ val demo =
       Compile / fullLinkJS / scalaJSLinkerConfig ~= (_.withModuleSplitStyle(
         ModuleSplitStyle.FewestModules
       )),
-      Compile / fastOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(true) },
-      Compile / fullOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(true) },
+      Compile / fastOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(false) },
+      Compile / fullOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(false) },
       test := {
         (Compile / fastLinkJS).value // test linking
       },
