@@ -80,6 +80,7 @@ object AladinTile {
       .useResizeDetector()
       .renderWithReuse { (props, s) =>
         <.div(
+          ^.cls    := "main",
           ^.height := "100%",
           ^.width  := "100%",
           ResponsiveReactGridLayout(
@@ -94,16 +95,11 @@ object AladinTile {
             layouts = layouts
           )(
             <.div(
-              ^.height := "100%",
-              ^.width  := "100%",
-              ^.key    := "target",
-              ^.cls    := "tile",
-              ResizeDetector() { s =>
-                AladinContainer(Size(s.height.foldMap(_.toDouble), s.width.foldMap(_.toDouble)),
-                                props.c,
-                                props.client
-                )
-              }
+              // ^.height := "100%",
+              // ^.width  := "100%",
+              ^.key := "target",
+              ^.cls := "tile",
+              AladinContainer(props.c, props.client)
             )
           )
         ).withRef(s.ref)

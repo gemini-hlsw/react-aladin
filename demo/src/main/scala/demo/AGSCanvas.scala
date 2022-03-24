@@ -10,25 +10,28 @@ import org.scalajs.dom.html
 import org.scalajs.dom.CanvasRenderingContext2D
 
 final case class AGSCanvas(
-  s:  Size,
-  gs: List[(Double, Double)]
+  width:  Int,
+  height: Int,
+  gs:     (Int, List[(Double, Double)])
 ) extends ReactFnProps[AGSCanvas](AGSCanvas.component)
 
 object AGSCanvas {
-  implicit val sizeReuse: Reusability[Size] = Reusability.by(x => (x.width.toInt, x.height.toInt))
   // val propsReuse: Reusability[AGSCanvas] = Reusability.derive
-  val canvasWidth                           = VdomAttr("width")
-  val canvasHeight                          = VdomAttr("height")
-  val component                             =
+  import Reusability.DecimalImplicitsWithoutTolerance._
+  val canvasWidth  = VdomAttr("width")
+  val canvasHeight = VdomAttr("height")
+  val component    =
     ScalaFnComponent
       .withHooks[AGSCanvas]
       .useRefToVdom[html.Canvas]
-      .useEffectWithDepsBy((p, _) => (p.s, p.gs.length)) { (p, canvasRef) => _ =>
+      .useEffectWithDepsBy((p, _) => (p.width, p.height, p.gs._2)) { (p, canvasRef) => _ =>
         canvasRef.get.flatMap(ref =>
           Callback(ref.foreach { canvas =>
             val ctx = canvas.getContext("2d").asInstanceOf[CanvasRenderingContext2D]
             ctx.fillStyle = "red"
-            p.gs.map { case (x, y) =>
+            ctx.clearRect(0, 0, canvas.width.toDouble, canvas.height.toDouble)
+            p.gs._2.map { case (x, y) =>
+              println(s"point $x $y")
               ctx.fillRect(x, y, 2, 2)
             }
           })
@@ -37,8 +40,8 @@ object AGSCanvas {
       .render { (p, canvas) =>
         <.canvas(
           ^.pointerEvents := "none",
-          canvasWidth     := s"${p.s.width}px",
-          canvasHeight    := s"${p.s.height}px"
+          canvasWidth     := s"${p.width}px",
+          canvasHeight    := s"${p.height}px"
         ).withRef(canvas)
       }
 }

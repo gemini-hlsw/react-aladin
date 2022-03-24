@@ -89,20 +89,30 @@ label {
   height: 100%;
   width: 100%;
 }
+.main {
+  height: 100%;
+  width: 100%;
+}
 .top-container {
   height: 100%;
   width: 100%;
-  position: relative;
 }
-.top-container > canvas {
+
+.top-container > .aladin-wrapper {
+  min-height: 100px;
+  height: 100%;
+  width: 100%;
+  display: flex;
+}
+.top-container > div > canvas {
   position: absolute;
   z-index: 900;
 }
 
 .react-aladin {
-  height: 100%;
+  /* height: 100%; */
   width: 100%;
-  position: absolute;
+  /* position: absolute; */
 }
 .instrument-geom {
   z-index: 10;
@@ -113,6 +123,7 @@ label {
 .tile {
   height: 100%;
   width: 100%;
+  display: flex;
 }
 svg {
   position: absolute;

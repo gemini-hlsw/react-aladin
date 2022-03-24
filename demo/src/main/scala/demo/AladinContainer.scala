@@ -22,6 +22,7 @@ import lucuma.catalog._
 import lucuma.ui.reusability._
 import lucuma.svgdotjs.Svg
 import org.http4s.client.Client
+import react.resizeDetector.hooks._
 import org.http4s.Method._
 import org.http4s.Uri
 import org.http4s.syntax.all._
@@ -35,7 +36,6 @@ import lucuma.core.syntax.string._
 import monocle.Focus
 
 final case class AladinContainer(
-  s:           Size,
   coordinates: Coordinates,
   client:      Client[IO]
 ) extends ReactFnProps[AladinContainer](AladinContainer.component) {
@@ -222,7 +222,7 @@ object AladinContainer {
       // Function to calculate coordinates
       .useState(none[Coordinates => Option[(Double, Double)]])
       // SVG
-      .useMemoBy((_, _, o, f, _) => (o, f))((_, _, _, _, _) => { case (offset, fov) =>
+      .useMemoBy((_, _, o, f, _) => (o, f))((_, _, _, _, _) => { case (offset, _) =>
         // println(offset.value)
         // println(fov.value)
         visualization
@@ -235,57 +235,66 @@ object AladinContainer {
       }
       // Render the visualization
       .useEffectBy { (p, ref, _, _, w, svg) =>
-        w.value
-          .flatMap(_(p.coordinates))
-          .map(off =>
-            ref.get.asCBO
-              .flatMapCB(v => v.backend.runOnAladinCB(updateVisualization(svg, off)))
-              .toCallback
-          )
-          .getOrEmpty
+        Callback.log(
+          w.value
+            .flatMap(f => f(p.coordinates).map(p => s"${p._1} - ${p._2}"))
+        ) *>
+          w.value
+            .flatMap(_(p.coordinates))
+            .map(off =>
+              ref.get.asCBO
+                .flatMapCB(v => v.backend.runOnAladinCB(updateVisualization(svg, off)))
+                .toCallback
+            )
+            .getOrEmpty
       }
       // catalog stars
-      .useState(List.empty[Coordinates])
+      .useState((0, List.empty[Coordinates]))
+      .useEffectOnMountBy((p, _, _, _, _, _, c) =>
+        Callback.log("Mount") *> c.modState(s => s.copy(_1 = s._1 + 1, List(p.coordinates)))
+      )
       // Load the catalog stars
-      .useEffectOnMountBy { (props, aladinRef, offset, fov, world2pix, svg, catalog) =>
-        import CatalogQuery._
-        Callback.log(s"Load catalog ${offset.value}") *>
-          Callback(
-            implicitly[Effect.Dispatch[IO]].dispatch {
-              val u: Option[IO[Unit]] = CatalogQuery
-                .queryUri(
-                  ConeSearchCatalogQuery(props.coordinates,
-                                         GmosGeometry.fullPatrolField(offset.value),
-                                         Nil,
-                                         CatalogName.Gaia
-                  )
-                )
-                .map { url =>
-                  val request = GET(url)
-                  props.client
-                    .stream(request)
-                    .flatMap(
-                      _.body
-                        .through(text.utf8.decode)
-                        .through(CatalogSearch.targets[IO](CatalogName.Gaia))
-                    )
-                    // .evalTap(t => IO.println(t))
-                    .compile
-                    .toList
-                    .flatMap { r =>
-                      val u = r.collect { case Valid(v) =>
-                        v.target.tracking.baseCoordinates
-                      }
-                      IO(catalog.setState(u).runNow())
-                    }
-                // .drain
-                }
-              u.getOrElse(IO.unit)
-            }
-          )
-      }
-      .render { (props, aladinRef, offset, fov, world2pix, svg, catalog) =>
-        println(s"CAT ${catalog.value.length}")
+      // .useEffectOnMountBy { (props, aladinRef, offset, fov, world2pix, svg, catalog) =>
+      //   import CatalogQuery._
+      //   Callback.log(s"Load catalog ${offset.value}") *>
+      //     Callback(
+      //       implicitly[Effect.Dispatch[IO]].dispatch {
+      //         val u: Option[IO[Unit]] = CatalogQuery
+      //           .queryUri(
+      //             ConeSearchCatalogQuery(props.coordinates,
+      //                                    GmosGeometry.fullPatrolField(offset.value),
+      //                                    Nil,
+      //                                    CatalogName.Gaia
+      //             )
+      //           )
+      //           .map { url =>
+      //             val request = GET(url)
+      //             props.client
+      //               .stream(request)
+      //               .flatMap(
+      //                 _.body
+      //                   .through(text.utf8.decode)
+      //                   .through(CatalogSearch.targets[IO](CatalogName.Gaia))
+      //               )
+      //               // .evalTap(t => IO.println(t))
+      //               .compile
+      //               .toList
+      //               .flatMap { r =>
+      //                 val u = r.collect { case Valid(v) =>
+      //                   v.target.tracking.baseCoordinates
+      //                 }
+      //                 IO(catalog.setState(u).runNow())
+      //               }
+      //           // .drain
+      //           }
+      //         u.getOrElse(IO.unit)
+      //       }
+      //     )
+      // }
+      .useResizeDetector()
+      .render { (props, aladinRef, offset, fov, world2pix, svg, catalog, resize) =>
+        println(s"CAT ${catalog.value._2.length}")
+        println(resize.height)
 
         /**
          * Called when the position changes, i.e. aladin pans. We want to offset the visualization
@@ -333,14 +342,16 @@ object AladinContainer {
         def onZoom = (v: JsAladin) => fov.setState(v.fov)
 
         val points =
-          world2pix.value.toList.flatMap(catalog.value.map).collect { case Some((a, b)) =>
+          world2pix.value.toList.flatMap(catalog.value._2.map).collect { case Some((a, b)) =>
+            // println(s"catalog point x: ${a}, y: ${b}")
             (a, b)
           }
-        catalog.value.foreach(m =>
-          println(
-            s"ra: ${m.ra.toAngle.toDoubleDegrees}, dec: ${m.dec.toAngle.toSignedDoubleDegrees}"
-          )
-        )
+        // catalog.value.foreach(m =>
+        //   println(
+        //     s"catalog ra: ${m.ra.toAngle.toDoubleDegrees}, dec: ${m.dec.toAngle.toSignedDoubleDegrees}"
+        //   )
+        // )
+        // println(s"height ${resize.height}")
 
         def changeQOffset(e: ReactEventFromInput) =
           e.target.value.parseDoubleOption
@@ -354,26 +365,30 @@ object AladinContainer {
 
         <.div(
           ^.cls := "top-container",
-          <.label("p", ^.htmlFor := "p_select"),
-          <.select(
-            ^.id                 := "p_select",
-            ^.onChange ==> changePOffset,
-            ^.value              := (Angle.arcseconds.get(Offset.pAngle.get(offset.value))),
-            <.option("-60"),
-            <.option("0"),
-            <.option("60")
+          <.div(
+            ^.cls := "controls",
+            <.label("p", ^.htmlFor := "p_select"),
+            <.select(
+              ^.id                 := "p_select",
+              ^.onChange ==> changePOffset,
+              ^.value              := (Angle.arcseconds.get(Offset.pAngle.get(offset.value))),
+              <.option("-60"),
+              <.option("0"),
+              <.option("60")
+            ),
+            <.label("q", ^.htmlFor := "q_select"),
+            <.select(
+              ^.id                 := "q_select",
+              ^.onChange ==> changeQOffset,
+              ^.value              := (Angle.arcseconds.get(Offset.qAngle.get(offset.value))),
+              <.option("-60"),
+              <.option("0"),
+              <.option("60")
+            )
           ),
-          <.label("q", ^.htmlFor := "q_select"),
-          <.select(
-            ^.id                 := "q_select",
-            ^.onChange ==> changeQOffset,
-            ^.value              := (Angle.arcseconds.get(Offset.qAngle.get(offset.value))),
-            <.option("-60"),
-            <.option("0"),
-            <.option("60")
-          ),
-          React.Fragment(
-            AGSCanvas(props.s, points),
+          <.div(
+            ^.cls := "aladin-wrapper",
+            (resize.width, resize.height).mapN(AGSCanvas(_, _, (catalog.value._1, points))),
             AladinComp.withRef(aladinRef) {
               Aladin(
                 Css("react-aladin"),
@@ -388,7 +403,7 @@ object AladinContainer {
                 customize = customize _
               )
             }
-          )
+          ).withRef(resize.ref)
         )
 
       }
