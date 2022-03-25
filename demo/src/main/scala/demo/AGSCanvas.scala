@@ -16,7 +16,7 @@ final case class AGSCanvas(
 ) extends ReactFnProps[AGSCanvas](AGSCanvas.component)
 
 object AGSCanvas {
-  // val propsReuse: Reusability[AGSCanvas] = Reusability.derive
+  // TODO use a counter
   import Reusability.DecimalImplicitsWithoutTolerance._
   val canvasWidth  = VdomAttr("width")
   val canvasHeight = VdomAttr("height")
@@ -30,8 +30,7 @@ object AGSCanvas {
             val ctx = canvas.getContext("2d").asInstanceOf[CanvasRenderingContext2D]
             ctx.fillStyle = "red"
             ctx.clearRect(0, 0, canvas.width.toDouble, canvas.height.toDouble)
-            p.gs._2.map { case (x, y) =>
-              println(s"point $x $y")
+            p.gs._2.foreach { case (x, y) =>
               ctx.fillRect(x, y, 2, 2)
             }
           })

@@ -79,6 +79,7 @@ package object visualization {
     // NonEmptyMap
     //   .fromMapUnsafe(evaldShapesBoundingBoxes)
     //   .toSvg(svg, pp.andThen(boxProcessor), scalingFn = scalingFn)
+    // svg.scale(1, -1)
     svg
   }
 
@@ -184,7 +185,9 @@ package object visualization {
       val ry = ty - dy / 2
       // Flip the svg, note we should flip around ry but that creates troubles with the viewbox
       // Instead we adjust the top attribute
-      svg.scale(1, -1)
+      println("flip")
+      if (scala.scalajs.js.isUndefined(svg.attr("transform")))
+        svg.scale(1, -1)
       svgBase.setSize(svgSize)
       // To workaround Safari we set the position of the surrounding div rather than the svg
       parent.setAttribute(
@@ -201,49 +204,49 @@ package object visualization {
    * to get the correct size and location This particular method uses just svg but it doesn't
    * properly work on Safari
    */
-  def geometryForAladin(
-    shapes:      NonEmptyMap[String, ShapeExpression],
-    s:           Size,
-    pixelScale:  PixelScale,
-    scaleFactor: Int
-  )(implicit si: ShapeInterpreter): Svg = {
-    val svg    = shapesToSvg(shapes, pp, scaleFactor)
-    // Viewbox size
-    val (h, w) = (svg.viewbox().height_Box, svg.viewbox().width_Box)
-    val (x, y) = (svg.viewbox().x_Box, svg.viewbox().y_Box)
-    // Angular size of the geometry
-    val hAngle = Angle.fromMicroarcseconds((h.toLong * scaleFactor).toLong)
-    val wAngle = Angle.fromMicroarcseconds((w.toLong * scaleFactor).toLong)
-    // Deltas to calculate the size of the svg on aladin scale
-    val dx     = wAngle.toDoubleDegrees * pixelScale.x
-    val dy     = hAngle.toDoubleDegrees * pixelScale.y
-
-    val svgSize = Size(dy, dx)
-
-    // Translation coordinates
-    val tx = abs(dx * x / w)
-    val ty = abs(dy * y / h)
-
-    // center cross
-    val reticleSizeX = ReticleSize * x / dx
-    addCross(svg, reticleSizeX)
-
-    // Border to the whole svg, usually hidden
-    svg
-      .rect(w, h)
-      .translate(x, y)
-      .fill("none")
-      .attr("class", "jts-svg-border")
-
-    // Rotation reference point. It is a bit surprising but it is in screen coordinates
-    val ry             = ty - dy / 2
-    // Scale and postion the center in the right location
-    val transformation =
-      new Matrix()
-        .scale(1, -1, 0, ry) // Order of operations is important
-        .translate(s.width.toDouble / 2 - tx, s.height.toDouble / 2 - ty)
-    svg.transform(transformation)
-    svg.setSize(svgSize)
-    svg
-  }
+  // def geometryForAladin(
+  //   shapes:      NonEmptyMap[String, ShapeExpression],
+  //   s:           Size,
+  //   pixelScale:  PixelScale,
+  //   scaleFactor: Int
+  // )(implicit si: ShapeInterpreter): Svg = {
+  //   val svg    = shapesToSvg(shapes, pp, scaleFactor)
+  //   // Viewbox size
+  //   val (h, w) = (svg.viewbox().height_Box, svg.viewbox().width_Box)
+  //   val (x, y) = (svg.viewbox().x_Box, svg.viewbox().y_Box)
+  //   // Angular size of the geometry
+  //   val hAngle = Angle.fromMicroarcseconds((h.toLong * scaleFactor).toLong)
+  //   val wAngle = Angle.fromMicroarcseconds((w.toLong * scaleFactor).toLong)
+  //   // Deltas to calculate the size of the svg on aladin scale
+  //   val dx     = wAngle.toDoubleDegrees * pixelScale.x
+  //   val dy     = hAngle.toDoubleDegrees * pixelScale.y
+  //
+  //   val svgSize = Size(dy, dx)
+  //
+  //   // Translation coordinates
+  //   val tx = abs(dx * x / w)
+  //   val ty = abs(dy * y / h)
+  //
+  //   // center cross
+  //   val reticleSizeX = ReticleSize * x / dx
+  //   addCross(svg, reticleSizeX)
+  //
+  //   // Border to the whole svg, usually hidden
+  //   svg
+  //     .rect(w, h)
+  //     .translate(x, y)
+  //     .fill("none")
+  //     .attr("class", "jts-svg-border")
+  //
+  //   // Rotation reference point. It is a bit surprising but it is in screen coordinates
+  //   val ry             = ty - dy / 2
+  //   // Scale and postion the center in the right location
+  //   val transformation =
+  //     new Matrix()
+  //       .scale(1, -1, 0, ry) // Order of operations is important
+  //       .translate(s.width.toDouble / 2 - tx, s.height.toDouble / 2 - ty)
+  //   svg.transform(transformation)
+  //   svg.setSize(svgSize)
+  //   svg
+  // }
 }

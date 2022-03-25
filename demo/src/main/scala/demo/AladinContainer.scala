@@ -5,7 +5,6 @@ package demo
 
 import cats.implicits._
 import cats.data.Validated.Valid
-import japgolly.scalajs.react.ReactMonocle._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.core.math._
@@ -90,7 +89,7 @@ object AladinContainer {
   }
 
   sealed trait GaiaBackend {
-    val MaxResultCount              = 5
+    val MaxResultCount              = 500
     val ProperMotionLimitMasYr: Int = 100
 
     val gaia = CatalogAdapter.GaiaAdapter
@@ -122,7 +121,7 @@ object AladinContainer {
 
   object CatalogQuery {
     implicit val ci = new CatalogQueryInterpreter {
-      val MaxCount         = 5
+      val MaxCount         = 500
       val shapeInterpreter = implicitly[ShapeInterpreter]
     }
 
@@ -173,43 +172,6 @@ object AladinContainer {
       div.appendChild(g)
     }
 
-  // def loadGuideStars: Callback =
-  //   $.props.flatMap { props =>
-  //     val patrolFieldPos =
-  //       props.coordinates.offset(HourAngle.angle.reverseGet(-GmosGeometry.offsetPos.p.toAngle),
-  //                                GmosGeometry.offsetPos.q.toAngle
-  //       )
-  //     Callback(
-  //       implicitly[Effect.Dispatch[IO]].dispatch(
-  //         queryUri(
-  //           ConeSearchCatalogQuery(patrolFieldPos,
-  //                                  GmosGeometry.fullPatrolField,
-  //                                  Nil,
-  //                                  CatalogName.Gaia
-  //           )
-  //         ).map { url =>
-  //           val request = GET(url)
-  //           props.client
-  //             .stream(request)
-  //             .flatMap(
-  //               _.body
-  //                 .through(text.utf8.decode)
-  //                 .through(CatalogSearch.targets[IO](CatalogName.Gaia))
-  //             )
-  //             // .evalTap(t => IO.println(t))
-  //             .compile
-  //             .toList
-  //             .flatMap { r =>
-  //               val u = r.collect { case Valid(v) =>
-  //                 v.target.tracking.baseCoordinates
-  //               }
-  //               IO($.setStateL(State.gs)(u).runNow())
-  //             }
-  //         // .drain
-  //         }.getOrElse(IO.unit)
-  //       )
-  //     )
-  //   }
   val component =
     ScalaFnComponent
       .withHooks[Props]
@@ -223,79 +185,68 @@ object AladinContainer {
       .useState(none[Coordinates => Option[(Double, Double)]])
       // SVG
       .useMemoBy((_, _, o, f, _) => (o, f))((_, _, _, _, _) => { case (offset, _) =>
-        // println(offset.value)
-        // println(fov.value)
         visualization
           .shapesToSvg(GmosGeometry.shapes(offset.value), GmosGeometry.pp, GmosGeometry.ScaleFactor)
       })
       // Set the value of world2pix
-      .useEffectWithDepsBy((p, ref, _, _, _, _) => Option(ref.raw.current).isDefined) {
+      .useEffectWithDepsBy((_, ref, _, _, _, _) => Option(ref.raw.current).isDefined) {
         (_, ref, _, _, w, _) => _ =>
           ref.get.asCBO.flatMapCB(r => r.backend.world2pixFn.flatMap(x => w.setState(x.some)))
       }
       // Render the visualization
       .useEffectBy { (p, ref, _, _, w, svg) =>
-        Callback.log(
-          w.value
-            .flatMap(f => f(p.coordinates).map(p => s"${p._1} - ${p._2}"))
-        ) *>
-          w.value
-            .flatMap(_(p.coordinates))
-            .map(off =>
-              ref.get.asCBO
-                .flatMapCB(v => v.backend.runOnAladinCB(updateVisualization(svg, off)))
-                .toCallback
-            )
-            .getOrEmpty
+        w.value
+          .flatMap(_(p.coordinates))
+          .map(off =>
+            ref.get.asCBO
+              .flatMapCB(v => v.backend.runOnAladinCB(updateVisualization(svg, off)))
+              .toCallback
+          )
+          .getOrEmpty
       }
       // catalog stars
       .useState((0, List.empty[Coordinates]))
-      .useEffectOnMountBy((p, _, _, _, _, _, c) =>
-        Callback.log("Mount") *> c.modState(s => s.copy(_1 = s._1 + 1, List(p.coordinates)))
-      )
       // Load the catalog stars
-      // .useEffectOnMountBy { (props, aladinRef, offset, fov, world2pix, svg, catalog) =>
-      //   import CatalogQuery._
-      //   Callback.log(s"Load catalog ${offset.value}") *>
-      //     Callback(
-      //       implicitly[Effect.Dispatch[IO]].dispatch {
-      //         val u: Option[IO[Unit]] = CatalogQuery
-      //           .queryUri(
-      //             ConeSearchCatalogQuery(props.coordinates,
-      //                                    GmosGeometry.fullPatrolField(offset.value),
-      //                                    Nil,
-      //                                    CatalogName.Gaia
-      //             )
-      //           )
-      //           .map { url =>
-      //             val request = GET(url)
-      //             props.client
-      //               .stream(request)
-      //               .flatMap(
-      //                 _.body
-      //                   .through(text.utf8.decode)
-      //                   .through(CatalogSearch.targets[IO](CatalogName.Gaia))
-      //               )
-      //               // .evalTap(t => IO.println(t))
-      //               .compile
-      //               .toList
-      //               .flatMap { r =>
-      //                 val u = r.collect { case Valid(v) =>
-      //                   v.target.tracking.baseCoordinates
-      //                 }
-      //                 IO(catalog.setState(u).runNow())
-      //               }
-      //           // .drain
-      //           }
-      //         u.getOrElse(IO.unit)
-      //       }
-      //     )
-      // }
+      .useEffectOnMountBy { (props, _, offset, _, _, _, catalog) =>
+        import CatalogQuery._
+        Callback.log(s"Load catalog ${offset.value}") *>
+          Callback(
+            implicitly[Effect.Dispatch[IO]].dispatch {
+              val u: Option[IO[Unit]] = CatalogQuery
+                .queryUri(
+                  ConeSearchCatalogQuery(props.coordinates,
+                                         GmosGeometry.fullPatrolField(offset.value),
+                                         Nil,
+                                         CatalogName.Gaia
+                  )
+                )
+                .map { url =>
+                  val request = GET(url)
+                  props.client
+                    .stream(request)
+                    .flatMap(
+                      _.body
+                        .through(text.utf8.decode)
+                        .through(CatalogSearch.targets[IO](CatalogName.Gaia))
+                    )
+                    // .evalTap(t => IO.println(t))
+                    .compile
+                    .toList
+                    .flatMap { r =>
+                      val u = r.collect { case Valid(v) =>
+                        v.target.tracking.baseCoordinates
+                      }
+                      IO.println("Completed") *>
+                        IO(catalog.setState((catalog.value._1 + 1, u)).runNow())
+                    }
+                // .drain
+                }
+              u.getOrElse(IO.unit)
+            }
+          )
+      }
       .useResizeDetector()
       .render { (props, aladinRef, offset, fov, world2pix, svg, catalog, resize) =>
-        println(s"CAT ${catalog.value._2.length}")
-        println(resize.height)
-
         /**
          * Called when the position changes, i.e. aladin pans. We want to offset the visualization
          * to keep the internal target correct
