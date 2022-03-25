@@ -35,8 +35,11 @@ object GmosGeometry {
   val port: PortDisposition =
     PortDisposition.Side
 
-  def fullPatrolField(posAngle: Angle, offsetPos: Offset) =
-    GmosOiwfsProbeArm.fullPatrolFieldAt(posAngle, offsetPos)
+  def agsField =
+    // 4.9 arcmin
+    ShapeExpression.centeredEllipse((4.9 * 60 * 1000 * 2).toInt.mas,
+                                    (4.9 * 60 * 1000 * 2).toInt.mas
+    )
 
   def patrolField(posAngle: Angle, offsetPos: Offset) =
     GmosOiwfsProbeArm.patrolFieldAt(posAngle, offsetPos, fpu, port)
@@ -46,8 +49,7 @@ object GmosGeometry {
     NonEmptyMap.of(
       ("probe", GmosOiwfsProbeArm.shapeAt(posAngle, guideStarOffset, offsetPos, fpu, port)),
       ("patrol-field", patrolField(posAngle, offsetPos)),
-      ("full-patrol-field1", GmosOiwfsProbeArm.fullPatrolField),
-      ("full-patrol-field", fullPatrolField(posAngle, offsetPos)),
+      ("agsField", agsField),
       ("science-ccd", GmosScienceAreaGeometry.imaging ⟲ posAngle),
       ("science-ccd-offset", GmosScienceAreaGeometry.imaging ↗ offsetPos ⟲ posAngle)
     )

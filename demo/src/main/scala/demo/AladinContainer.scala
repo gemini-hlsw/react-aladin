@@ -5,6 +5,8 @@ package demo
 
 import cats.implicits._
 import cats.data.Validated.Valid
+import crystal.react.implicits._
+import crystal.react.hooks._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.core.math._
@@ -79,6 +81,7 @@ object AladinContainer {
       val (p1, _, p3, _) = c.radiusConstraint.eval(ev.shapeInterpreter).boundingBox
       val center         = p1 - p3
       f"CIRCLE('ICRS', ${c.base.ra.toAngle.toDoubleDegrees}%9.8f, ${c.base.dec.toAngle.toSignedDoubleDegrees}%9.8f, ${center.p.toAngle.toDoubleDegrees / 2}%9.8f)"
+      // f"CIRCLE('ICRS', ${c.base.ra.toAngle.toDoubleDegrees}%9.8f, ${c.base.dec.toAngle.toSignedDoubleDegrees}%9.8f, 0.08)"
     }
   }
 
@@ -203,22 +206,17 @@ object AladinContainer {
           .getOrEmpty
       }
       // catalog stars
-      .useState((0, List.empty[Coordinates]))
+      .useStateView(List.empty[Coordinates])
       // Load the catalog stars
-      .useEffectOnMountBy { (props, _, pa, _, _, _, _, catalog) =>
-        import CatalogQuery._
-        // Callback.log(s"Load catalog ${offset.value}") *>
-        Callback(
-          implicitly[Effect.Dispatch[IO]].dispatch {
-            val u: Option[IO[Unit]] = CatalogQuery
-              .queryUri(
-                ConeSearchCatalogQuery(props.coordinates,
-                                       GmosGeometry.fullPatrolField(Angle.Angle0, Offset.Zero),
-                                       Nil,
-                                       CatalogName.Gaia
-                )
-              )
-              .map { url =>
+      .useEffectWithDepsBy((p, _, _, _, _, _, _, _) => p.coordinates) {
+        (props, _, pa, _, _, _, _, catalog) => c =>
+          import CatalogQuery._
+          Callback.log("Load data") *>
+            CatalogQuery
+              .queryUri {
+                ConeSearchCatalogQuery(c, GmosGeometry.agsField, Nil, CatalogName.Gaia)
+              }
+              .foldMap { url =>
                 val request = GET(url)
                 props.client
                   .stream(request)
@@ -234,14 +232,11 @@ object AladinContainer {
                     val u = r.collect { case Valid(v) =>
                       v.target.tracking.baseCoordinates
                     }
-                    IO.println("Completed") *>
-                      IO(catalog.setState((catalog.value._1 + 1, u)).runNow())
+                    catalog.async.set(u).to[IO]
                   }
-              // .drain
+                  .flatTap(_ => IO.println("Data arrived"))
               }
-            u.getOrElse(IO.unit)
-          }
-        )
+              .runAsyncAndForget
       }
       .useResizeDetector()
       .render { (props, aladinRef, pa, offset, fov, world2pix, svg, catalog, resize) =>
@@ -290,8 +285,10 @@ object AladinContainer {
 
         def onZoom = (v: JsAladin) => fov.setState(v.fov)
 
+        // catalog.zoom()
+
         val points =
-          world2pix.value.toList.flatMap(catalog.value._2.map).collect { case Some((a, b)) =>
+          world2pix.value.toList.flatMap(catalog.get.map).collect { case Some((a, b)) =>
             (a, b)
           }
 
@@ -346,7 +343,7 @@ object AladinContainer {
           ),
           <.div(
             ^.cls := "aladin-wrapper",
-            (resize.width, resize.height).mapN(AGSCanvas(_, _, (catalog.value._1, points))),
+            (resize.width, resize.height).mapN(AGSCanvas(_, _, points)),
             AladinComp.withRef(aladinRef) {
               Aladin(
                 Css("react-aladin"),

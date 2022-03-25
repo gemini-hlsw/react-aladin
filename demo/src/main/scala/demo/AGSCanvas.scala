@@ -12,7 +12,7 @@ import org.scalajs.dom.CanvasRenderingContext2D
 final case class AGSCanvas(
   width:  Int,
   height: Int,
-  gs:     (Int, List[(Double, Double)])
+  gs:     List[(Double, Double)]
 ) extends ReactFnProps[AGSCanvas](AGSCanvas.component)
 
 object AGSCanvas {
@@ -24,13 +24,13 @@ object AGSCanvas {
     ScalaFnComponent
       .withHooks[AGSCanvas]
       .useRefToVdom[html.Canvas]
-      .useEffectWithDepsBy((p, _) => (p.width, p.height, p.gs._2)) { (p, canvasRef) => _ =>
+      .useEffectWithDepsBy((p, _) => (p.width, p.height, p.gs)) { (p, canvasRef) => _ =>
         canvasRef.get.flatMap(ref =>
           Callback(ref.foreach { canvas =>
             val ctx = canvas.getContext("2d").asInstanceOf[CanvasRenderingContext2D]
             ctx.fillStyle = "red"
             ctx.clearRect(0, 0, canvas.width.toDouble, canvas.height.toDouble)
-            p.gs._2.foreach { case (x, y) =>
+            p.gs.foreach { case (x, y) =>
               ctx.fillRect(x, y, 2, 2)
             }
           })
