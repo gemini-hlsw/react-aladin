@@ -69,6 +69,16 @@ object AladinContainer {
 
   implicit class ConeSearchCatalogQueryOps(val c: ConeSearchCatalogQuery) extends AnyVal {
 
+    def adqlBox(implicit ev: CatalogQueryInterpreter): String = {
+      val (p1, _, p3, _) = c.radiusConstraint.eval(ev.shapeInterpreter).boundingBox
+      val halfP          =
+        Offset.p.andThen(Offset.P.angle).modify(x => Angle.microarcseconds.modify(_ / 2)(x))
+      val halfQ          =
+        Offset.q.andThen(Offset.Q.angle).modify(x => Angle.microarcseconds.modify(_ / 2)(x))
+      val center         = p1 - p3
+      f"BOX('ICRS', ${c.base.ra.toAngle.toDoubleDegrees}%9.8f, ${c.base.dec.toAngle.toSignedDoubleDegrees}%9.8f, ${center.p.toAngle.toDoubleDegrees}%9.8f, ${center.q.toAngle.toSignedDoubleDegrees.abs}%9.8f)"
+    }
+
     def adqlGeom(implicit ev: CatalogQueryInterpreter): String = {
       val (p1, _, p3, _) = c.radiusConstraint.eval(ev.shapeInterpreter).boundingBox
       val halfP          =
@@ -77,14 +87,14 @@ object AladinContainer {
         Offset.q.andThen(Offset.Q.angle).modify(x => Angle.microarcseconds.modify(_ / 2)(x))
       val center         = p1 - p3
       val box            = halfP(halfQ(p1)) - halfP(halfQ(p3))
-      println(center)
-      println(box.p.toAngle.toDoubleDegrees)
-      println(box.q.toAngle.toSignedDoubleDegrees)
+      // println(center)
+      // println(box.p.toAngle.toDoubleDegrees)
+      // println(box.q.toAngle.toSignedDoubleDegrees)
       // println(p1.q.toAngle.toSignedDoubleDegrees)
       // println(p3.q.toAngle.toSignedDoubleDegrees)
       // println((p1 - p3).q.toAngle.toSignedDoubleDegrees)
-      println(center.q.toAngle.toSignedDoubleDegrees)
-      f"BOX('ICRS', ${c.base.ra.toAngle.toDoubleDegrees}%9.8f, ${c.base.dec.toAngle.toSignedDoubleDegrees}%9.8f, ${center.p.toAngle.toDoubleDegrees}%9.8f, ${center.q.toAngle.toSignedDoubleDegrees.abs}%9.8f)"
+      // println(center.q.toAngle.toSignedDoubleDegrees)
+      f"BOX('ICRS', ${c.base.ra.toAngle.toDoubleDegrees}%9.8f, ${c.base.dec.toAngle.toSignedDoubleDegrees}%9.8f, ${2 * center.p.toAngle.toDoubleDegrees}%9.8f, ${2 * center.q.toAngle.toSignedDoubleDegrees.abs}%9.8f)"
     }
   }
 
@@ -109,7 +119,6 @@ object AladinContainer {
         f"""|SELECT TOP ${ci.MaxCount} $fields, DISTANCE(POINT(${cs.base.ra.toAngle.toDoubleDegrees}%9.8f, ${cs.base.dec.toAngle.toSignedDoubleDegrees}%9.8f), POINT(ra, dec)) AS ang_sep
         |     FROM gaiadr2.gaia_source
         |     WHERE CONTAINS(POINT('ICRS',${gaia.raField.id},${gaia.decField.id}),$shapeAdql)=1
-        |  ORDER BY ang_sep ASC
       """.stripMargin
       println(query)
       query
@@ -121,7 +130,7 @@ object AladinContainer {
 
   object CatalogQuery {
     implicit val ci = new CatalogQueryInterpreter {
-      val MaxCount         = 500
+      val MaxCount         = 50000
       val shapeInterpreter = implicitly[ShapeInterpreter]
     }
 
@@ -215,7 +224,7 @@ object AladinContainer {
               val u: Option[IO[Unit]] = CatalogQuery
                 .queryUri(
                   ConeSearchCatalogQuery(props.coordinates,
-                                         GmosGeometry.fullPatrolField(offset.value),
+                                         GmosGeometry.patrolField(offset.value),
                                          Nil,
                                          CatalogName.Gaia
                   )
