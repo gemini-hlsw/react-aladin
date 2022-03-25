@@ -79,7 +79,6 @@ package object visualization {
     // NonEmptyMap
     //   .fromMapUnsafe(evaldShapesBoundingBoxes)
     //   .toSvg(svg, pp.andThen(boxProcessor), scalingFn = scalingFn)
-    // svg.scale(1, -1)
     svg
   }
 
@@ -185,7 +184,6 @@ package object visualization {
       val ry = ty - dy / 2
       // Flip the svg, note we should flip around ry but that creates troubles with the viewbox
       // Instead we adjust the top attribute
-      println("flip")
       if (scala.scalajs.js.isUndefined(svg.attr("transform")))
         svg.scale(1, -1)
       svgBase.setSize(svgSize)

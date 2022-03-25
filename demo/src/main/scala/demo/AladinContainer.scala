@@ -71,30 +71,14 @@ object AladinContainer {
 
     def adqlBox(implicit ev: CatalogQueryInterpreter): String = {
       val (p1, _, p3, _) = c.radiusConstraint.eval(ev.shapeInterpreter).boundingBox
-      val halfP          =
-        Offset.p.andThen(Offset.P.angle).modify(x => Angle.microarcseconds.modify(_ / 2)(x))
-      val halfQ          =
-        Offset.q.andThen(Offset.Q.angle).modify(x => Angle.microarcseconds.modify(_ / 2)(x))
       val center         = p1 - p3
-      f"BOX('ICRS', ${c.base.ra.toAngle.toDoubleDegrees}%9.8f, ${c.base.dec.toAngle.toSignedDoubleDegrees}%9.8f, ${center.p.toAngle.toDoubleDegrees}%9.8f, ${center.q.toAngle.toSignedDoubleDegrees.abs}%9.8f)"
+      f"BOX('ICRS', ${c.base.ra.toAngle.toDoubleDegrees}%9.8f, ${c.base.dec.toAngle.toSignedDoubleDegrees}%9.8f, ${2 * center.p.toAngle.toDoubleDegrees}%9.8f, ${2 * center.q.toAngle.toSignedDoubleDegrees.abs}%9.8f)"
     }
 
     def adqlGeom(implicit ev: CatalogQueryInterpreter): String = {
       val (p1, _, p3, _) = c.radiusConstraint.eval(ev.shapeInterpreter).boundingBox
-      val halfP          =
-        Offset.p.andThen(Offset.P.angle).modify(x => Angle.microarcseconds.modify(_ / 2)(x))
-      val halfQ          =
-        Offset.q.andThen(Offset.Q.angle).modify(x => Angle.microarcseconds.modify(_ / 2)(x))
       val center         = p1 - p3
-      val box            = halfP(halfQ(p1)) - halfP(halfQ(p3))
-      // println(center)
-      // println(box.p.toAngle.toDoubleDegrees)
-      // println(box.q.toAngle.toSignedDoubleDegrees)
-      // println(p1.q.toAngle.toSignedDoubleDegrees)
-      // println(p3.q.toAngle.toSignedDoubleDegrees)
-      // println((p1 - p3).q.toAngle.toSignedDoubleDegrees)
-      // println(center.q.toAngle.toSignedDoubleDegrees)
-      f"BOX('ICRS', ${c.base.ra.toAngle.toDoubleDegrees}%9.8f, ${c.base.dec.toAngle.toSignedDoubleDegrees}%9.8f, ${2 * center.p.toAngle.toDoubleDegrees}%9.8f, ${2 * center.q.toAngle.toSignedDoubleDegrees.abs}%9.8f)"
+      f"CIRCLE('ICRS', ${c.base.ra.toAngle.toDoubleDegrees}%9.8f, ${c.base.dec.toAngle.toSignedDoubleDegrees}%9.8f, ${center.p.toAngle.toDoubleDegrees / 2}%9.8f)"
     }
   }
 
@@ -130,7 +114,7 @@ object AladinContainer {
 
   object CatalogQuery {
     implicit val ci = new CatalogQueryInterpreter {
-      val MaxCount         = 50000
+      val MaxCount         = 30000
       val shapeInterpreter = implicitly[ShapeInterpreter]
     }
 
@@ -186,6 +170,8 @@ object AladinContainer {
       .withHooks[Props]
       // Ref to the aladin component
       .useRefToScalaComponent(AladinComp)
+      // PA
+      .useState(GmosGeometry.posAngle)
       // Offset
       .useState(GmosGeometry.offsetPos)
       // Field of view
@@ -193,17 +179,20 @@ object AladinContainer {
       // Function to calculate coordinates
       .useState(none[Coordinates => Option[(Double, Double)]])
       // SVG
-      .useMemoBy((_, _, o, f, _) => (o, f))((_, _, _, _, _) => { case (offset, _) =>
+      .useMemoBy((_, _, p, o, f, _) => (p, o, f))((_, _, _, _, _, _) => { case (pa, offset, _) =>
         visualization
-          .shapesToSvg(GmosGeometry.shapes(offset.value), GmosGeometry.pp, GmosGeometry.ScaleFactor)
+          .shapesToSvg(GmosGeometry.shapes(pa.value, offset.value),
+                       GmosGeometry.pp,
+                       GmosGeometry.ScaleFactor
+          )
       })
       // Set the value of world2pix
-      .useEffectWithDepsBy((_, ref, _, _, _, _) => Option(ref.raw.current).isDefined) {
-        (_, ref, _, _, w, _) => _ =>
+      .useEffectWithDepsBy((_, ref, _, _, _, _, _) => Option(ref.raw.current).isDefined) {
+        (_, ref, _, _, _, w, _) => _ =>
           ref.get.asCBO.flatMapCB(r => r.backend.world2pixFn.flatMap(x => w.setState(x.some)))
       }
       // Render the visualization
-      .useEffectBy { (p, ref, _, _, w, svg) =>
+      .useEffectBy { (p, ref, _, _, _, w, svg) =>
         w.value
           .flatMap(_(p.coordinates))
           .map(off =>
@@ -216,46 +205,46 @@ object AladinContainer {
       // catalog stars
       .useState((0, List.empty[Coordinates]))
       // Load the catalog stars
-      .useEffectOnMountBy { (props, _, offset, _, _, _, catalog) =>
+      .useEffectOnMountBy { (props, _, pa, _, _, _, _, catalog) =>
         import CatalogQuery._
-        Callback.log(s"Load catalog ${offset.value}") *>
-          Callback(
-            implicitly[Effect.Dispatch[IO]].dispatch {
-              val u: Option[IO[Unit]] = CatalogQuery
-                .queryUri(
-                  ConeSearchCatalogQuery(props.coordinates,
-                                         GmosGeometry.patrolField(offset.value),
-                                         Nil,
-                                         CatalogName.Gaia
-                  )
+        // Callback.log(s"Load catalog ${offset.value}") *>
+        Callback(
+          implicitly[Effect.Dispatch[IO]].dispatch {
+            val u: Option[IO[Unit]] = CatalogQuery
+              .queryUri(
+                ConeSearchCatalogQuery(props.coordinates,
+                                       GmosGeometry.fullPatrolField(Angle.Angle0, Offset.Zero),
+                                       Nil,
+                                       CatalogName.Gaia
                 )
-                .map { url =>
-                  val request = GET(url)
-                  props.client
-                    .stream(request)
-                    .flatMap(
-                      _.body
-                        .through(text.utf8.decode)
-                        .through(CatalogSearch.targets[IO](CatalogName.Gaia))
-                    )
-                    // .evalTap(t => IO.println(t))
-                    .compile
-                    .toList
-                    .flatMap { r =>
-                      val u = r.collect { case Valid(v) =>
-                        v.target.tracking.baseCoordinates
-                      }
-                      IO.println("Completed") *>
-                        IO(catalog.setState((catalog.value._1 + 1, u)).runNow())
+              )
+              .map { url =>
+                val request = GET(url)
+                props.client
+                  .stream(request)
+                  .flatMap(
+                    _.body
+                      .through(text.utf8.decode)
+                      .through(CatalogSearch.targets[IO](CatalogName.Gaia))
+                  )
+                  // .evalTap(t => IO.println(t))
+                  .compile
+                  .toList
+                  .flatMap { r =>
+                    val u = r.collect { case Valid(v) =>
+                      v.target.tracking.baseCoordinates
                     }
-                // .drain
-                }
-              u.getOrElse(IO.unit)
-            }
-          )
+                    IO.println("Completed") *>
+                      IO(catalog.setState((catalog.value._1 + 1, u)).runNow())
+                  }
+              // .drain
+              }
+            u.getOrElse(IO.unit)
+          }
+        )
       }
       .useResizeDetector()
-      .render { (props, aladinRef, offset, fov, world2pix, svg, catalog, resize) =>
+      .render { (props, aladinRef, pa, offset, fov, world2pix, svg, catalog, resize) =>
         /**
          * Called when the position changes, i.e. aladin pans. We want to offset the visualization
          * to keep the internal target correct
@@ -291,27 +280,20 @@ object AladinContainer {
         }
 
         def customize(v: JsAladin): Callback =
-          v.onZoom(onZoom(v)) *> // re render on zoom
-            v.onPositionChanged(onPositionChanged(v)) *>
-            v.onMouseMove(m =>
-              Callback.log(
-                s"ra: ${m.ra.toAngle.toDoubleDegrees}, dec: ${m.dec.toAngle.toSignedDoubleDegrees}"
-              )
-            )
+          v.onZoom(onZoom(v)) *>                      // re render on zoom
+            v.onPositionChanged(onPositionChanged(v)) // *>
+        // v.onMouseMove(m =>
+        //   Callback.log(
+        //     s"ra: ${m.ra.toAngle.toDoubleDegrees}, dec: ${m.dec.toAngle.toSignedDoubleDegrees}"
+        //   )
+        // )
 
         def onZoom = (v: JsAladin) => fov.setState(v.fov)
 
         val points =
           world2pix.value.toList.flatMap(catalog.value._2.map).collect { case Some((a, b)) =>
-            // println(s"catalog point x: ${a}, y: ${b}")
             (a, b)
           }
-        // catalog.value.foreach(m =>
-        //   println(
-        //     s"catalog ra: ${m.ra.toAngle.toDoubleDegrees}, dec: ${m.dec.toAngle.toSignedDoubleDegrees}"
-        //   )
-        // )
-        // println(s"height ${resize.height}")
 
         def changeQOffset(e: ReactEventFromInput) =
           e.target.value.parseDoubleOption
@@ -323,27 +305,43 @@ object AladinContainer {
             .map(x => offset.modState(Offset.pAngle.replace(Angle.fromDoubleArcseconds(x))))
             .getOrEmpty
 
+        def changePA(e: ReactEventFromInput) =
+          e.target.value.parseDoubleOption
+            .map(x => pa.setState(Angle.fromDoubleDegrees(x)))
+            .getOrEmpty
+
         <.div(
           ^.cls := "top-container",
           <.div(
             ^.cls := "controls",
-            <.label("p", ^.htmlFor := "p_select"),
+            <.label("p", ^.htmlFor  := "p_select"),
             <.select(
-              ^.id                 := "p_select",
+              ^.id                  := "p_select",
               ^.onChange ==> changePOffset,
-              ^.value              := (Angle.arcseconds.get(Offset.pAngle.get(offset.value))),
+              ^.value               := Angle.arcseconds.get(Offset.pAngle.get(offset.value)),
               <.option("-60"),
               <.option("0"),
               <.option("60")
             ),
-            <.label("q", ^.htmlFor := "q_select"),
+            <.label("q", ^.htmlFor  := "q_select"),
             <.select(
-              ^.id                 := "q_select",
+              ^.id                  := "q_select",
               ^.onChange ==> changeQOffset,
-              ^.value              := (Angle.arcseconds.get(Offset.qAngle.get(offset.value))),
+              ^.value               := Angle.arcseconds.get(Offset.qAngle.get(offset.value)),
               <.option("-60"),
               <.option("0"),
               <.option("60")
+            ),
+            <.label("pa", ^.htmlFor := "pa_select"),
+            <.select(
+              ^.id                  := "pa_select",
+              ^.onChange ==> changePA,
+              ^.value               := pa.value.toDoubleDegrees.toString,
+              <.option("0"),
+              <.option("90"),
+              <.option("145"),
+              <.option("180"),
+              <.option("270")
             )
           ),
           <.div(
