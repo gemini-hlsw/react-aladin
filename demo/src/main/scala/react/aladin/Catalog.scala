@@ -7,7 +7,6 @@ import scala.scalajs.js
 import scala.scalajs.js.annotation._
 import scala.scalajs.js.|
 
-import japgolly.scalajs.react.facade.JsNumber
 import org.scalajs.dom.CanvasRenderingContext2D
 import org.scalajs.dom.html.Image
 import scala.annotation.nowarn
@@ -17,9 +16,9 @@ import scala.annotation.nowarn
 trait CatalogOptions extends js.Object {
   var name: js.UndefOr[String]
   var color: js.UndefOr[String]
-  var sourceSize: js.UndefOr[JsNumber]
+  var sourceSize: js.UndefOr[Double]
   var shape: js.UndefOr[String | Image | CatalogOptions.RawDrawFunction]
-  var limit: js.UndefOr[JsNumber]
+  var limit: js.UndefOr[Double]
   var raField: js.UndefOr[String]
   var decField: js.UndefOr[String]
   var displayLabel: js.UndefOr[String]
@@ -38,9 +37,9 @@ object CatalogOptions {
   def apply(
     name:         js.UndefOr[String] = js.undefined,
     color:        js.UndefOr[String] = js.undefined,
-    sourceSize:   js.UndefOr[JsNumber] = js.undefined,
+    sourceSize:   js.UndefOr[Double] = js.undefined,
     shape:        js.UndefOr[String | Image | DrawFunction] = js.undefined,
-    limit:        js.UndefOr[JsNumber] = js.undefined,
+    limit:        js.UndefOr[Double] = js.undefined,
     raField:      js.UndefOr[String] = js.undefined,
     decField:     js.UndefOr[String] = js.undefined,
     displayLabel: js.UndefOr[String] = js.undefined,

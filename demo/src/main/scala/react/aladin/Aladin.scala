@@ -9,7 +9,6 @@ import scala.scalajs.js.annotation._
 
 import cats.implicits._
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.facade.JsNumber
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.core.math._
 import org.scalajs.dom.Element
@@ -19,16 +18,16 @@ import scala.annotation.nowarn
 // This will be the props object used from JS-land
 @js.native
 trait SourceDraw extends js.Object {
-  val fov: js.Array[JsNumber]
-  val width: JsNumber
-  val height: JsNumber
+  val fov: js.Array[Double]
+  val width: Double
+  val height: Double
 }
 
 // This will be the props object used from JS-land
 @js.native
 trait AladinProps extends js.Object {
   var mountNodeClass: String
-  var fov: js.UndefOr[JsNumber]
+  var fov: js.UndefOr[Double]
   var target: js.UndefOr[String]
   var survey: js.UndefOr[String]
   var cooFrame: js.UndefOr[String]
@@ -44,7 +43,7 @@ trait AladinProps extends js.Object {
   var showFov: js.UndefOr[Boolean]
   var fullScreen: js.UndefOr[Boolean]
   var reticleColor: js.UndefOr[String]
-  var reticleSize: js.UndefOr[JsNumber]
+  var reticleSize: js.UndefOr[Double]
   var imageSurvey: js.UndefOr[String]
   var baseImageLayer: js.UndefOr[String]
   var customize: js.UndefOr[JsAladin => Unit]
@@ -55,14 +54,14 @@ trait AladinProps extends js.Object {
 trait OverlayOptions extends js.Object {
   var color: js.UndefOr[String]
   var name: js.UndefOr[String]
-  var lineWidth: js.UndefOr[JsNumber]
+  var lineWidth: js.UndefOr[Double]
 }
 
 object OverlayOptions {
   def apply(
     name:      js.UndefOr[String] = js.undefined,
     color:     js.UndefOr[String] = js.undefined,
-    lineWidth: js.UndefOr[JsNumber] = js.undefined
+    lineWidth: js.UndefOr[Double] = js.undefined
   ): OverlayOptions = {
     val p = (new js.Object()).asInstanceOf[OverlayOptions]
     name.foreach(v => p.name = v)
@@ -100,34 +99,34 @@ class AladinSource extends js.Object {
 @JSImport("/js/Aladin", JSImport.Namespace)
 @nowarn
 class JsAladin extends js.Object {
-  def setImageSurvey(s: String): Unit                                                   = js.native
-  def setBaseImageLayer(s: String): Unit                                                = js.native
-  def getBaseImageLayer(): HpxImageSurvey                                               = js.native
-  def setOverlayImageLayer(i: HpxImageSurvey): Unit                                     = js.native
-  def getOverlayImageLayer(): HpxImageSurvey                                            = js.native
-  def getFovForObject(objectName: String, callback: js.Function1[JsNumber, Unit]): Unit = js.native
+  def setImageSurvey(s: String): Unit                                                 = js.native
+  def setBaseImageLayer(s: String): Unit                                              = js.native
+  def getBaseImageLayer(): HpxImageSurvey                                             = js.native
+  def setOverlayImageLayer(i: HpxImageSurvey): Unit                                   = js.native
+  def getOverlayImageLayer(): HpxImageSurvey                                          = js.native
+  def getFovForObject(objectName: String, callback: js.Function1[Double, Unit]): Unit = js.native
   def createImageSurvey(
     id:       String,
     name:     String,
     rootUrl:  String,
     cooFrame: String,
-    maxOrder: JsNumber,
+    maxOrder: Double,
     options:  js.Object
   ): HpxImageSurvey = js.native
-  def addCatalog(c: AladinCatalog): Unit                                                = js.native
-  def addOverlay(c: AladinOverlay): Unit                                                = js.native
-  def gotoRaDec(ra: JsNumber, dec: JsNumber): Unit                                      = js.native
-  def getRaDec(): js.Array[Double]                                                      = js.native
-  def gotoObject(q: String, cb: GoToObjectCallback): Unit                               = js.native
-  def animateToRaDec(ra: JsNumber, dec: JsNumber, time: JsNumber): Unit                 = js.native
-  def recalculateView(): Unit                                                           = js.native
-  def getParentDiv(): Element                                                           = js.native
-  def getSize(): js.Array[Double]                                                       = js.native
-  def getFov(): js.Array[Double]                                                        = js.native
-  def box(): Unit                                                                       = js.native
-  def pix2world(x: Double, y: Double): js.Array[Double]                                 = js.native
-  def world2pix(x: Double, y: Double): js.Array[Double]                                 = js.native
-  def on(n: String, f: js.Function): Unit                                               = js.native
+  def addCatalog(c: AladinCatalog): Unit                                              = js.native
+  def addOverlay(c: AladinOverlay): Unit                                              = js.native
+  def gotoRaDec(ra: Double, dec: Double): Unit                                        = js.native
+  def getRaDec(): js.Array[Double]                                                    = js.native
+  def gotoObject(q: String, cb: GoToObjectCallback): Unit                             = js.native
+  def animateToRaDec(ra: Double, dec: Double, time: Double): Unit                     = js.native
+  def recalculateView(): Unit                                                         = js.native
+  def getParentDiv(): Element                                                         = js.native
+  def getSize(): js.Array[Double]                                                     = js.native
+  def getFov(): js.Array[Double]                                                      = js.native
+  def box(): Unit                                                                     = js.native
+  def pix2world(x: Double, y: Double): js.Array[Double]                               = js.native
+  def world2pix(x: Double, y: Double): js.Array[Double]                               = js.native
+  def on(n: String, f: js.Function): Unit                                             = js.native
 }
 
 @js.native
@@ -143,20 +142,20 @@ object A extends js.Object {
     o:          js.UndefOr[PolylineOptions]
   ): AladinPolyline = js.native
   def circle(
-    ra:        JsNumber,
-    dec:       JsNumber,
-    radiusDeg: JsNumber,
+    ra:        Double,
+    dec:       Double,
+    radiusDeg: Double,
     options:   js.UndefOr[js.Object] = js.undefined
   ): AladinCircle = js.native
   def source(
-    ra:      JsNumber,
-    dec:     JsNumber,
+    ra:      Double,
+    dec:     Double,
     data:    js.UndefOr[js.Object] = js.undefined,
     options: js.UndefOr[js.Object] = js.undefined
   ): AladinSource = js.native
   def marker(
-    ra:      JsNumber,
-    dec:     JsNumber,
+    ra:      Double,
+    dec:     Double,
     data:    js.UndefOr[js.Object] = js.undefined,
     options: js.UndefOr[js.Object] = js.undefined
   ): AladinSource = js.native
@@ -168,20 +167,20 @@ object A extends js.Object {
   ): AladinCatalog = js.native
   def catalogFromSimbad(
     url:             String,
-    radius:          JsNumber,
+    radius:          Double,
     options:         CatalogOptions,
     successCallback: js.UndefOr[js.Object] = js.undefined
   ): AladinCatalog = js.native
   def catalogFromNED(
     url:             String,
-    radius:          JsNumber,
+    radius:          Double,
     options:         CatalogOptions,
     successCallback: js.UndefOr[js.Object] = js.undefined
   ): AladinCatalog = js.native
   def catalogFromVizieR(
     vizCatId:        String,
     target:          String,
-    radius:          JsNumber,
+    radius:          Double,
     options:         CatalogOptions,
     successCallback: js.UndefOr[js.Object] = js.undefined
   ): AladinCatalog = js.native
@@ -205,7 +204,7 @@ final case class Aladin(
   showFov:                  js.UndefOr[Boolean] = js.undefined,
   fullScreen:               js.UndefOr[Boolean] = js.undefined,
   reticleColor:             js.UndefOr[String] = js.undefined,
-  reticleSize:              js.UndefOr[JsNumber] = js.undefined,
+  reticleSize:              js.UndefOr[Double] = js.undefined,
   imageSurvey:              js.UndefOr[String] = js.undefined,
   baseImageLayer:           js.UndefOr[String] = js.undefined,
   customize:                js.UndefOr[JsAladin => Callback] = js.undefined
@@ -247,15 +246,15 @@ object Aladin {
 
     def render(props: Props): VdomElement = <.div(props.mountNodeClass)
 
-    def gotoRaDec(ra: JsNumber, dec: JsNumber): Callback = runOnAladin(_.gotoRaDec(ra, dec))
+    def gotoRaDec(ra: Double, dec: Double): Callback = runOnAladin(_.gotoRaDec(ra, dec))
 
     def box: Callback = runOnAladin(_.box())
 
     def getFovForObject(
       objectName: String,
-      cb:         JsNumber => Callback = _ => Callback.empty
+      cb:         Double => Callback = _ => Callback.empty
     ): Callback =
-      runOnAladin(_.getFovForObject(objectName, (fov: JsNumber) => cb(fov).runNow()))
+      runOnAladin(_.getFovForObject(objectName, (fov: Double) => cb(fov).runNow()))
 
     def world2pixFn: CallbackTo[Coordinates => Option[(Double, Double)]] =
       runOnAladinOpt { j => (c: Coordinates) =>
@@ -306,7 +305,7 @@ object Aladin {
         }
         .getOrElse(Coordinates.Zero)
 
-    def gotoObject(q: String, cb: (JsNumber, JsNumber) => Callback, er: Callback): Callback =
+    def gotoObject(q: String, cb: (Double, Double) => Callback, er: Callback): Callback =
       runOnAladin(_.gotoObject(q, new GoToObjectCallback(cb, er)))
 
     def recalculateView: Callback =
@@ -343,7 +342,7 @@ object Aladin {
     Aladin(
       Css(q.mountNodeClass),
       q.target,
-      q.fov.map(f => Angle.fromDoubleDegrees(f.toDouble)),
+      q.fov.map(f => Angle.fromDoubleDegrees(f)),
       q.survey,
       q.cooFrame.flatMap(CooFrame.fromString(_).orUndefined),
       q.showReticle,

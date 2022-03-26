@@ -81,7 +81,7 @@ object AladinTile {
           ^.height := "100%",
           ^.width  := "100%",
           ResponsiveReactGridLayout(
-            width = s.width.orEmpty,
+            width = s.width.foldMap(_.toDouble),
             margin = (5, 5),
             containerPadding = (5, 5),
             rowHeight = 30,
@@ -97,7 +97,9 @@ object AladinTile {
               ^.key    := "target",
               ^.cls    := "tile",
               ResizeDetector() { s =>
-                AladinContainer(Size(s.height.orEmpty, s.width.orEmpty), props.c)
+                AladinContainer(Size(s.height.foldMap(_.toDouble), s.width.foldMap(_.toDouble)),
+                                props.c
+                )
               }
             )
           )
@@ -117,7 +119,7 @@ object TargetBody {
       .useResizeDetector()
       .renderWithReuse { (_, s) =>
         AladinTile(
-          Size(s.height.orEmpty, s.width.orEmpty),
+          Size(s.height.foldMap(_.toDouble), s.width.foldMap(_.toDouble)),
           Coordinates.Zero
         )
       }

@@ -103,7 +103,7 @@ object AladinContainer {
     // v.onMouseMove(s => Callback.log(s"$s"))
 
     def updateVisualization(s: Svg)(v: JsAladin): Callback = {
-      val size = Size(v.getParentDiv().clientHeight, v.getParentDiv().clientWidth)
+      val size = Size(v.getParentDiv().clientHeight.toDouble, v.getParentDiv().clientWidth.toDouble)
       val div  = v.getParentDiv()
       renderVisualization(s, div, size, v.pixelScale)
     }
