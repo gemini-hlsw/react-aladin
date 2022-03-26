@@ -6,10 +6,9 @@ package react.aladin
 import scala.scalajs.js
 
 import japgolly.scalajs.react.Callback
-import japgolly.scalajs.react.facade.JsNumber
 
-class GoToObjectCallback(succ: (JsNumber, JsNumber) => Callback, e: Callback) extends js.Object {
-  val success: js.Function1[js.Array[JsNumber], Unit] = (raDec: js.Array[JsNumber]) =>
+class GoToObjectCallback(succ: (Double, Double) => Callback, e: Callback) extends js.Object {
+  val success: js.Function1[js.Array[Double], Unit] = (raDec: js.Array[Double]) =>
     succ(raDec(0), raDec(1)).runNow()
-  val error: js.Function0[Unit]                       = () => e.runNow()
+  val error: js.Function0[Unit]                     = () => e.runNow()
 }
