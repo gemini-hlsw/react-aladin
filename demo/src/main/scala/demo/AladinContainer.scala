@@ -72,16 +72,22 @@ object AladinContainer {
   implicit class ConeSearchCatalogQueryOps(val c: ConeSearchCatalogQuery) extends AnyVal {
 
     def adqlBox(implicit ev: CatalogQueryInterpreter): String = {
-      val (p1, _, p3, _) = c.radiusConstraint.eval(ev.shapeInterpreter).boundingBox
-      val center         = p1 - p3
-      f"BOX('ICRS', ${c.base.ra.toAngle.toDoubleDegrees}%9.8f, ${c.base.dec.toAngle.toSignedDoubleDegrees}%9.8f, ${2 * center.p.toAngle.toDoubleDegrees}%9.8f, ${2 * center.q.toAngle.toSignedDoubleDegrees.abs}%9.8f)"
+      val (p1, _, _, p4) = c.radiusConstraint.eval(ev.shapeInterpreter).boundingBox
+      val box            = p1 - p4
+      f"BOX('ICRS', ${c.base.ra.toAngle.toDoubleDegrees}%9.8f, ${c.base.dec.toAngle.toSignedDoubleDegrees}%9.8f, ${2 * box.p.toAngle.toDoubleDegrees}%9.8f, ${2 * box.q.toAngle.toSignedDoubleDegrees.abs}%9.8f)"
     }
 
     def adqlGeom(implicit ev: CatalogQueryInterpreter): String = {
-      val (p1, _, p3, _) = c.radiusConstraint.eval(ev.shapeInterpreter).boundingBox
-      val center         = p1 - p3
-      f"CIRCLE('ICRS', ${c.base.ra.toAngle.toDoubleDegrees}%9.8f, ${c.base.dec.toAngle.toSignedDoubleDegrees}%9.8f, ${center.p.toAngle.toDoubleDegrees / 2}%9.8f)"
-      // f"CIRCLE('ICRS', ${c.base.ra.toAngle.toDoubleDegrees}%9.8f, ${c.base.dec.toAngle.toSignedDoubleDegrees}%9.8f, 0.08)"
+      val (p1, p2, p3, p4) = c.radiusConstraint.eval(ev.shapeInterpreter).boundingBox
+      val circle           = p3 - p2
+      // val center         = p3 - p1
+      println(circle)
+      // println(center)
+      val dx               = circle.p.toAngle.toSignedDoubleDegrees / 2
+      val dy               = circle.q.toAngle.toSignedDoubleDegrees / 2
+      // f"CIRCLE('ICRS', ${c.base.ra.toAngle.toDoubleDegrees}%9.8f, ${c.base.dec.toAngle.toSignedDoubleDegrees}%9.8f, ${circle.p.toAngle.toDoubleDegrees / 2}%9.8f)"
+      f"CIRCLE('ICRS', ${c.base.ra.toAngle.toDoubleDegrees - dy}%9.8f, ${c.base.dec.toAngle.toSignedDoubleDegrees}%9.8f, ${circle.p.toAngle.toDoubleDegrees / 2}%9.8f)"
+      f"CIRCLE('ICRS', ${(c.base.ra.toAngle.toDoubleDegrees)}%9.8f, ${(c.base.dec.toAngle.toSignedDoubleDegrees)}%9.8f, ${circle.p.toAngle.toDoubleDegrees / 2}%9.8f)"
     }
   }
 
@@ -106,6 +112,7 @@ object AladinContainer {
         f"""|SELECT TOP ${ci.MaxCount} $fields, DISTANCE(POINT(${cs.base.ra.toAngle.toDoubleDegrees}%9.8f, ${cs.base.dec.toAngle.toSignedDoubleDegrees}%9.8f), POINT(ra, dec)) AS ang_sep
         |     FROM gaiadr2.gaia_source
         |     WHERE CONTAINS(POINT('ICRS',${gaia.raField.id},${gaia.decField.id}),$shapeAdql)=1
+        |     ORDER BY ang_sep ASC
       """.stripMargin
       println(query)
       query
@@ -117,7 +124,7 @@ object AladinContainer {
 
   object CatalogQuery {
     implicit val ci = new CatalogQueryInterpreter {
-      val MaxCount         = 30000
+      val MaxCount         = 30
       val shapeInterpreter = implicitly[ShapeInterpreter]
     }
 
@@ -208,35 +215,64 @@ object AladinContainer {
       // catalog stars
       .useStateView(List.empty[Coordinates])
       // Load the catalog stars
-      .useEffectWithDepsBy((p, _, _, _, _, _, _, _) => p.coordinates) {
-        (props, _, pa, _, _, _, _, catalog) => c =>
-          import CatalogQuery._
-          Callback.log("Load data") *>
-            CatalogQuery
-              .queryUri {
-                ConeSearchCatalogQuery(c, GmosGeometry.agsField, Nil, CatalogName.Gaia)
-              }
-              .foldMap { url =>
-                val request = GET(url)
-                props.client
-                  .stream(request)
-                  .flatMap(
-                    _.body
-                      .through(text.utf8.decode)
-                      .through(CatalogSearch.targets[IO](CatalogName.Gaia))
+      .useEffectWithDepsBy((p, _, _, o, _, _, _, _) => (p.coordinates, o)) {
+        (props, _, pa, _, _, _, _, catalog) =>
+          { case (c, o) =>
+            import CatalogQuery._
+            // import scala.math
+            val dRa    =
+              o.value.p.toAngle.toSignedDoubleDegrees * Math.cos(pa.value.toDoubleRadians) -
+                o.value.q.toAngle.toSignedDoubleDegrees * Math.sin(pa.value.toDoubleRadians)
+            val dDec   =
+              o.value.p.toAngle.toSignedDoubleDegrees * Math.sin(pa.value.toDoubleRadians) +
+                o.value.q.toAngle.toSignedDoubleDegrees * Math.cos(pa.value.toDoubleRadians)
+            // println(dRa)
+            // println(dDec)
+            // val coords =
+            // val coords =
+            //   c.offset(HourAngle.angle.reverseGet(-o.value.p.toAngle), -o.value.q.toAngle)
+            // println(
+            //   s"coords ra: ${c.ra.toAngle.toDoubleDegrees}, dec: ${c.dec.toAngle.toSignedDoubleDegrees}"
+            // )
+            val coords =
+              Coordinates(RightAscension.fromDoubleDegrees(c.ra.toAngle.toDoubleDegrees + dRa),
+                          Declination.fromDoubleDegrees(c.dec.toAngle.toDoubleDegrees + dDec).get
+              )
+            println(
+              s"coords offset ra: ${coords.ra.toAngle.toDoubleDegrees}, dec: ${coords.dec.toAngle.toSignedDoubleDegrees}"
+            )
+            println(coords)
+            Callback.log("Load data") *>
+              CatalogQuery
+                .queryUri {
+                  ConeSearchCatalogQuery(coords,
+                                         GmosGeometry.agsFieldAt(pa.value, o.value),
+                                         Nil,
+                                         CatalogName.Gaia
                   )
-                  // .evalTap(t => IO.println(t))
-                  .compile
-                  .toList
-                  .flatMap { r =>
-                    val u = r.collect { case Valid(v) =>
-                      v.target.tracking.baseCoordinates
+                }
+                .foldMap { url =>
+                  val request = GET(url)
+                  props.client
+                    .stream(request)
+                    .flatMap(
+                      _.body
+                        .through(text.utf8.decode)
+                        .through(CatalogSearch.targets[IO](CatalogName.Gaia))
+                    )
+                    // .evalTap(t => IO.println(t))
+                    .compile
+                    .toList
+                    .flatMap { r =>
+                      val u = r.collect { case Valid(v) =>
+                        v.target.tracking.baseCoordinates
+                      }
+                      catalog.async.set(u).to[IO]
                     }
-                    catalog.async.set(u).to[IO]
-                  }
-                  .flatTap(_ => IO.println("Data arrived"))
-              }
-              .runAsyncAndForget
+                    .flatTap(_ => IO.println("Data arrived"))
+                }
+                .runAsyncAndForget
+          }
       }
       .useResizeDetector()
       .render { (props, aladinRef, pa, offset, fov, world2pix, svg, catalog, resize) =>
@@ -275,13 +311,13 @@ object AladinContainer {
         }
 
         def customize(v: JsAladin): Callback =
-          v.onZoom(onZoom(v)) *>                      // re render on zoom
-            v.onPositionChanged(onPositionChanged(v)) // *>
-        // v.onMouseMove(m =>
-        //   Callback.log(
-        //     s"ra: ${m.ra.toAngle.toDoubleDegrees}, dec: ${m.dec.toAngle.toSignedDoubleDegrees}"
-        //   )
-        // )
+          v.onZoom(onZoom(v)) *> // re render on zoom
+            v.onPositionChanged(onPositionChanged(v)) *>
+            v.onMouseMove(m =>
+              Callback.log(
+                s"ra: ${m.ra.toAngle.toDoubleDegrees}, dec: ${m.dec.toAngle.toSignedDoubleDegrees}"
+              )
+            )
 
         def onZoom = (v: JsAladin) => fov.setState(v.fov)
 

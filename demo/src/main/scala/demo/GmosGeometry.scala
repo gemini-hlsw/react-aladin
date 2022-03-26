@@ -35,11 +35,25 @@ object GmosGeometry {
   val port: PortDisposition =
     PortDisposition.Side
 
+  def point =
+    // 4.9 arcmin radius
+    ShapeExpression.centeredEllipse(1000.mas, 1000.mas)
+
+  def pointAt(posAngle: Angle, offsetPos: Offset) =
+    point ↗ offsetPos ⟲ posAngle
+
   def agsField =
-    // 4.9 arcmin
+    // 4.9 arcmin radius
     ShapeExpression.centeredEllipse((4.9 * 60 * 1000 * 2).toInt.mas,
                                     (4.9 * 60 * 1000 * 2).toInt.mas
     )
+
+  def agsFieldAt(posAngle: Angle, offsetPos: Offset) =
+    agsField ↗ offsetPos ⟲ posAngle
+  // agsField ⟲ posAngle ↗ offsetPos
+
+  // def agsFieldAt(posAngle: Angle, offsetPos: Offset) =
+  //   agsField ↗ offsetPos ⟲ posAngle
 
   def patrolField(posAngle: Angle, offsetPos: Offset) =
     GmosOiwfsProbeArm.patrolFieldAt(posAngle, offsetPos, fpu, port)
@@ -49,7 +63,11 @@ object GmosGeometry {
     NonEmptyMap.of(
       ("probe", GmosOiwfsProbeArm.shapeAt(posAngle, guideStarOffset, offsetPos, fpu, port)),
       ("patrol-field", patrolField(posAngle, offsetPos)),
-      ("agsField", agsField),
+      ("agsField", agsFieldAt(posAngle, offsetPos)),
+      ("point", pointAt(posAngle, offsetPos)),
+      // ("agsField2", agsFieldAt(posAngle, Offset.Zero)),
+      // ("agsField3", agsFieldAt(posAngle, Offset.Zero) ∪ agsFieldAt(posAngle, offsetPos)),
+// ∪
       ("science-ccd", GmosScienceAreaGeometry.imaging ⟲ posAngle),
       ("science-ccd-offset", GmosScienceAreaGeometry.imaging ↗ offsetPos ⟲ posAngle)
     )
