@@ -121,7 +121,6 @@ object TargetBody {
       .withHooks[TargetBody]
       .render { p =>
         AladinTile(
-          Size(s.height.foldMap(_.toDouble), s.width.foldMap(_.toDouble)),
           m81Coords,
           p.client
         )
