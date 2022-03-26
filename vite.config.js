@@ -1,6 +1,8 @@
 import react from "@vitejs/plugin-react";
 import path from "path";
 import ViteFonts from 'vite-plugin-fonts'
+import mkcert from 'vite-plugin-mkcert';
+import { VitePWA } from "vite-plugin-pwa"
 
 // https://vitejs.dev/config/
 export default ({ command, mode }) => {
@@ -55,6 +57,7 @@ export default ({ command, mode }) => {
     server: {
       strictPort: true,
       port: 9090,
+      https: true,
       watch: {
         ignored: [
           function ignoreThisPath(_path) {
@@ -75,7 +78,9 @@ export default ({ command, mode }) => {
       },
       outDir: path.resolve(__dirname, "static"),
     },
-    plugins: [react(), ViteFonts({
+    plugins: [react(), 
+      mkcert({ hosts: ['localhost', 'local.lucuma.xyz'] }),
+      VitePWA(), ViteFonts({
       google: {
         families: ['Lato']
       },

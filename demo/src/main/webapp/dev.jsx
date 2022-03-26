@@ -2,6 +2,15 @@ import "/css/aladin.css";
 import "/css/style.css";
 import 'virtual:fonts.css';
 
+// Setup the service worker
+import { registerSW } from "virtual:pwa-register";
+
+console.log("serviceWorker" in navigator);
+if (navigator.serviceWorker) {
+  // && !/localhost/.test(window.location)) {
+  registerSW();
+}
+
 import { Main } from "@sjs/main.js";
 
 // if (import.meta.env.DEV) {
