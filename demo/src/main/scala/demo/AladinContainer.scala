@@ -228,20 +228,6 @@ object AladinContainer {
             val dDec   =
               -o.value.p.toAngle.toSignedDoubleDegrees * Math.sin(pa.value.toDoubleRadians) +
                 o.value.q.toAngle.toSignedDoubleDegrees * Math.cos(pa.value.toDoubleRadians)
-            // println(Math.cos(pa.value.toDoubleRadians))
-            // println(Math.sin(pa.value.toDoubleRadians))
-            println("--")
-            println(o.value.p.toAngle.toSignedDoubleDegrees)
-            println(o.value.q.toAngle.toSignedDoubleDegrees)
-            println("--")
-            println(dRa)
-            println(dDec)
-            // val coords =
-            // val coords =
-            //   c.offset(HourAngle.angle.reverseGet(-o.value.p.toAngle), -o.value.q.toAngle)
-            // println(
-            //   s"coords ra: ${c.ra.toAngle.toDoubleDegrees}, dec: ${c.dec.toAngle.toSignedDoubleDegrees}"
-            // )
             val coords =
               Coordinates(
                 RightAscension.fromDoubleDegrees(

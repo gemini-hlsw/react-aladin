@@ -4,7 +4,7 @@
 package demo
 
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.vdom.html_<^._
+import japgolly.scalajs.react.vdom.svg_<^._
 import react.common._
 import org.scalajs.dom.html
 import org.scalajs.dom.CanvasRenderingContext2D
@@ -26,23 +26,34 @@ object AGSCanvas {
     ScalaFnComponent
       .withHooks[AGSCanvas]
       .useRefToVdom[html.Canvas]
-      .useEffectWithDepsBy((p, _) => (p.width, p.height, p.gs)) { (p, canvasRef) => _ =>
-        canvasRef.get.flatMap(ref =>
-          Callback(ref.foreach { canvas =>
-            val ctx = canvas.getContext("2d").asInstanceOf[CanvasRenderingContext2D]
-            ctx.fillStyle = "red"
-            ctx.clearRect(0, 0, canvas.width.toDouble, canvas.height.toDouble)
-            p.gs.map(p.world2pix).collect { case Some((x, y)) =>
-              ctx.fillRect(x, y, 2, 2)
-            }
-          })
-        )
-      }
+      // .useEffectWithDepsBy((p, _) => (p.width, p.height, p.gs)) { (p, canvasRef) => _ =>
+      //   canvasRef.get.flatMap(ref =>
+      //     Callback(ref.foreach { canvas =>
+      //       val ctx = canvas.getContext("2d").asInstanceOf[CanvasRenderingContext2D]
+      //       ctx.fillStyle = "red"
+      //       ctx.clearRect(0, 0, canvas.width.toDouble, canvas.height.toDouble)
+      //       p.gs.map(p.world2pix).collect { case Some((x, y)) =>
+      //         ctx.fillRect(x, y, 2, 2)
+      //       }
+      //     })
+      //   )
+      // }
       .render { (p, canvas) =>
-        <.canvas(
-          ^.pointerEvents := "none",
-          canvasWidth     := s"${p.width}px",
-          canvasHeight    := s"${p.height}px"
-        ).withRef(canvas)
+        <.svg(
+          ^.`class`    := "ags-svg",
+          canvasWidth  := s"${p.width}px",
+          canvasHeight := s"${p.height}px",
+          p.gs
+            .map(p.world2pix)
+            .collect { case Some((x, y)) =>
+              <.circle(^.cx := x, ^.cy := y, ^.r := 3, ^.`class` := "catalog-target")
+            }
+            .toTagMod
+        )
+      // <.canvas(
+      //   ^.pointerEvents := "none",
+        //   canvasWidth     := s"${p.width}px",
+      //   canvasHeight    := s"${p.height}px"
+      // ).withRef(canvas)
       }
 }

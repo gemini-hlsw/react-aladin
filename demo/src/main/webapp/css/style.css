@@ -185,3 +185,13 @@ svg {
 .bbox {
   display: none;
 }
+
+/* AGS svg */
+.catalog-target {
+  stroke: blue;
+  stroke-width: 0.3px;
+  fill: none;
+}
+.ags-svg {
+  z-index: 900;
+}
