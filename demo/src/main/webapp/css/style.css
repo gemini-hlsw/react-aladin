@@ -182,6 +182,11 @@ svg {
   stroke-width: 2px;
   vector-effect: non-scaling-stroke;
 }
+.jts-circle {
+  stroke: pink;
+  stroke-width: 2px;
+  vector-effect: non-scaling-stroke;
+}
 .bbox {
   display: none;
 }

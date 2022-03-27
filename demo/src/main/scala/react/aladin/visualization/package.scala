@@ -14,14 +14,20 @@ import lucuma.svgdotjs.Matrix
 import lucuma.svgdotjs.Group
 import lucuma.svgdotjs.Container
 import lucuma.core.geom.ShapeExpression
+import lucuma.core.geom.ShapeExpression._
 import lucuma.core.geom.ShapeInterpreter
+import lucuma.core.geom.jts.syntax.all._
 import lucuma.core.geom.jts.JtsShape
-import lucuma.core.geom.svg._
-import lucuma.core.geom.svg.implicits._
+import lucuma.core.geom2.svg._
+import lucuma.core.geom2.svg.implicits._
 import lucuma.core.math.Angle
 import org.scalajs.dom.Element
 import react.common._
 import scala.collection.immutable.SortedMap
+import lucuma.svgdotjs.svgdotjsSvgJs.mod.Circle
+import org.locationtech.jts.geom.util.AffineTransformation
+import org.locationtech.jts.geom.Geometry
+import lucuma.core.math.Offset
 
 package object visualization {
   implicit class SvgOps(val svg: Svg) extends AnyVal {
@@ -32,11 +38,66 @@ package object visualization {
     if (a.id().endsWith("bbox")) a.addClass("bbox") else a
   }
   val pp: SvgPostProcessor           = {
+    case c: Circle    => c.addClass("jts-circle")
     case p: Polygon   => p.addClass("jts-polygon")
     case g: Group     => g.addClass("jts-group")
     case c: Container => c.addClass("jts")
     case a            => a
   }
+
+  def pointToCoords(
+    s: ShapeExpression
+  ): Option[Offset] = {
+    def find(s: ShapeExpression): Geometry =
+      s match {
+        // Constructors
+        case Point(a) => a.point
+
+        // Combinations
+        case Difference(a, b)   => find(a).difference(find(b))
+        case Intersection(a, b) => find(a).intersection(find(b))
+        case Union(a, b)        => find(a).union(find(b))
+
+        // Transformations
+        case FlipP(e) =>
+          AffineTransformation
+            .scaleInstance(-1.0, 1.0)
+            .transform(find(e))
+
+        case FlipQ(e) =>
+          AffineTransformation
+            .scaleInstance(1.0, -1.0)
+            .transform(find(e))
+
+        case Rotate(e, a) =>
+          AffineTransformation
+            .rotationInstance(a.toDoubleRadians)
+            .transform(find(e))
+
+        case RotateAroundOffset(e, a, o) =>
+          val c = o.coordinate
+          AffineTransformation
+            .rotationInstance(a.toDoubleRadians, c.x, c.y)
+            .transform(find(e))
+
+        case Translate(e, o) =>
+          val c = o.coordinate
+          AffineTransformation
+            .translationInstance(c.x, c.y)
+            .transform(find(e))
+      }
+    find(s) match {
+      case a: org.locationtech.jts.geom.Point =>
+        Some(
+          Offset(Offset.P(Angle.fromMicroarcseconds(-a.getX.toLong)),
+                 Offset.Q(Angle.fromMicroarcseconds(a.getY.toLong))
+          )
+        )
+      case _                                  => None
+    }
+  }
+  // si.interpret(point).
+  // val scalingFn: ScalingFn = (v: Double) => rint(v / scaleFactor)
 
   def shapesToSvg(
     shapes:      NonEmptyMap[String, ShapeExpression],

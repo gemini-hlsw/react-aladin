@@ -177,6 +177,28 @@ object AladinContainer {
       div.appendChild(g)
     }
 
+  implicit class CoordinatesOps(val c: Coordinates) extends AnyVal {
+    def offsetBy(posAngle: Angle, o: Offset): Coordinates = {
+      val dRa  =
+        o.p.toAngle.toSignedDoubleDegrees * Math.cos(posAngle.toDoubleRadians) +
+          o.q.toAngle.toSignedDoubleDegrees * Math.sin(posAngle.toDoubleRadians)
+      val dDec =
+        -o.p.toAngle.toSignedDoubleDegrees * Math.sin(posAngle.toDoubleRadians) +
+          o.q.toAngle.toSignedDoubleDegrees * Math.cos(posAngle.toDoubleRadians)
+      println("MY CALC")
+      println(dRa)
+      println(dDec)
+      Coordinates(
+        RightAscension.fromDoubleDegrees(
+          c.ra.toAngle.toDoubleDegrees + dRa
+        ),
+        Declination.fromDoubleDegrees(c.dec.toAngle.toSignedDoubleDegrees + dDec).get
+      )
+    }
+  }
+
+  implicit class OffsetOps(val o: Offset) extends AnyVal {}
+
   val component =
     ScalaFnComponent
       .withHooks[Props]
@@ -190,24 +212,31 @@ object AladinContainer {
       .useState(Fov(Angle.fromDoubleDegrees(0.25), Angle.fromDoubleDegrees(0.25)))
       // Function to calculate coordinates
       .useState(none[Coordinates => Option[(Double, Double)]])
+      // View coordinates (in case the user pans)
+      .useStateBy((p, _, _, _, _, _) => p.coordinates)
       // SVG
-      .useMemoBy((_, _, p, o, f, _) => (p, o, f))((_, _, _, _, _, _) => { case (pa, offset, _) =>
-        visualization
-          .shapesToSvg(GmosGeometry.shapes(pa.value, offset.value),
-                       GmosGeometry.pp,
-                       GmosGeometry.ScaleFactor
-          )
+      .useMemoBy((_, _, p, o, f, _, _) => (p, o, f))((_, _, _, _, _, _, _) => {
+        case (pa, offset, _) =>
+          visualization
+            .shapesToSvg(GmosGeometry.shapes(pa.value, offset.value),
+                         GmosGeometry.pp,
+                         GmosGeometry.ScaleFactor
+            )
       })
       // Set the value of world2pix
-      .useEffectWithDepsBy((_, ref, _, _, _, _, _) => Option(ref.raw.current).isDefined) {
-        (_, ref, _, _, _, w, _) => _ =>
+      .useEffectWithDepsBy((_, ref, _, _, _, _, _, _) => Option(ref.raw.current).isDefined) {
+        (_, ref, _, _, _, w, _, _) => _ =>
           ref.get.asCBO.flatMapCB(r => r.backend.world2pixFn.flatMap(x => w.setState(x.some)))
       }
       // Render the visualization
-      .useEffectBy { (p, ref, _, _, _, w, svg) =>
+      .useEffectBy { (p, ref, _, _, _, w, currPos, svg) =>
+        // Callback.log(
+        //   s"coords offset ra: ${currPos.value.ra.toAngle.toDoubleDegrees}, dec: ${currPos.value.dec.toAngle.toSignedDoubleDegrees}"
+        // ) *>
         w.value
           .flatMap(_(p.coordinates))
           .map(off =>
+            // Callback.log(s"xy off $off") *>
             ref.get.asCBO
               .flatMapCB(v => v.backend.runOnAladinCB(updateVisualization(svg, off)))
               .toCallback
@@ -217,32 +246,30 @@ object AladinContainer {
       // catalog stars
       .useStateView(List.empty[Coordinates])
       // Load the catalog stars
-      .useEffectWithDepsBy((p, _, _, o, _, _, _, _) => (p.coordinates, o)) {
-        (props, _, pa, _, _, _, _, catalog) =>
+      .useEffectWithDepsBy((p, _, _, o, _, _, _, _, _) => (p.coordinates, o)) {
+        (props, _, pa, _, _, _, _, _, catalog) =>
           { case (c, o) =>
             import CatalogQuery._
-            // import scala.math
-            val dRa    =
-              o.value.p.toAngle.toSignedDoubleDegrees * Math.cos(pa.value.toDoubleRadians) +
-                o.value.q.toAngle.toSignedDoubleDegrees * Math.sin(pa.value.toDoubleRadians)
-            val dDec   =
-              -o.value.p.toAngle.toSignedDoubleDegrees * Math.sin(pa.value.toDoubleRadians) +
-                o.value.q.toAngle.toSignedDoubleDegrees * Math.cos(pa.value.toDoubleRadians)
-            val coords =
-              Coordinates(
-                RightAscension.fromDoubleDegrees(
-                  c.ra.toAngle.toDoubleDegrees + dRa
-                ),
-                Declination.fromDoubleDegrees(c.dec.toAngle.toSignedDoubleDegrees + dDec).get
-              )
-            println(
-              s"coords offset ra: ${coords.ra.toAngle.toDoubleDegrees}, dec: ${coords.dec.toAngle.toSignedDoubleDegrees}"
-            )
-            // println(coords)
+            val coords = visualization
+              .pointToCoords(GmosGeometry.baseAt(pa.value, o.value))
+              .map { x =>
+                val coords = Coordinates(
+                  RightAscension.fromDoubleDegrees(
+                    c.ra.toAngle.toDoubleDegrees + x.p.toAngle.toSignedDoubleDegrees
+                  ),
+                  Declination
+                    .fromDoubleDegrees(
+                      c.dec.toAngle.toSignedDoubleDegrees + x.q.toAngle.toSignedDoubleDegrees
+                    )
+                    .get
+                )
+                coords
+              }
+              .get
             // Callback.log("Load data") *>
             CatalogQuery
               .queryUri {
-                ConeSearchCatalogQuery(coords,
+                ConeSearchCatalogQuery(coords, // c.offsetBy(pa.value, o.value),
                                        GmosGeometry.agsFieldAt(pa.value, o.value),
                                        Nil,
                                        CatalogName.Gaia
@@ -273,7 +300,7 @@ object AladinContainer {
           }
       }
       .useResizeDetector()
-      .render { (props, aladinRef, pa, offset, fov, world2pix, svg, catalog, resize) =>
+      .render { (props, aladinRef, pa, offset, fov, world2pix, currPos, svg, catalog, resize) =>
         /**
          * Called when the position changes, i.e. aladin pans. We want to offset the visualization
          * to keep the internal target correct
@@ -281,41 +308,41 @@ object AladinContainer {
         @nowarn
         def onPositionChanged(v: JsAladin)(
           s:                     PositionChanged
-        ): Callback = {
-          val size     = Size(v.getParentDiv().clientHeight, v.getParentDiv().clientWidth)
-          val div      = v.getParentDiv()
-          // Update the existing visualization in place
-          val previous = Option(div.querySelector(".aladin-visualization"))
-          (svg.some, previous).mapN { case (svg, previous) =>
-            aladinRef.get.asCBO
-              .flatMapCB(
-                _.backend.world2pix(props.coordinates)
-              )
-              .flatMapCB { off =>
-                Callback {
-                  // Offset the visualization
-                  visualization
-                    .updatePosition(svg,
-                                    previous,
-                                    size,
-                                    v.pixelScale,
-                                    GmosGeometry.ScaleFactor,
-                                    off.getOrElse((0, 0))
-                    )
-                }
-              }
-              .toCallback
-          }.getOrEmpty
-        }
+        ): Callback =
+          currPos.setState(Coordinates(s.ra, s.dec))
+        // val size     = Size(v.getParentDiv().clientHeight, v.getParentDiv().clientWidth)
+        // val div      = v.getParentDiv()
+        // // Update the existing visualization in place
+        // val previous = Option(div.querySelector(".aladin-visualization"))
+        // (svg.some, previous).mapN { case (svg, previous) =>
+        //   aladinRef.get.asCBO
+        //     .flatMapCB(
+        //       _.backend.world2pix(props.coordinates)
+        //     )
+        //     .flatMapCB { off =>
+        //       Callback {
+        //         // Offset the visualization
+        //         visualization
+        //           .updatePosition(svg,
+        //                           previous,
+        //                           size,
+        //                           v.pixelScale,
+        //                           GmosGeometry.ScaleFactor,
+        //                           off.getOrElse((0, 0))
+        //           )
+        //       }
+        //     }
+        //     .toCallback
+        // }.getOrEmpty
 
         def customize(v: JsAladin): Callback =
-          v.onZoom(onZoom(v)) *> // re render on zoom
-            v.onPositionChanged(onPositionChanged(v)) *>
-            v.onMouseMove(m =>
-              Callback.log(
-                s"ra: ${m.ra.toAngle.toDoubleDegrees}, dec: ${m.dec.toAngle.toSignedDoubleDegrees}"
-              )
-            )
+          v.onZoom(onZoom(v)) *>                      // re render on zoom
+            v.onPositionChanged(onPositionChanged(v)) // *>
+        // v.onMouseMove(m =>
+        //   Callback.log(
+        //     s"ra: ${m.ra.toAngle.toDoubleDegrees}, dec: ${m.dec.toAngle.toSignedDoubleDegrees}"
+        //   )
+        // )
 
         def onZoom = (v: JsAladin) => fov.setState(v.fov)
 

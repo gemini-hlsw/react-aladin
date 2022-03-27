@@ -11,8 +11,9 @@ import lucuma.core.enum.GmosSouthFpu
 import lucuma.core.enum.PortDisposition
 import lucuma.core.geom.GmosOiwfsProbeArm
 import lucuma.core.geom.GmosScienceAreaGeometry
+import lucuma.core.geom.GmosGuidingGeometry
 import lucuma.core.geom.ShapeExpression
-import lucuma.core.geom.svg._
+import lucuma.core.geom2.svg._
 import lucuma.core.geom.syntax.shapeexpression._
 import lucuma.core.math.Angle
 import lucuma.core.math.Offset
@@ -43,17 +44,13 @@ object GmosGeometry {
     point ↗ offsetPos ⟲ posAngle
 
   def agsField =
-    // 4.9 arcmin radius
-    ShapeExpression.centeredEllipse((4.9 * 60 * 1000 * 2).toInt.mas,
-                                    (4.9 * 60 * 1000 * 2).toInt.mas
-    )
+    GmosGuidingGeometry.agsField
 
   def agsFieldAt(posAngle: Angle, offsetPos: Offset) =
-    agsField ↗ offsetPos ⟲ posAngle
-  // agsField ⟲ posAngle ↗ offsetPos
+    GmosGuidingGeometry.agsFieldAt(posAngle, offsetPos)
 
-  // def agsFieldAt(posAngle: Angle, offsetPos: Offset) =
-  //   agsField ↗ offsetPos ⟲ posAngle
+  def baseAt(posAngle: Angle, offsetPos: Offset) =
+    GmosScienceAreaGeometry.baseAt(posAngle, offsetPos)
 
   def patrolField(posAngle: Angle, offsetPos: Offset) =
     GmosOiwfsProbeArm.patrolFieldAt(posAngle, offsetPos, fpu, port)
@@ -64,7 +61,8 @@ object GmosGeometry {
       ("probe", GmosOiwfsProbeArm.shapeAt(posAngle, guideStarOffset, offsetPos, fpu, port)),
       ("patrol-field", patrolField(posAngle, offsetPos)),
       ("agsField", agsFieldAt(posAngle, offsetPos)),
-      ("point", pointAt(posAngle, offsetPos)),
+      // ("point", pointAt(posAngle, offsetPos)),
+      ("point", baseAt(posAngle, offsetPos)),
       // ("agsField2", agsFieldAt(posAngle, Offset.Zero)),
       // ("agsField3", agsFieldAt(posAngle, Offset.Zero) ∪ agsFieldAt(posAngle, offsetPos)),
 // ∪
