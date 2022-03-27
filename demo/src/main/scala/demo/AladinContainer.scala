@@ -222,12 +222,18 @@ object AladinContainer {
             import CatalogQuery._
             // import scala.math
             val dRa    =
-              o.value.p.toAngle.toSignedDoubleDegrees * Math.cos(pa.value.toDoubleRadians) -
+              o.value.p.toAngle.toSignedDoubleDegrees * Math.cos(pa.value.toDoubleRadians) +
                 o.value.q.toAngle.toSignedDoubleDegrees * Math.sin(pa.value.toDoubleRadians)
             val dDec   =
-              o.value.p.toAngle.toSignedDoubleDegrees * Math.sin(pa.value.toDoubleRadians) +
+              -o.value.p.toAngle.toSignedDoubleDegrees * Math.sin(pa.value.toDoubleRadians) +
                 o.value.q.toAngle.toSignedDoubleDegrees * Math.cos(pa.value.toDoubleRadians)
-            // println(dRa)
+            // println(Math.cos(pa.value.toDoubleRadians))
+            // println(Math.sin(pa.value.toDoubleRadians))
+            println("--")
+            println(o.value.p.toAngle.toSignedDoubleDegrees)
+            println(o.value.q.toAngle.toSignedDoubleDegrees)
+            println("--")
+            println(dRa)
             println(dDec)
             // val coords =
             // val coords =
@@ -236,12 +242,15 @@ object AladinContainer {
             //   s"coords ra: ${c.ra.toAngle.toDoubleDegrees}, dec: ${c.dec.toAngle.toSignedDoubleDegrees}"
             // )
             val coords =
-              Coordinates(RightAscension.fromDoubleDegrees(c.ra.toAngle.toDoubleDegrees + dRa),
-                          Declination.fromDoubleDegrees(c.dec.toAngle.toDoubleDegrees + dDec).get
+              Coordinates(
+                RightAscension.fromDoubleDegrees(
+                  c.ra.toAngle.toDoubleDegrees + dRa
+                ),
+                Declination.fromDoubleDegrees(c.dec.toAngle.toSignedDoubleDegrees + dDec).get
               )
-            // println(
-            //   s"coords offset ra: ${coords.ra.toAngle.toDoubleDegrees}, dec: ${coords.dec.toAngle.toSignedDoubleDegrees}"
-            // )
+            println(
+              s"coords offset ra: ${coords.ra.toAngle.toDoubleDegrees}, dec: ${coords.dec.toAngle.toSignedDoubleDegrees}"
+            )
             // println(coords)
             // Callback.log("Load data") *>
             CatalogQuery
@@ -313,13 +322,13 @@ object AladinContainer {
         }
 
         def customize(v: JsAladin): Callback =
-          v.onZoom(onZoom(v)) *>                      // re render on zoom
-            v.onPositionChanged(onPositionChanged(v)) // *>
-        // v.onMouseMove(m =>
-        //   Callback.log(
-        //     s"ra: ${m.ra.toAngle.toDoubleDegrees}, dec: ${m.dec.toAngle.toSignedDoubleDegrees}"
-        //   )
-        // )
+          v.onZoom(onZoom(v)) *> // re render on zoom
+            v.onPositionChanged(onPositionChanged(v)) *>
+            v.onMouseMove(m =>
+              Callback.log(
+                s"ra: ${m.ra.toAngle.toDoubleDegrees}, dec: ${m.dec.toAngle.toSignedDoubleDegrees}"
+              )
+            )
 
         def onZoom = (v: JsAladin) => fov.setState(v.fov)
 
