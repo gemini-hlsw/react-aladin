@@ -162,8 +162,8 @@ object AladinContainer {
     svg:        Svg,
     offset:     (Double, Double),
     div:        Element,
-    size:       => Size,
-    pixelScale: => PixelScale
+    size:       Size,
+    pixelScale: PixelScale
   ): Callback =
     Callback {
       val (x, y)   = offset

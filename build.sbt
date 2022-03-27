@@ -2,7 +2,7 @@ import org.scalajs.linker.interface.ModuleSplitStyle
 
 lazy val reactJS                = "17.0.2"
 lazy val scalaJsReact           = "2.0.1"
-lazy val lucumaCoreVersion      = "0.28.0-4-eaee66a-20220325T192527Z-SNAPSHOT"
+lazy val lucumaCoreVersion      = "0.28.0-5-ed47333-20220327T151428Z-SNAPSHOT"
 lazy val lucumaUIVersion        = "0.31.0"
 lazy val lucumaCatalogVersion   = "0.11.0-4-163fe81-SNAPSHOT"
 lazy val aladinLiteVersion      = "0.6.2"

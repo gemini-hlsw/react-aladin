@@ -107,8 +107,8 @@ package object visualization {
   def updatePosition(
     svgBase:     Svg,
     parent:      Element,
-    s:           => Size,
-    pixelScale:  => PixelScale,
+    s:           Size,
+    pixelScale:  PixelScale,
     scaleFactor: Int,
     coordOffset: (Double, Double)
   ): Element = {
@@ -146,8 +146,8 @@ package object visualization {
   def geometryForAladin(
     svgBase:     Svg,
     parent:      Element,
-    s:           => Size,
-    pixelScale:  => PixelScale,
+    s:           Size,
+    pixelScale:  PixelScale,
     scaleFactor: Int,
     coordOffset: (Double, Double)
   ): Element = {
