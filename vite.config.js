@@ -4,7 +4,21 @@ import ViteFonts from 'vite-plugin-fonts'
 import mkcert from 'vite-plugin-mkcert';
 import { VitePWA } from "vite-plugin-pwa"
 
-// https://vitejs.dev/config/
+const getCache = ({ name, pattern }) => ({
+  urlPattern: pattern,
+  handler: "CacheFirst",
+  options: {
+    cacheName: name,
+    expiration: {
+      maxEntries: 500,
+      maxAgeSeconds: 60 * 60 * 24 // 1day
+    },
+    cacheableResponse: {
+      statuses: [200]
+    }
+  }
+});
+
 export default ({ command, mode }) => {
   const scalaClassesDir = path.resolve(__dirname, "demo/target/scala-2.13");
   const sjs =
@@ -78,9 +92,26 @@ export default ({ command, mode }) => {
       },
       outDir: path.resolve(__dirname, "static"),
     },
-    plugins: [react(), 
+    plugins: [react(),
       mkcert({ hosts: ['localhost', 'local.lucuma.xyz'] }),
-      VitePWA(), ViteFonts({
+      VitePWA({
+        devOptions: {
+          enabled: true
+        },
+        workbox: {
+          runtimeCaching: [
+            getCache({
+              pattern: /^https:\/\/alasky.u-strasbg.fr\/DSS/, 
+              name: 'aladin-images'
+            }),
+            getCache({
+              pattern: /^https:\/\/lucuma-cors.proxy.herokuapp.com\/https:\/\/gea.esac.esa.int/, 
+              name: 'gaia-results'
+            })
+          ]
+        }
+      }),
+      ViteFonts({
       google: {
         families: ['Lato']
       },

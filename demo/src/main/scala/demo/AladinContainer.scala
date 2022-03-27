@@ -35,6 +35,7 @@ import lucuma.core.geom.jts.interpreter._
 import lucuma.core.geom.ShapeInterpreter
 import lucuma.core.syntax.string._
 import monocle.Focus
+import fs2.Stream
 
 final case class AladinContainer(
   coordinates: Coordinates,
@@ -81,7 +82,7 @@ object AladinContainer {
       val (p1, p2, p3, p4) = c.radiusConstraint.eval(ev.shapeInterpreter).boundingBox
       val circle           = p3 - p2
       // val center         = p3 - p1
-      println(circle)
+      // println(circle)
       // println(center)
       val dx               = circle.p.toAngle.toSignedDoubleDegrees / 2
       val dy               = circle.q.toAngle.toSignedDoubleDegrees / 2
@@ -114,7 +115,7 @@ object AladinContainer {
         |     WHERE CONTAINS(POINT('ICRS',${gaia.raField.id},${gaia.decField.id}),$shapeAdql)=1
         |     ORDER BY ang_sep ASC
       """.stripMargin
-      println(query)
+      // println(query)
       query
     }
 
@@ -124,7 +125,7 @@ object AladinContainer {
 
   object CatalogQuery {
     implicit val ci = new CatalogQueryInterpreter {
-      val MaxCount         = 30
+      val MaxCount         = 3000
       val shapeInterpreter = implicitly[ShapeInterpreter]
     }
 
@@ -227,7 +228,7 @@ object AladinContainer {
               o.value.p.toAngle.toSignedDoubleDegrees * Math.sin(pa.value.toDoubleRadians) +
                 o.value.q.toAngle.toSignedDoubleDegrees * Math.cos(pa.value.toDoubleRadians)
             // println(dRa)
-            // println(dDec)
+            println(dDec)
             // val coords =
             // val coords =
             //   c.offset(HourAngle.angle.reverseGet(-o.value.p.toAngle), -o.value.q.toAngle)
@@ -238,40 +239,41 @@ object AladinContainer {
               Coordinates(RightAscension.fromDoubleDegrees(c.ra.toAngle.toDoubleDegrees + dRa),
                           Declination.fromDoubleDegrees(c.dec.toAngle.toDoubleDegrees + dDec).get
               )
-            println(
-              s"coords offset ra: ${coords.ra.toAngle.toDoubleDegrees}, dec: ${coords.dec.toAngle.toSignedDoubleDegrees}"
-            )
-            println(coords)
-            Callback.log("Load data") *>
-              CatalogQuery
-                .queryUri {
-                  ConeSearchCatalogQuery(coords,
-                                         GmosGeometry.agsFieldAt(pa.value, o.value),
-                                         Nil,
-                                         CatalogName.Gaia
-                  )
-                }
-                .foldMap { url =>
-                  val request = GET(url)
-                  props.client
-                    .stream(request)
-                    .flatMap(
-                      _.body
+            // println(
+            //   s"coords offset ra: ${coords.ra.toAngle.toDoubleDegrees}, dec: ${coords.dec.toAngle.toSignedDoubleDegrees}"
+            // )
+            // println(coords)
+            // Callback.log("Load data") *>
+            CatalogQuery
+              .queryUri {
+                ConeSearchCatalogQuery(coords,
+                                       GmosGeometry.agsFieldAt(pa.value, o.value),
+                                       Nil,
+                                       CatalogName.Gaia
+                )
+              }
+              .foldMap { url =>
+                val request = GET(url)
+                props.client
+                  .stream(request)
+                  .flatMap(r =>
+                    Stream.eval(IO.println("got it")) *>
+                      r.body
                         .through(text.utf8.decode)
                         .through(CatalogSearch.targets[IO](CatalogName.Gaia))
-                    )
-                    // .evalTap(t => IO.println(t))
-                    .compile
-                    .toList
-                    .flatMap { r =>
-                      val u = r.collect { case Valid(v) =>
-                        v.target.tracking.baseCoordinates
-                      }
-                      catalog.async.set(u).to[IO]
+                  )
+                  // .evalTap(t => IO.println(t))
+                  .compile
+                  .toList
+                  .flatMap { r =>
+                    val u = r.collect { case Valid(v) =>
+                      v.target.tracking.baseCoordinates
                     }
-                    .flatTap(_ => IO.println("Data arrived"))
-                }
-                .runAsyncAndForget
+                    catalog.async.set(u).to[IO]
+                  }
+                  .flatTap(_ => IO.println("Data arrived"))
+              }
+              .runAsyncAndForget
           }
       }
       .useResizeDetector()
@@ -311,13 +313,13 @@ object AladinContainer {
         }
 
         def customize(v: JsAladin): Callback =
-          v.onZoom(onZoom(v)) *> // re render on zoom
-            v.onPositionChanged(onPositionChanged(v)) *>
-            v.onMouseMove(m =>
-              Callback.log(
-                s"ra: ${m.ra.toAngle.toDoubleDegrees}, dec: ${m.dec.toAngle.toSignedDoubleDegrees}"
-              )
-            )
+          v.onZoom(onZoom(v)) *>                      // re render on zoom
+            v.onPositionChanged(onPositionChanged(v)) // *>
+        // v.onMouseMove(m =>
+        //   Callback.log(
+        //     s"ra: ${m.ra.toAngle.toDoubleDegrees}, dec: ${m.dec.toAngle.toSignedDoubleDegrees}"
+        //   )
+        // )
 
         def onZoom = (v: JsAladin) => fov.setState(v.fov)
 
