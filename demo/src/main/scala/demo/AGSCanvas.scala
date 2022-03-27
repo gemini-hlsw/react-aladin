@@ -8,16 +8,18 @@ import japgolly.scalajs.react.vdom.html_<^._
 import react.common._
 import org.scalajs.dom.html
 import org.scalajs.dom.CanvasRenderingContext2D
+import lucuma.core.math.Coordinates
+import lucuma.ui.reusability._
 
 final case class AGSCanvas(
-  width:  Int,
-  height: Int,
-  gs:     List[(Double, Double)]
+  width:     Int,
+  height:    Int,
+  world2pix: Coordinates => Option[(Double, Double)],
+  gs:        List[Coordinates]
 ) extends ReactFnProps[AGSCanvas](AGSCanvas.component)
 
 object AGSCanvas {
   // TODO use a counter
-  import Reusability.DecimalImplicitsWithoutTolerance._
   val canvasWidth  = VdomAttr("width")
   val canvasHeight = VdomAttr("height")
   val component    =
@@ -30,7 +32,7 @@ object AGSCanvas {
             val ctx = canvas.getContext("2d").asInstanceOf[CanvasRenderingContext2D]
             ctx.fillStyle = "red"
             ctx.clearRect(0, 0, canvas.width.toDouble, canvas.height.toDouble)
-            p.gs.foreach { case (x, y) =>
+            p.gs.map(p.world2pix).collect { case Some((x, y)) =>
               ctx.fillRect(x, y, 2, 2)
             }
           })

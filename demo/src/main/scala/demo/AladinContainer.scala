@@ -113,8 +113,9 @@ object AladinContainer {
         f"""|SELECT TOP ${ci.MaxCount} $fields, DISTANCE(POINT(${cs.base.ra.toAngle.toDoubleDegrees}%9.8f, ${cs.base.dec.toAngle.toSignedDoubleDegrees}%9.8f), POINT(ra, dec)) AS ang_sep
         |     FROM gaiadr2.gaia_source
         |     WHERE CONTAINS(POINT('ICRS',${gaia.raField.id},${gaia.decField.id}),$shapeAdql)=1
-        |     ORDER BY ang_sep ASC
+        |          AND DISTANCE(POINT(${cs.base.ra.toAngle.toDoubleDegrees}%9.8f, ${cs.base.dec.toAngle.toSignedDoubleDegrees}%9.8f), POINT(ra, dec)) > 0.01
       """.stripMargin
+      // |     ORDER BY ang_sep ASC
       // println(query)
       query
     }
@@ -125,7 +126,7 @@ object AladinContainer {
 
   object CatalogQuery {
     implicit val ci = new CatalogQueryInterpreter {
-      val MaxCount         = 3000
+      val MaxCount         = 30000
       val shapeInterpreter = implicitly[ShapeInterpreter]
     }
 
@@ -390,7 +391,7 @@ object AladinContainer {
           ),
           <.div(
             ^.cls := "aladin-wrapper",
-            (resize.width, resize.height).mapN(AGSCanvas(_, _, points)),
+            (resize.width, resize.height, world2pix.value).mapN(AGSCanvas(_, _, _, catalog.get)),
             AladinComp.withRef(aladinRef) {
               Aladin(
                 Css("react-aladin"),
