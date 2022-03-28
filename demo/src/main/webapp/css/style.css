@@ -108,6 +108,10 @@ label {
   position: absolute;
   z-index: 900;
 }
+.controls {
+  display: flex;
+  justify-content: space-between;
+}
 
 .react-aladin {
   /* height: 100%; */
