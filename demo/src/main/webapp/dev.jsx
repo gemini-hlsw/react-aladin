@@ -1,6 +1,6 @@
 import "/css/aladin.css";
 import "/css/style.css";
-import 'virtual:fonts.css';
+// import 'virtual:fonts.css';
 
 // Setup the service worker
 import { registerSW } from "virtual:pwa-register";

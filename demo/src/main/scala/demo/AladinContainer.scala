@@ -221,16 +221,19 @@ object AladinContainer {
                          GmosGeometry.ScaleFactor
             )
       })
+      // detect resize
       .useResizeDetector()
+      // Mouse position
+      .useState(MouseMoved(RightAscension.Zero, Declination.Zero, 0, 0))
       // Set the value of world2pix
-      .useEffectWithDepsBy((_, ref, _, _, fov, _, c, _, resize) =>
+      .useEffectWithDepsBy((_, ref, _, _, fov, _, c, _, resize, _) =>
         (resize, fov, Option(ref.raw.current).isDefined, c)
-      ) { (_, ref, _, _, _, w, _, _, _) => _ =>
+      ) { (_, ref, _, _, _, w, _, _, _, _) => _ =>
         Callback.log("set fn") *>
           ref.get.asCBO.flatMapCB(r => r.backend.world2pixFn.flatMap(x => w.setState(x.some)))
       }
       // Render the visualization
-      .useEffectBy { (p, ref, _, _, _, w, currPos, svg, _) =>
+      .useEffectBy { (p, ref, _, _, _, w, _, svg, _, _) =>
         Callback.log(
           s"coords offset ra: ${p.coordinates.ra.toAngle.toDoubleDegrees}, dec: ${p.coordinates.dec.toAngle.toSignedDoubleDegrees}"
         ) *>
@@ -247,8 +250,8 @@ object AladinContainer {
       // catalog stars
       .useStateView(List.empty[Coordinates])
       // Load the catalog stars
-      .useEffectWithDepsBy((p, _, _, o, _, _, _, _, _, _) => (p.coordinates, o)) {
-        (props, _, pa, _, _, _, _, _, _, catalog) =>
+      .useEffectWithDepsBy((p, _, _, o, _, _, _, _, _, _, _) => (p.coordinates, o)) {
+        (props, _, pa, _, _, _, _, _, _, _, catalog) =>
           { case (c, o) =>
             import CatalogQuery._
 
@@ -316,149 +319,149 @@ object AladinContainer {
                 .runAsyncAndForget
           }
       }
-      .render { (props, aladinRef, pa, offset, fov, world2pix, currPos, svg, resize, catalog) =>
-        /**
-         * Called when the position changes, i.e. aladin pans. We want to offset the visualization
-         * to keep the internal target correct
-         */
-        @nowarn
-        def onPositionChanged(v: JsAladin)(
-          s:                     PositionChanged
-        ): Callback =
-          currPos.setState(Coordinates(s.ra, s.dec))
-        // val size     = Size(v.getParentDiv().clientHeight, v.getParentDiv().clientWidth)
-        // val div      = v.getParentDiv()
-        // // Update the existing visualization in place
-        // val previous = Option(div.querySelector(".aladin-visualization"))
-        // (svg.some, previous).mapN { case (svg, previous) =>
-        //   aladinRef.get.asCBO
-        //     .flatMapCB(
-        //       _.backend.world2pix(props.coordinates)
-        //     )
-        //     .flatMapCB { off =>
-        //       Callback {
-        //         // Offset the visualization
-        //         visualization
-        //           .updatePosition(svg,
-        //                           previous,
-        //                           size,
-        //                           v.pixelScale,
-        //                           GmosGeometry.ScaleFactor,
-        //                           off.getOrElse((0, 0))
-        //           )
-        //       }
-        //     }
-        //     .toCallback
-        // }.getOrEmpty
+      .render {
+        (props, aladinRef, pa, offset, fov, world2pix, currPos, svg, resize, mousePos, catalog) =>
+          /**
+           * Called when the position changes, i.e. aladin pans. We want to offset the visualization
+           * to keep the internal target correct
+           */
+          @nowarn
+          def onPositionChanged(v: JsAladin)(
+            s:                     PositionChanged
+          ): Callback =
+            currPos.setState(Coordinates(s.ra, s.dec))
+          // val size     = Size(v.getParentDiv().clientHeight, v.getParentDiv().clientWidth)
+          // val div      = v.getParentDiv()
+          // // Update the existing visualization in place
+          // val previous = Option(div.querySelector(".aladin-visualization"))
+          // (svg.some, previous).mapN { case (svg, previous) =>
+          //   aladinRef.get.asCBO
+          //     .flatMapCB(
+          //       _.backend.world2pix(props.coordinates)
+          //     )
+          //     .flatMapCB { off =>
+          //       Callback {
+          //         // Offset the visualization
+          //         visualization
+          //           .updatePosition(svg,
+          //                           previous,
+          //                           size,
+          //                           v.pixelScale,
+          //                           GmosGeometry.ScaleFactor,
+          //                           off.getOrElse((0, 0))
+          //           )
+          //       }
+          //     }
+          //     .toCallback
+          // }.getOrEmpty
 
-        def customize(v: JsAladin): Callback =
-          v.onZoom(onZoom(v)) *>                      // re render on zoom
-            v.onPositionChanged(onPositionChanged(v)) // *>
-        // v.onMouseMove(m =>
-        //   Callback.log(
-        //     s"ra: ${m.ra.toAngle.toDoubleDegrees}, dec: ${m.dec.toAngle.toSignedDoubleDegrees}"
-        //   )
-        // )
+          def customize(v: JsAladin): Callback =
+            v.onZoom(onZoom(v)) *> // re render on zoom
+              v.onPositionChanged(onPositionChanged(v)) *>
+              v.onMouseMove(mousePos.setState)
 
-        def onZoom = (v: JsAladin) => fov.setState(v.fov)
+          def onZoom = (v: JsAladin) => fov.setState(v.fov)
 
-        // catalog.zoom()
+          // catalog.zoom()
 
-        val coords1 = visualization
-          .pointToCoords(GmosGeometry.baseAt(pa.value, offset.value))
-          .map { x =>
-            val coords = Coordinates(
-              RightAscension.fromDoubleDegrees(
-                props.coordinates.ra.toAngle.toDoubleDegrees + x.p.toAngle.toSignedDoubleDegrees
-              ),
-              Declination
-                .fromDoubleDegrees(
-                  props.coordinates.dec.toAngle.toSignedDoubleDegrees + x.q.toAngle.toSignedDoubleDegrees
-                )
-                .get
-            )
-            coords
-          }
-          .get
-        val points  =
-          world2pix.value.toList.flatMap(catalog.get.map).collect { case Some((a, b)) =>
-            (a, b)
-          }
+          val coords1 = visualization
+            .pointToCoords(GmosGeometry.baseAt(pa.value, offset.value))
+            .map { x =>
+              val coords = Coordinates(
+                RightAscension.fromDoubleDegrees(
+                  props.coordinates.ra.toAngle.toDoubleDegrees + x.p.toAngle.toSignedDoubleDegrees
+                ),
+                Declination
+                  .fromDoubleDegrees(
+                    props.coordinates.dec.toAngle.toSignedDoubleDegrees + x.q.toAngle.toSignedDoubleDegrees
+                  )
+                  .get
+              )
+              coords
+            }
+            .get
+          val points  =
+            world2pix.value.toList.flatMap(catalog.get.map).collect { case Some((a, b)) =>
+              (a, b)
+            }
 
-        def changeQOffset(e: ReactEventFromInput) =
-          e.target.value.parseDoubleOption
-            .map(x => offset.modState(Offset.qAngle.replace(Angle.fromDoubleArcseconds(x))))
-            .getOrEmpty
+          def changeQOffset(e: ReactEventFromInput) =
+            e.target.value.parseDoubleOption
+              .map(x => offset.modState(Offset.qAngle.replace(Angle.fromDoubleArcseconds(x))))
+              .getOrEmpty
 
-        def changePOffset(e: ReactEventFromInput) =
-          e.target.value.parseDoubleOption
-            .map(x => offset.modState(Offset.pAngle.replace(Angle.fromDoubleArcseconds(x))))
-            .getOrEmpty
+          def changePOffset(e: ReactEventFromInput) =
+            e.target.value.parseDoubleOption
+              .map(x => offset.modState(Offset.pAngle.replace(Angle.fromDoubleArcseconds(x))))
+              .getOrEmpty
 
-        def changePA(e: ReactEventFromInput) =
-          e.target.value.parseDoubleOption
-            .map(x => pa.setState(Angle.fromDoubleDegrees(x)))
-            .getOrEmpty
+          def changePA(e: ReactEventFromInput) =
+            e.target.value.parseDoubleOption
+              .map(x => pa.setState(Angle.fromDoubleDegrees(x)))
+              .getOrEmpty
 
-        <.div(
-          ^.cls := "top-container",
           <.div(
-            ^.cls := "controls",
+            ^.cls := "top-container",
             <.div(
-              <.label("p", ^.htmlFor  := "p_select"),
-              <.select(
-                ^.id                  := "p_select",
-                ^.onChange ==> changePOffset,
-                ^.value               := Angle.arcseconds.get(Offset.pAngle.get(offset.value)),
-                <.option("-60"),
-                <.option("0"),
-                <.option("60")
+              ^.cls := "controls",
+              <.div(
+                <.label("p", ^.htmlFor  := "p_select"),
+                <.select(
+                  ^.id                  := "p_select",
+                  ^.onChange ==> changePOffset,
+                  ^.value               := Angle.arcseconds.get(Offset.pAngle.get(offset.value)),
+                  <.option("-60"),
+                  <.option("0"),
+                  <.option("60")
+                ),
+                <.label("q", ^.htmlFor  := "q_select"),
+                <.select(
+                  ^.id                  := "q_select",
+                  ^.onChange ==> changeQOffset,
+                  ^.value               := Angle.arcseconds.get(Offset.qAngle.get(offset.value)),
+                  <.option("-60"),
+                  <.option("0"),
+                  <.option("60")
+                ),
+                <.label("pa", ^.htmlFor := "pa_select"),
+                <.select(
+                  ^.id                  := "pa_select",
+                  ^.onChange ==> changePA,
+                  ^.value               := pa.value.toDoubleDegrees.toString,
+                  <.option("0"),
+                  <.option("90"),
+                  <.option("145"),
+                  <.option("180"),
+                  <.option("270")
+                )
               ),
-              <.label("q", ^.htmlFor  := "q_select"),
-              <.select(
-                ^.id                  := "q_select",
-                ^.onChange ==> changeQOffset,
-                ^.value               := Angle.arcseconds.get(Offset.qAngle.get(offset.value)),
-                <.option("-60"),
-                <.option("0"),
-                <.option("60")
-              ),
-              <.label("pa", ^.htmlFor := "pa_select"),
-              <.select(
-                ^.id                  := "pa_select",
-                ^.onChange ==> changePA,
-                ^.value               := pa.value.toDoubleDegrees.toString,
-                <.option("0"),
-                <.option("90"),
-                <.option("145"),
-                <.option("180"),
-                <.option("270")
+              <.div(
+                // s" ra: ${mousePos.value.ra.toAngle.toDoubleDegrees} ra: ${mousePos.value.dec.toAngle.toSignedDoubleDegrees} x: ${mousePos.value.x} y: ${mousePos.value.y}"
+                //
+                s" ra: ${HourAngle.fromStringHMS(mousePos.value.ra.toHourAngle)} ra: ${Angle.fromStringSignedDMS
+                    .reverseGet(mousePos.value.dec.toAngle)} x: ${mousePos.value.x} y: ${mousePos.value.y}"
               )
             ),
             <.div(
-              "ABC"
-            )
-          ),
-          <.div(
-            ^.cls := "aladin-wrapper",
-            (resize.width, resize.height, world2pix.value)
-              .mapN(AGSSVGOverlay(_, _, _, List(coords1))),
-            AladinComp.withRef(aladinRef) {
-              Aladin(
-                Css("react-aladin"),
-                showReticle = false,
-                showFullscreenControl = true,
-                // showLayersControl = true,
-                // showZoomControl = false,
-                target = props.aladinCoordsStr,
-                // target = "ngc 1055",
-                fov = fov.value.x,
-                showGotoControl = false,
-                customize = customize _
-              )
-            }
-          ).withRef(resize.ref)
-        )
+              ^.cls := "aladin-wrapper",
+              (resize.width, resize.height, world2pix.value)
+                .mapN(AGSSVGOverlay(_, _, _, List(coords1))),
+              AladinComp.withRef(aladinRef) {
+                Aladin(
+                  Css("react-aladin"),
+                  showReticle = false,
+                  showFullscreenControl = true,
+                  // showLayersControl = true,
+                  // showZoomControl = false,
+                  target = props.aladinCoordsStr,
+                  // target = "ngc 1055",
+                  fov = fov.value.x,
+                  showGotoControl = false,
+                  customize = customize _
+                )
+              }
+            ).withRef(resize.ref)
+          )
 
       }
 }
