@@ -114,8 +114,8 @@ object AladinContainer {
         f"""|SELECT TOP ${ci.MaxCount} $fields, DISTANCE(POINT(${cs.base.ra.toAngle.toDoubleDegrees}%9.8f, ${cs.base.dec.toAngle.toSignedDoubleDegrees}%9.8f), POINT(ra, dec)) AS ang_sep
         |     FROM gaiadr2.gaia_source
         |     WHERE CONTAINS(POINT('ICRS',${gaia.raField.id},${gaia.decField.id}),$shapeAdql)=1
-       |     ORDER BY ang_sep ASC
       """.stripMargin
+      // |     ORDER BY ang_sep ASC
       // println(query)
       // |          AND DISTANCE(POINT(${cs.base.ra.toAngle.toDoubleDegrees}%9.8f, ${cs.base.dec.toAngle.toSignedDoubleDegrees}%9.8f), POINT(ra, dec)) > 0.01
       query
@@ -127,7 +127,7 @@ object AladinContainer {
 
   object CatalogQuery {
     implicit val ci = new CatalogQueryInterpreter {
-      val MaxCount         = 3
+      val MaxCount         = 300
       val shapeInterpreter = implicitly[ShapeInterpreter]
     }
 
@@ -229,23 +229,23 @@ object AladinContainer {
       .useEffectWithDepsBy((_, ref, _, _, fov, _, c, _, resize, _) =>
         (resize, fov, Option(ref.raw.current).isDefined, c)
       ) { (_, ref, _, _, _, w, _, _, _, _) => _ =>
-        Callback.log("set fn") *>
-          ref.get.asCBO.flatMapCB(r => r.backend.world2pixFn.flatMap(x => w.setState(x.some)))
+        // Callback.log("set fn") *>
+        ref.get.asCBO.flatMapCB(r => r.backend.world2pixFn.flatMap(x => w.setState(x.some)))
       }
       // Render the visualization
       .useEffectBy { (p, ref, _, _, _, w, _, svg, _, _) =>
-        Callback.log(
-          s"coords offset ra: ${p.coordinates.ra.toAngle.toDoubleDegrees}, dec: ${p.coordinates.dec.toAngle.toSignedDoubleDegrees}"
-        ) *>
-          w.value
-            .flatMap(_(p.coordinates))
-            .map(off =>
-              // Callback.log(s"root off $off") *>
-              ref.get.asCBO
-                .flatMapCB(v => v.backend.runOnAladinCB(updateVisualization(svg, off)))
-                .toCallback
-            )
-            .getOrEmpty
+        // Callback.log(
+        //   s"coords offset ra: ${p.coordinates.ra.toAngle.toDoubleDegrees}, dec: ${p.coordinates.dec.toAngle.toSignedDoubleDegrees}"
+        // ) *>
+        w.value
+          .flatMap(_(p.coordinates))
+          .map(off =>
+            // Callback.log(s"root off $off") *>
+            ref.get.asCBO
+              .flatMapCB(v => v.backend.runOnAladinCB(updateVisualization(svg, off)))
+              .toCallback
+          )
+          .getOrEmpty
       }
       // catalog stars
       .useStateView(List.empty[Coordinates])
@@ -278,9 +278,9 @@ object AladinContainer {
               Callback.log(
                 s"coords offset ra: ${coords.ra.toAngle.toDoubleDegrees}, dec: ${coords.dec.toAngle.toSignedDoubleDegrees}"
               ) *>
-              Callback.log(
-                s"coords offset h: ${coords}"
-              ) *>
+              // Callback.log(
+              //   s"coords offset h: ${coords}"
+              // ) *>
               CatalogQuery
                 .queryUri {
                   ConeSearchCatalogQuery(coords, // c.offsetBy(pa.value, o.value),
@@ -436,16 +436,15 @@ object AladinContainer {
                 )
               ),
               <.div(
-                // s" ra: ${mousePos.value.ra.toAngle.toDoubleDegrees} ra: ${mousePos.value.dec.toAngle.toSignedDoubleDegrees} x: ${mousePos.value.x} y: ${mousePos.value.y}"
-                //
-                s" ra: ${HourAngle.fromStringHMS(mousePos.value.ra.toHourAngle)} ra: ${Angle.fromStringSignedDMS
-                    .reverseGet(mousePos.value.dec.toAngle)} x: ${mousePos.value.x} y: ${mousePos.value.y}"
+                s" ra: ${mousePos.value.ra.toAngle.toDoubleDegrees} dec: ${mousePos.value.dec.toAngle.toSignedDoubleDegrees} x: ${mousePos.value.x} y: ${mousePos.value.y}"
+                // s" ra: ${HourAngle.fromStringHMS.reverseGet(mousePos.value.ra.toHourAngle)} dec: ${Angle.fromStringSignedDMS
+                //     .reverseGet(mousePos.value.dec.toAngle)} x: ${mousePos.value.x} y: ${mousePos.value.y}"
               )
             ),
             <.div(
               ^.cls := "aladin-wrapper",
               (resize.width, resize.height, world2pix.value)
-                .mapN(AGSSVGOverlay(_, _, _, List(coords1))),
+                .mapN(AGSSVGOverlay(_, _, fov.value, currPos.value, _, catalog.get)),
               AladinComp.withRef(aladinRef) {
                 Aladin(
                   Css("react-aladin"),

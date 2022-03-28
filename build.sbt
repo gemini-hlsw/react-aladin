@@ -38,7 +38,7 @@ val demo =
     .settings(
       scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
       Compile / fastLinkJS / scalaJSLinkerConfig ~= (_.withModuleSplitStyle(
-        ModuleSplitStyle.FewestModules
+        ModuleSplitStyle.SmallestModules
       )),
       Compile / fullLinkJS / scalaJSLinkerConfig ~= (_.withModuleSplitStyle(
         ModuleSplitStyle.FewestModules

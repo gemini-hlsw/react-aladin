@@ -112,9 +112,9 @@ export default ({ command, mode }) => {
         }
       }),
       ViteFonts({
-      google: {
-        families: ['Lato']
-      },
-    })],
+        google: {
+          families: ['Open Sans']
+        },
+      })],
   };
 };

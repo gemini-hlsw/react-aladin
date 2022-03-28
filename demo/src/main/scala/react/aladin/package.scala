@@ -116,11 +116,7 @@ package object aladin {
 
     def onMouseMove(cb: MouseMoved => Callback): Callback =
       Callback(
-        a.on("mouseMove",
-             (t: JsMouseMoved) => {
-               org.scalajs.dom.window.console.log(t); cb(MouseMoved.fromJs(t)).runNow()
-             }
-        )
+        a.on("mouseMove", (t: JsMouseMoved) => cb(MouseMoved.fromJs(t)).runNow())
       )
 
     def pixelScale: PixelScale =

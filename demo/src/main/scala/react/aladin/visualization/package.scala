@@ -88,7 +88,6 @@ package object visualization {
       }
     find(s) match {
       case a: org.locationtech.jts.geom.Point =>
-        println(s"calc point ${a.getX} ${a.getY}")
         Some(
           Offset(Offset.P(Angle.fromMicroarcseconds(-a.getX.toLong)),
                  Offset.Q(Angle.fromMicroarcseconds(a.getY.toLong))

@@ -7,11 +7,16 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.svg_<^._
 import react.common._
 import lucuma.core.math.Coordinates
+import lucuma.ui.reusability._
 import org.scalajs.dom.window.performance
+import react.aladin.Fov
+import react.aladin.reusability._
 
 final case class AGSSVGOverlay(
   width:     Int,
   height:    Int,
+  fov:       Fov,
+  current:   Coordinates,
   world2pix: Coordinates => Option[(Double, Double)],
   gs:        List[Coordinates]
 ) extends ReactFnProps[AGSSVGOverlay](AGSSVGOverlay.component)
@@ -23,7 +28,7 @@ object AGSSVGOverlay {
   val component    =
     ScalaFnComponent
       .withHooks[AGSSVGOverlay]
-      .render { p =>
+      .useMemoBy(p => (p.width, p.height, p.fov, p.current, p.gs)) { p => _ =>
         performance.mark("ags-svg-start")
         val svg = <.svg(
           ^.`class`    := "ags-svg",
@@ -45,6 +50,9 @@ object AGSSVGOverlay {
         )
         performance.mark("ags-svg-end")
         performance.measure("ags-svg", "ags-svg-start", "ags-svg-end")
+        svg
+      }
+      .render { (p, svg) =>
         svg
       }
 }
