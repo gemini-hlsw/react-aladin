@@ -72,6 +72,7 @@ const Aladin = (function () {
     }
 
     const self = this;
+    var aladin = this;
 
     // if not options was set, try to retrieve them from the query string
     if (requestedOptions === undefined) {
@@ -336,7 +337,7 @@ const Aladin = (function () {
       this.boxes.push(layerBox)
 
       // we return false so that the default event is not submitted, and to prevent event bubbling
-      layerDiv.addEventListener('click', (e) => {
+      layerDiv.addEventListener('click', () => {
         self.hideBoxes()
         self.showLayerBox(layerBox)
       })
@@ -529,8 +530,6 @@ const Aladin = (function () {
 
     // this.setImageSurvey(options.survey);
     // this.view.showCatalog(options.showCatalog);
-
-    var aladin = this;
     let frameChoice = aladinDiv.getElementsByClassName("aladin-frameChoice")[0]
     if (frameChoice) {
       frameChoice.addEventListener("change", (e) => aladin.setFrame(e.target.value))
@@ -1341,7 +1340,7 @@ const Aladin = (function () {
       divElem.classList.add("aladin-stack-icon")
       divElem.style.backgroundImage = `url("data:image/svg+xml;base64,${svgBase64}")`
       inputElem.id = `aladin_lite_${name}`
-      labelElem.for = `aladin_lite_${name}`
+      labelElem.htmlFor = `aladin_lite_${name}`
       labelElem.classList.add("aladin-layer-label")
       labelElem.style.background = layer.color
       labelElem.style.color = labelColor
@@ -1412,7 +1411,7 @@ const Aladin = (function () {
 
     let projectionChoice = document.getElementById("projectionChoice")
     if (projectionChoice) {
-      projectionChoice.addEventListener("change", (e) => aladin.setProjection(e.target.value))
+      projectionChoice.addEventListener("change", (e) => self.setProjection(e.target.value))
     }
 
     layerBoxCloseBtn.addEventListener("click", () => self.hideBoxes())
@@ -1880,7 +1879,11 @@ Aladin.prototype.displayFITS = function (
       self.setFoV(meta.fov);
     }
   })
-  .catch(err => console.log(err))
+  .catch(err => {
+    console.log(err)
+    if (typeof errorCallback === "function")
+      errorCallback(err)
+  })
   // $.ajax({
   //   url: "https://alasky.unistra.fr/cgi/fits2HiPS",
   //   data: data,
