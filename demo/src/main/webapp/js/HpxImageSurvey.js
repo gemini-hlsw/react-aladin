@@ -31,7 +31,6 @@ import Utils from './Utils';
 import HiPSDefinition from './HiPSDefinition';
 import CooFrameEnum from './CooFrameEnum';
 import ColorMap from './ColorMap';
-import $ from 'jquery';
 import Tile from './Tile';
 import HpxKey from './HpxKey';
 
@@ -145,39 +144,22 @@ export const HpxImageSurvey = (function() {
 
       this.useCors = false;
       var self = this;
-        if ($.support.cors) {
-            // testing if server supports CORS ( http://www.html5rocks.com/en/tutorials/cors/ )
-            $.ajax({
-                type: 'GET',
-                url: this.rootUrl + '/properties'  + (this.additionalParams ? ('?' + this.additionalParams) : ''),
-                dataType: 'text',
-                xhrFields: {
-                },
-                headers: {
-                },
-                success: function() {
-                    // CORS is supported
-                    self.useCors = true;
-
-                    self.retrieveAllskyTextures();
-                    if (callback) {
-                        callback();
-                    }
-                },
-                error: function() {
-                    // CORS is not supported
-                    self.retrieveAllskyTextures();
-                    if (callback) {
-                        callback();
-                    }
-                }
-              });
+      // testing if server supports CORS ( http://www.html5rocks.com/en/tutorials/cors/ )
+      fetch(`${this.rootUrl}/properties${(this.additionalParams ? `?${this.additionalParams}`:"")}`)
+      .then(res => {
+        if (res.ok) {
+          self.useCors = true
+          self.retrieveAllskyTextures();
+          if (callback) callback()
+        } else {
+          self.retrieveAllskyTextures();
+          if (callback) callback()
         }
-        else {
-            this.retrieveAllskyTextures();
-            callback();
-        }
-
+      })
+      .catch(() => {
+        self.retrieveAllskyTextures();
+          if (callback) callback()
+      })
     };
 
     HpxImageSurvey.DEFAULT_SURVEY_ID = "P/DSS2/color";

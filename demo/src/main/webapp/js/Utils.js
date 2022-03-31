@@ -29,8 +29,6 @@
  *
  *****************************************************************************/
 
-import $ from 'jquery';
-
 const Utils = {};
 const JSONP_PROXY = "https://alasky.unistra.fr/cgi/JSONProxy";
 
@@ -207,13 +205,23 @@ Utils.loadFromMirrors = function(urls, options) {
             ajaxOptions.dataType = dataType;
         }
 
-        $.ajax(ajaxOptions)
-        .done(function(data) {
-            (typeof onSuccess === 'function') && onSuccess(data);
+        let url = new URL(ajaxOptions.url)
+        url.search = new URLSearchParams(ajaxOptions.data)
+        fetch(url)
+        .then(res => {
+            let type = res.headers.get('content-type')
+            if (type.includes("application/json"))
+                return res.json()
+            else if (type.includes("text/html"))
+                return res.text()
         })
-        .fail(function() {
-             Utils.loadFromMirrors(urls.slice(1), options);
-        });
+        .then(data => {
+            (typeof onSuccess === 'function') && onSuccess(data)
+        })
+        .catch((err) => {
+            console.log(err)
+            Utils.loadFromMirrors(urls.slice(1), options)
+        })
     }
 }
 
@@ -225,20 +233,16 @@ Utils.getAjaxObject = function(url, method, dataType, useProxy) {
         }
         const JsonProxy = JSONP_PROXY;
 
+        let urlToRequest = ""
         if (useProxy===true) {
-            var urlToRequest = JsonProxy + '?url=' + encodeURIComponent(url);
-        }
-        else {
+            urlToRequest = JsonProxy + '?url=' + encodeURIComponent(url);
+        } else {
             urlToRequest = url;
         }
         method = method || 'GET';
         dataType = dataType || null;
 
-        return $.ajax({
-            url: urlToRequest,
-            method: method,
-            dataType: dataType
-        });
+        return fetch(urlToRequest, { method: method })
 };
 
 // return true if script is executed in a HTTPS context

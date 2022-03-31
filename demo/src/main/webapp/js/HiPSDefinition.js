@@ -592,23 +592,30 @@ const HiPSDefinition = (function() {
             (typeof callback === 'function') && callback(new HiPSDefinition(hipsPropertiesDict));
         };
 
-        // try first without proxy
-        var ajax = Utils.getAjaxObject(propertiesUrl, 'GET', 'text', false);
-        ajax
-            .done(function(data) {
-                callbackWhenPropertiesLoaded(data);
+        // Try without proxy first.
+        // The Utils.getAjaxObject doesn't return an ajax object anymore
+        // now it is a fetch promise
+        Utils.getAjaxObject(propertiesUrl, 'GET', 'text', false)
+        .then(res => {
+            let type = res.headers.get('content-type')
+            if (type.includes("application/json"))
+                return res.json()
+            else if (type.includes("text/html"))
+                return res.text()
+        })
+        .then(data => callbackWhenPropertiesLoaded(data))
+        .catch(() => {
+            Utils.getAjaxObject(propertiesUrl, 'GET', 'text', true)
+            .then(res => {
+                let type = res.headers.get('content-type')
+                if (type.includes("application/json"))
+                    return res.json()
+                else if (type.includes("text/html"))
+                    return res.text()
             })
-            .fail(function() {
-                // if not working, try with the proxy
-                var ajax = Utils.getAjaxObject(propertiesUrl, 'GET', 'text', true);
-                ajax
-                    .done(function(data) {
-                        callbackWhenPropertiesLoaded(data);
-                    })
-                    .fail(function() {
-                        (typeof callback === 'function') && callback(null);
-                    })
-            });
+            .then(data => callbackWhenPropertiesLoaded(data))
+            .catch(() => (typeof callback === 'function') && callback(null))
+        })
     };
 
     // HiPSDefinition generation from a properties dict-like object
