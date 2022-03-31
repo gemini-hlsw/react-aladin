@@ -26,7 +26,6 @@
  * Author: Thomas Boch[CDS]
  *
  *****************************************************************************/
-import $ from "jquery";
 import CooFrameEnum from "./CooFrameEnum";
 import Coo from "./coo";
 import AladinUtils from "./AladinUtils";
@@ -183,6 +182,12 @@ const Aladin = (function () {
       zoomMinus.classList.add("zoomMinus");
       zoomDiv.appendChild(zoomMinus);
       aladinDiv.appendChild(zoomDiv);
+
+      zoomPlus.addEventListener("click", () => aladin.increaseZoom())
+      zoomPlus.addEventListener("mousedown", (e) => e.preventDefault())
+
+      zoomMinus.addEventListener("click", () => aladin.decreaseZoom())
+      zoomMinus.addEventListener("mousedown", (e) => e.preventDefault())
     }
 
     // maximize control
@@ -206,27 +211,25 @@ const Aladin = (function () {
     }
     // react to fullscreenchange event to restore initial width/height (if user pressed ESC to go back from full screen)
     document.addEventListener("fullscreenchange webkitfullscreenchange mozfullscreenchange MSFullscreenChange", () => {
-        var fullscreenElt =
-          document.fullscreenElement ||
-          document.webkitFullscreenElement ||
-          document.mozFullScreenElement ||
-          document.msFullscreenElement;
-        if (fullscreenElt === null || fullscreenElt === undefined) {
-          self.fullScreenBtn.classList.remove("aladin-restore");
-          self.fullScreenBtn.classList.add("aladin-maximize");
-          self.fullScreenBtn.setAttribute("title", "Full screen");
-          self.aladinDiv.classList.remove("aladin-fullscreen");
+      var fullscreenElt =
+        document.fullscreenElement ||
+        document.webkitFullscreenElement ||
+        document.mozFullScreenElement ||
+        document.msFullscreenElement;
+      if (fullscreenElt === null || fullscreenElt === undefined) {
+        self.fullScreenBtn.classList.remove("aladin-restore");
+        self.fullScreenBtn.classList.add("aladin-maximize");
+        self.fullScreenBtn.title = "Full screen";
+        self.aladinDiv.classList.remove("aladin-fullscreen");
 
-          var fullScreenToggledFn =
-            self.callbacksByEventName["fullScreenToggled"];
-          var isInFullscreen = self.fullScreenBtn.classList.contains(
-            "aladin-restore"
-          );
-          typeof fullScreenToggledFn === "function" &&
-            fullScreenToggledFn(isInFullscreen);
-        }
+        var fullScreenToggledFn = self.callbacksByEventName["fullScreenToggled"];
+        var isInFullscreen = self.fullScreenBtn.classList.contains(
+          "aladin-restore"
+        );
+        typeof fullScreenToggledFn === "function" &&
+          fullScreenToggledFn(isInFullscreen);
       }
-    );
+    })
 
     // Aladin logo
     const logo = document.createElement("div")
@@ -259,130 +262,253 @@ const Aladin = (function () {
     // set different options
     this.view = new View(this, aladinLocation, fovDiv, cooFrame, options.fov);
     this.view.setShowGrid(options.showCooGrid);
+    this.setImageSurvey(options.survey);
+    this.view.showCatalog(options.showCatalog);
 
     // retrieve available surveys
+    // TODO: replace call with MocServer
+    // $.ajax({
+    //   url: "//aladin.unistra.fr/java/nph-aladin.pl",
+    //   data: { frame: "aladinLiteDic" },
+    //   method: "GET",
+    //   dataType: "jsonp", // could this be repaced by json ??
+    //   success: function (data) {
+    //     var map = {};
+    //     for (let k = 0; k < data.length; k++) {
+    //       map[data[k].id] = true;
+    //     }
+    //     // retrieve existing surveys
+    //     for (let k = 0; k < HpxImageSurvey.SURVEYS.length; k++) {
+    //       if (!map[HpxImageSurvey.SURVEYS[k].id]) {
+    //         data.push(HpxImageSurvey.SURVEYS[k]);
+    //       }
+    //     }
+    //     console.log(data)
+    //     HpxImageSurvey.SURVEYS = data;
+    //     self.view.setUnknownSurveyIfNeeded();
+    //   },
+    //   error: function () {},
+    // });
+
     fetch("https://lucuma-cors-proxy.herokuapp.com/http://aladin.unistra.fr/java/nph-aladin.pl?frame=aladinLiteDic")
-      .then(response => response.json())
-      .then(data => {
-          var map = {};
-          for (let k = 0; k < data.length; k++) {
-            map[data[k].id] = true;
-          }
-          // retrieve existing surveys
-          for (let k = 0; k < HpxImageSurvey.SURVEYS.length; k++) {
-            if (!map[HpxImageSurvey.SURVEYS[k].id]) {
-              data.push(HpxImageSurvey.SURVEYS[k]);
-            }
-          }
-          HpxImageSurvey.SURVEYS = data;
-          self.view.setUnknownSurveyIfNeeded();
-        });
+    .then(response => response.json())
+    .then(data => {
+      var map = {};
+      for (let k = 0; k < data.length; k++) {
+        map[data[k].id] = true;
+      }
+      // retrieve existing surveys
+      for (let k = 0; k < HpxImageSurvey.SURVEYS.length; k++) {
+        if (!map[HpxImageSurvey.SURVEYS[k].id]) {
+          data.push(HpxImageSurvey.SURVEYS[k]);
+        }
+      }
+      HpxImageSurvey.SURVEYS = data;
+      self.view.setUnknownSurveyIfNeeded();
+    });
 
     // layers control panel
     // TODO : valeur des checkbox en fonction des options
     // TODO : classe LayerBox
     if (options.showLayersControl) {
-      let d = $(
-        '<div class="aladin-layersControl-container" title="Manage layers"><div class="aladin-layersControl"></div></div>'
-      );
-      d.appendTo(aladinDiv);
+      // let d = $(
+      //   '<div class="aladin-layersControl-container" title="Manage layers"><div class="aladin-layersControl"></div></div>'
+      // );
+      // d.appendTo(aladinDiv);
 
-      var layerBox = $(
-        '<div class="aladin-box aladin-layerBox aladin-cb-list"></div>'
-      );
-      layerBox.appendTo(aladinDiv);
+      let innerDiv = document.createElement("div")
+      innerDiv.classList.add("aladin-layersControl")
+      let layerDiv = document.createElement("div")
+      layerDiv.title = "Manage layers"
+      layerDiv.classList.add("aladin-layersControl-container")
+      layerDiv.appendChild(innerDiv)
+      aladinDiv.appendChild(layerDiv)
 
-      this.boxes.push(layerBox);
+      // var layerBox = $(
+      //   '<div class="aladin-box aladin-layerBox aladin-cb-list"></div>'
+      // );
+      // layerBox.appendTo(aladinDiv);
+
+      let layerBox = document.createElement("div")
+      layerBox.classList.add("aladin-box","aladin-layerBox","aladin-cb-list")
+      aladinDiv.appendChild(layerBox)
+
+      this.boxes.push(layerBox)
 
       // we return false so that the default event is not submitted, and to prevent event bubbling
-      d.click(function () {
-        self.hideBoxes();
-        self.showLayerBox();
-        return false;
-      });
+      layerDiv.addEventListener('click', (e) => {
+        self.hideBoxes()
+        self.showLayerBox(layerBox)
+      })
+      // d1.click(function () {
+      //   self.hideBoxes();
+      //   self.showLayerBox();
+      //   return false;
+      // });
     }
 
     // goto control panel
     if (options.showGotoControl) {
-      let d = $(
-        '<div class="aladin-gotoControl-container" title="Go to position"><div class="aladin-gotoControl"></div></div>'
-      );
-      d.appendTo(aladinDiv);
+      // let d = $(
+      //   '<div class="aladin-gotoControl-container" title="Go to position"><div class="aladin-gotoControl"></div></div>'
+      // );
+      // d.appendTo(aladinDiv);
 
-      var gotoBox = $(
-        '<div class="aladin-box aladin-gotoBox">' +
-          '<a class="aladin-closeBtn">&times;</a>' +
-          '<div style="clear: both;"></div>' +
-          '<form class="aladin-target-form">Go to: <input type="text" placeholder="Object name/position" /></form></div>'
-      );
-      gotoBox.appendTo(aladinDiv);
+      let innerDiv = document.createElement("div")
+      innerDiv.classList.add("aladin-gotoControl")
+      let controlDiv = document.createElement("div")
+      controlDiv.title = "Go to position"
+      controlDiv.classList.add("aladin-gotoControl-container")
+      controlDiv.appendChild(innerDiv)
+      aladinDiv.appendChild(controlDiv)
+
+      // var gotoBox = $(
+      //   '<div class="aladin-box aladin-gotoBox">' +
+      //     '<a class="aladin-closeBtn">&times;</a>' +
+      //     '<div style="clear: both;"></div>' +
+      //     '<form class="aladin-target-form">Go to: <input type="text" placeholder="Object name/position" /></form></div>'
+      // );
+      // gotoBox.appendTo(aladinDiv);
+
+      let inputInForm = document.createElement("input")
+      inputInForm.type = "text"
+      inputInForm.placeholder = "Object name/position"
+      let formInBox = document.createElement("form")
+      formInBox.classList.add("aladin-target-form")
+      formInBox.innerText = "Go to: "
+      formInBox.appendChild(inputInForm)
+      let divInBox = document.createElement("div")
+      divInBox.style.clear = "both";
+      let aInBox = document.createElement("a")
+      aInBox.classList.add("aladin-closeBtn")
+      aInBox.innerHTML = "&times;"
+      let gotoBox = document.createElement("div")
+      gotoBox.classList.add("aladin-box", "aladin-gotoBox")
+      gotoBox.appendChild(aInBox)
+      gotoBox.appendChild(divInBox)
+      gotoBox.appendChild(formInBox)
+      aladinDiv.appendChild(gotoBox)
+
       this.boxes.push(gotoBox);
 
-      var input = gotoBox.find(".aladin-target-form input");
-      input.on("paste keydown", function () {
-        $(this).removeClass("aladin-unknownObject"); // remove red border
-      });
+      formInBox.addEventListener("submit", (e) => {
+        e.preventDefault()
+        aladin.gotoObject(inputInForm.value, {
+          success: (raDec) => {
+            console.log(`Callback response on success ${raDec}`)
+            // targetFormInput.classList.add("aladin-unknownObject")
+          },
+          error: (raDec) => {
+            console.log(`Callback response on error ${raDec}`)
+            // targetFormInput.classList.add("aladin-unknownObject")
+          }
+        })
+      })
 
-      // TODO : classe GotoBox
-      d.click(function () {
-        self.hideBoxes();
-        input.val("");
-        input.removeClass("aladin-unknownObject");
-        gotoBox.show();
-        input.focus();
+      inputInForm.addEventListener("paste", () => inputInForm.classList.remove("aladin-unknownObject"))
+      inputInForm.addEventListener("keydown", () => inputInForm.classList.remove("aladin-unknownObject"))
+      aInBox.addEventListener("click", () => self.hideBoxes())
+      controlDiv.addEventListener("click", () => {
+        self.hideBoxes()
+        inputInForm.value = ""
+        inputInForm.classList.remove("aladin-unknownObject");
+        gotoBox.style.display = "block";
+        inputInForm.focus()
+      })
 
-        return false;
-      });
-      gotoBox.find(".aladin-closeBtn").click(function () {
-        self.hideBoxes();
-        return false;
-      });
+      // // TODO : classe GotoBox
     }
 
     // simbad pointer tool
     if (options.showSimbadPointerControl) {
-      let d = $(
-        '<div class="aladin-simbadPointerControl-container" title="SIMBAD pointer"><div class="aladin-simbadPointerControl"></div></div>'
-      );
-      d.appendTo(aladinDiv);
+      // let d = $(
+      //   '<div class="aladin-simbadPointerControl-container" title="SIMBAD pointer"><div class="aladin-simbadPointerControl"></div></div>'
+      // );
+      // d.appendTo(aladinDiv);
+      let innerDiv = document.createElement("div")
+      innerDiv.classList.add("aladin-simbadPointerControl")
+      let simbadPinterDiv = document.createElement("div")
+      simbadPinterDiv.title = "SIMBAD pointer"
+      simbadPinterDiv.classList.add("aladin-simbadPointerControl-container")
+      simbadPinterDiv.appendChild(innerDiv)
+      aladinDiv.appendChild(simbadPinterDiv)
 
-      d.click(function () {
-        self.view.setMode(View.TOOL_SIMBAD_POINTER);
-      });
+      // d.click(function () {
+      //   self.view.setMode(View.TOOL_SIMBAD_POINTER);
+      // });
+      simbadPinterDiv.addEventListener("click", () => self.view.setMode(View.TOOL_SIMBAD_POINTER))
     }
 
     // share control panel
     if (options.showShareControl) {
-      let d = $(
-        '<div class="aladin-shareControl-container" title="Get link for current view"><div class="aladin-shareControl"></div></div>'
-      );
-      d.appendTo(aladinDiv);
+      // let d = $(
+      //   '<div class="aladin-shareControl-container" title="Get link for current view"><div class="aladin-shareControl"></div></div>'
+      // );
+      // d.appendTo(aladinDiv);
+      let innerDiv = document.createElement("div")
+      innerDiv.classList.add("aladin-shareControl")
+      let shareControlDiv = document.createElement("div")
+      shareControlDiv.title = "Get link for current view"
+      shareControlDiv.classList.add("aladin-shareControl-container")
+      shareControlDiv.appendChild(innerDiv)
+      aladinDiv.appendChild(shareControlDiv)
 
-      var shareBox = $(
-        '<div class="aladin-box aladin-shareBox">' +
-          '<a class="aladin-closeBtn">&times;</a>' +
-          '<div style="clear: both;"></div>' +
-          'Link to previewer: <span class="info"></span>' +
-          '<input type="text" class="aladin-shareInput" />' +
-          "</div>"
-      );
-      shareBox.appendTo(aladinDiv);
+      // var shareBox = $(
+      //   '<div class="aladin-box aladin-shareBox">' +
+      //     '<a class="aladin-closeBtn">&times;</a>' +
+      //     '<div style="clear: both;"></div>' +
+      //     'Link to previewer: <span class="info"></span>' +
+      //     '<input type="text" class="aladin-shareInput" />' +
+      //     "</div>"
+      // );
+      // shareBox.appendTo(aladinDiv);
+      let inputShareBox = document.createElement("input")
+      inputShareBox.type = "text"
+      inputShareBox.classList.add("aladin-shareInput")
+      let spanShareBox = document.createElement("span")
+      spanShareBox.classList.add("info")
+      let divShareBox = document.createElement("div")
+      divShareBox.style.clear = "both"
+      let aShareBox = document.createElement("a")
+      aShareBox.innerHTML = "&times;"
+      aShareBox.classList.add("aladin-closeBtn")
+      let shareBox = document.createElement("div")
+      shareBox.classList.add("aladin-box", "aladin-shareBox")
+      shareBox.appendChild(aShareBox)
+      shareBox.appendChild(divShareBox)
+      shareBox.innerHTML += "Link to previewer: "
+      shareBox.appendChild(spanShareBox)
+      shareBox.appendChild(inputShareBox)
+      aladinDiv.appendChild(shareBox)
+
       this.boxes.push(shareBox);
 
       // TODO : classe GotoBox, GenericBox
-      d.click(function () {
-        self.hideBoxes();
-        shareBox.show();
-        var url = self.getShareURL();
-        shareBox.find(".aladin-shareInput").val(url).select();
-        document.execCommand("copy");
+      // d.click(function () {
+      //   self.hideBoxes();
+      //   shareBox.show();
+      //   var url = self.getShareURL();
+      //   shareBox.find(".aladin-shareInput").val(url).select();
+      //   document.execCommand("copy");
 
-        return false;
-      });
-      shareBox.find(".aladin-closeBtn").click(function () {
-        self.hideBoxes();
-        return false;
-      });
+      //   return false;
+      // });
+
+      shareControlDiv.addEventListener("click", () => {
+        self.hideBoxes()
+        shareBox.style.display = "block"
+        var url = self.getShareURL()
+        inputShareBox.value = url
+        inputShareBox.select()
+        inputShareBox.setSelectionRange(0, 99999)
+        navigator.clipboard.writeText(inputShareBox.value);
+      })
+
+      // shareBox.find(".aladin-closeBtn").click(function () {
+      //   self.hideBoxes();
+      //   return false;
+      // });
+      shareBox.getElementsByClassName("aladin-closeBtn")[0].addEventListener("click", () => self.hideBoxes())
     }
 
     this.gotoObject(options.target);
@@ -401,47 +527,14 @@ const Aladin = (function () {
       }
     }
 
-    this.setImageSurvey(options.survey);
-    this.view.showCatalog(options.showCatalog);
+    // this.setImageSurvey(options.survey);
+    // this.view.showCatalog(options.showCatalog);
 
     var aladin = this;
-    $(aladinDiv)
-      .find(".aladin-frameChoice")
-      .change(function () {
-        aladin.setFrame($(this).val());
-      });
-    $("#projectionChoice").change(function () {
-      aladin.setProjection($(this).val());
-    });
-
-    $(aladinDiv)
-      .find(".aladin-target-form")
-      .submit(function () {
-        aladin.gotoObject($(this).find("input").val(), function () {
-          $(aladinDiv)
-            .find(".aladin-target-form input")
-            .addClass("aladin-unknownObject");
-        });
-        return false;
-      });
-
-    var zoomPlus = $(aladinDiv).find(".zoomPlus");
-    zoomPlus.click(function () {
-      aladin.increaseZoom();
-      return false;
-    });
-    zoomPlus.bind("mousedown", function (e) {
-      e.preventDefault(); // to prevent text selection
-    });
-
-    var zoomMinus = $(aladinDiv).find(".zoomMinus");
-    zoomMinus.click(function () {
-      aladin.decreaseZoom();
-      return false;
-    });
-    zoomMinus.bind("mousedown", function (e) {
-      e.preventDefault(); // to prevent text selection
-    });
+    let frameChoice = aladinDiv.getElementsByClassName("aladin-frameChoice")[0]
+    if (frameChoice) {
+      frameChoice.addEventListener("change", (e) => aladin.setFrame(e.target.value))
+    }
 
     // go to full screen ?
     if (options.fullScreen) {
@@ -554,17 +647,28 @@ const Aladin = (function () {
       }
       return a.order && a.order > b.order ? 1 : -1;
     });
-    var select = $(this.aladinDiv).find(".aladin-surveySelection");
-    select.empty();
-    for (var i = 0; i < surveys.length; i++) {
-      var isCurSurvey = this.view.imageSurvey.id === surveys[i].id;
-      select.append(
-        $("<option />")
-          .attr("selected", isCurSurvey)
-          .val(surveys[i].id)
-          .text(surveys[i].name)
-      );
+    let select = this.aladinDiv.getElementsByClassName("aladin-surveySelection")[0]
+    if (select) {
+      select.innerHTML = ""
+      for (let i = 0; i < surveys.length; i++) {
+        let opt = document.createElement("option")
+        opt.selected = (this.view.imageSurvey.id === surveys[i].id)
+        opt.value = surveys[i].id
+        opt.innerText = surveys[i].name
+        select.appendChild(opt)
+      }
     }
+    // var select = $(this.aladinDiv).find(".aladin-surveySelection");
+    // select.empty();
+    // for (var i = 0; i < surveys.length; i++) {
+    //   var isCurSurvey = this.view.imageSurvey.id === surveys[i].id;
+    //   select.append(
+    //     $("<option />")
+    //       .attr("selected", isCurSurvey)
+    //       .val(surveys[i].id)
+    //       .text(surveys[i].name)
+    //   );
+    // }
   };
 
   Aladin.prototype.getOptionsFromQueryString = function () {
@@ -669,7 +773,10 @@ const Aladin = (function () {
 
     this.view.changeFrame(newFrame);
     // màj select box
-    $(this.aladinDiv).find(".aladin-frameChoice").val(newFrame.label);
+    let frameChoice = document.getElementsByClassName("aladin-frameChoice")[0]
+    if (frameChoice)
+      frameChoice.value = newFrame.label
+    // $(this.aladinDiv).find(".aladin-frameChoice").val(newFrame.label);
   };
 
   Aladin.prototype.setProjection = function (projectionName) {
@@ -986,7 +1093,10 @@ const Aladin = (function () {
   };
   Aladin.prototype.showReticle = function (show) {
     this.view.showReticle(show);
-    $("#displayReticle").attr("checked", show);
+    let reticleCheckbox = document.getElementById("displayReticle")
+    if (reticleCheckbox)
+      reticleCheckbox.checked = show
+    // $("#displayReticle").attr("checked", show);
   };
   Aladin.prototype.removeLayers = function () {
     this.view.removeLayers();
@@ -1139,209 +1249,217 @@ const Aladin = (function () {
   Aladin.prototype.hideBoxes = function () {
     if (this.boxes) {
       for (var k = 0; k < this.boxes.length; k++) {
-        this.boxes[k].hide();
+        // this.boxes[k].hide();
+        this.boxes[k].style.display = "none";
       }
     }
   };
 
   // TODO : LayerBox (or Stack?) must be extracted as a separate object
-  Aladin.prototype.showLayerBox = function () {
-    var self = this;
-
-    // first, update
-    var layerBox = $(this.aladinDiv).find(".aladin-layerBox");
-    layerBox.empty();
-    layerBox.append(
-      '<a class="aladin-closeBtn">&times;</a>' +
-        '<div style="clear: both;"></div>' +
-        '<div class="aladin-label">Base image layer</div>' +
-        '<select class="aladin-surveySelection"></select>' +
-        '<div class="aladin-cmap">Color map:' +
-        '<div><select class="aladin-cmSelection"></select><button class="aladin-btn aladin-btn-small aladin-reverseCm" type="button">Reverse</button></div></div>' +
-        '<div class="aladin-box-separator"></div>' +
-        '<div class="aladin-label">Overlay layers</div>'
-    );
-
-    var cmDiv = layerBox.find(".aladin-cmap");
+  Aladin.prototype.showLayerBox = function (layerBox) {
+    let self = this
+    layerBox.innerHTML = ""
+    let layerBoxCloseBtn = document.createElement("a")
+    layerBoxCloseBtn.classList.add("aladin-closeBtn")
+    layerBoxCloseBtn.innerHTML = "&times;"
+    let layerBoxClearDiv = document.createElement("div")
+    layerBoxClearDiv.style.clear = "both"
+    let layerBoxLabelDiv = document.createElement("div")
+    layerBoxLabelDiv.classList.add("aladin-label")
+    layerBoxLabelDiv.innerText = "Base image layer"
+    let layerBoxSelect = document.createElement("select")
+    layerBoxSelect.classList.add("aladin-surveySelection")
+    let layerBoxCmapDiv = document.createElement("div")
+    layerBoxCmapDiv.classList.add("aladin-cmap")
+    layerBoxCmapDiv.innerText = "Color map:"
+    let layerBoxCmapInnerDiv = document.createElement("div")
+    let layerBoxCmapSelect = document.createElement("select")
+    layerBoxCmapSelect.classList.add("aladin-cmSelection")
+    let layerBoxCmapBtn = document.createElement("button")
+    layerBoxCmapBtn.classList.add("aladin-btn", "aladin-btn-small", "aladin-reverseCm")
+    layerBoxCmapBtn.type = "button"
+    layerBoxCmapBtn.innerText = "Reverse"
+    layerBoxCmapInnerDiv.appendChild(layerBoxCmapSelect)
+    layerBoxCmapInnerDiv.appendChild(layerBoxCmapBtn)
+    layerBoxCmapDiv.appendChild(layerBoxCmapInnerDiv)
+    let layerBoxSeparatorDiv = document.createElement("div")
+    layerBoxSeparatorDiv.classList.add("aladin-box-separator")
+    let layerBoxOverlayDiv = document.createElement("div")
+    layerBoxOverlayDiv.classList.add("aladin-label")
+    layerBoxOverlayDiv.innerText = "Overlay layers"
+    layerBox.appendChild(layerBoxCloseBtn)
+    layerBox.appendChild(layerBoxClearDiv)
+    layerBox.appendChild(layerBoxSelect)
+    layerBox.appendChild(layerBoxCmapDiv)
+    layerBox.appendChild(layerBoxSeparatorDiv)
+    layerBox.appendChild(layerBoxOverlayDiv)
 
     // fill color maps options
-    var cmSelect = layerBox.find(".aladin-cmSelection");
     for (let k = 0; k < ColorMap.MAPS_NAMES.length; k++) {
-      cmSelect.append($("<option />").text(ColorMap.MAPS_NAMES[k]));
+      let auxOpt = document.createElement("option")
+      auxOpt.innerText = ColorMap.MAPS_NAMES[k]
+      layerBoxCmapSelect.appendChild(auxOpt)
     }
-    cmSelect.val(self.getBaseImageLayer().getColorMap().mapName);
+
+    layerBoxCmapSelect.value = self.getBaseImageLayer().getColorMap().mapName
 
     // loop over all overlay layers
     var layers = this.view.allOverlayLayers;
-    var str = "<ul>";
+    let ulElem = document.createElement("ul")
     for (let k = layers.length - 1; k >= 0; k--) {
+      let liElem = document.createElement("li")
+      let inputElem = document.createElement("input")
+      let divElem = document.createElement("div")
+      let labelElem = document.createElement("label")
+      inputElem.type = "checkbox"
+      
       var layer = layers[k];
       var name = layer.name;
-      let checked = "";
-      if (layer.isShowing) {
-        checked = 'checked="checked"';
-      }
-
       var tooltipText = "";
       var iconSvg = "";
+
+      if (layer.isShowing) inputElem.checked = true
+
       if (layer.type === "catalog" || layer.type === "progressivecat") {
         var nbSources = layer.getSources().length;
         tooltipText = nbSources + " source" + (nbSources > 1 ? "s" : "");
-
         iconSvg = AladinUtils.SVG_ICONS.CATALOG;
       } else if (layer.type === "moc") {
-        tooltipText =
-          "Coverage: " + (100 * layer.skyFraction()).toFixed(3) + " % of sky";
-
+        tooltipText = "Coverage: " + (100 * layer.skyFraction()).toFixed(3) + " % of sky";
         iconSvg = AladinUtils.SVG_ICONS.MOC;
       } else if (layer.type === "overlay") {
         iconSvg = AladinUtils.SVG_ICONS.OVERLAY;
       }
 
-      var rgbColor = $("<div></div>").css("color", layer.color).css("color"); // trick to retrieve the color as 'rgb(,,)' - does not work for named colors :(
-      var labelColor = Color.getLabelColorForBackground(rgbColor);
+      // trick to retrieve the color as 'rgb(,,)' - does not work for named colors :(
+      // var rgbColor = $("<div></div>").css("color", layer.color).css("color");
+      // var labelColor = Color.getLabelColorForBackground(rgbColor);
+      var labelColor = Color.getLabelColorForBackground(layer.color);
 
       // retrieve SVG icon, and apply the layer color
-      var svgBase64 = window.btoa(iconSvg.replace(/FILLCOLOR/g, layer.color));
-      str +=
-        '<li><div class="aladin-stack-icon" style=\'background-image: url("data:image/svg+xml;base64,' +
-        svgBase64 +
-        "\");'></div>";
-      str +=
-        '<input type="checkbox" ' +
-        checked +
-        ' id="aladin_lite_' +
-        name +
-        '"></input><label for="aladin_lite_' +
-        name +
-        '" class="aladin-layer-label" style="background: ' +
-        layer.color +
-        "; color:" +
-        labelColor +
-        ';" title="' +
-        tooltipText +
-        '">' +
-        name +
-        "</label></li>";
+      let svgBase64 = window.btoa(iconSvg.replace(/FILLCOLOR/g, layer.color));
+      divElem.classList.add("aladin-stack-icon")
+      divElem.style.backgroundImage = `url("data:image/svg+xml;base64,${svgBase64}")`
+      inputElem.id = `aladin_lite_${name}`
+      labelElem.for = `aladin_lite_${name}`
+      labelElem.classList.add("aladin-layer-label")
+      labelElem.style.background = layer.color
+      labelElem.style.color = labelColor
+      labelElem.title = tooltipText
+      labelElem.innerText = name
+      liElem.appendChild(divElem)
+      liElem.appendChild(inputElem)
+      liElem.appendChild(labelElem)
+      ulElem.appendChild(liElem)
+      // handler to hide/show overlays
+      inputElem.addEventListener("change", (e) => {
+        if (e.target.checked) {
+          layer.show()
+        } else {
+          layer.hide()
+        }
+      })
     }
-    str += "</ul>";
-    layerBox.append(str);
+    layerBox.appendChild(ulElem)
 
-    layerBox.append('<div class="aladin-blank-separator"></div>');
+    let divElem = document.createElement("div")
+    divElem.classList.add("aladin-blank-separator")
+    layerBox.appendChild(divElem)
 
     // gestion du réticule
-    let checked = "";
-    if (this.view.displayReticle) {
-      checked = 'checked="checked"';
-    }
-    var reticleCb = $(
-      '<input type="checkbox" ' + checked + ' id="displayReticle" />'
-    );
-    layerBox
-      .append(reticleCb)
-      .append('<label for="displayReticle">Reticle</label><br/>');
-    reticleCb.change(function () {
-      self.showReticle($(this).is(":checked"));
-    });
+    let reticleInput = document.createElement("input")
+    reticleInput.id = "displayReticle"
+    reticleInput.type = "checkbox"
+    if (this.view.displayReticle) reticleInput.checked = true
+    let reticleLabel = document.createElement("label")
+    reticleLabel.setAttribute("for", "displayReticle")
+    reticleLabel.innerText = "Reticle"
+    layerBox.appendChild(reticleInput)
+    layerBox.appendChild(reticleLabel)
+    reticleInput.addEventListener("change", (e) => self.showReticle(e.target.checked))
 
     // Gestion grille Healpix
-    checked = "";
-    if (this.view.displayHpxGrid) {
-      checked = 'checked="checked"';
-    }
-    var hpxGridCb = $(
-      '<input type="checkbox" ' + checked + ' id="displayHpxGrid"/>'
-    );
-    layerBox
-      .append(hpxGridCb)
-      .append('<label for="displayHpxGrid">HEALPix grid</label><br/>');
-    hpxGridCb.change(function () {
-      self.showHealpixGrid($(this).is(":checked"));
-    });
+    let hpxInput = document.createElement("input")
+    hpxInput.id = "displayHpxGrid"
+    hpxInput.type = "checkbox"
+    if (this.view.displayHpxGrid) hpxInput.checked = true
+    let hpxLabel = document.createElement("label")
+    hpxLabel.setAttribute("for", "displayHpxGrid")
+    hpxLabel.innerText = "HEALPix grid"
+    layerBox.appendChild(hpxInput)
+    layerBox.appendChild(hpxLabel)
+    hpxInput.addEventListener("change", (e) => self.showHealpixGrid(e.target.checked))
 
-    layerBox.append(
-      '<div class="aladin-box-separator"></div>' +
-        '<div class="aladin-label">Tools</div>'
-    );
-    var exportBtn = $(
-      '<button class="aladin-btn" type="button">Export view as PNG</button>'
-    );
-    layerBox.append(exportBtn);
-    exportBtn.click(function () {
-      self.exportAsPNG();
-    });
+    let layerBoxSeparator2 = document.createElement("div")
+    layerBoxSeparator2.classList.add("aladin-box-separator")
+    let layerBoxLabel2 = document.createElement("div")
+    layerBoxLabel2.classList.add("aladin-label")
+    layerBoxLabel2.innerText = "Tools"
+    layerBox.appendChild(layerBoxSeparator2)
+    layerBox.appendChild(layerBoxLabel2)
+    let exportBtn = document.createElement("button")
+    exportBtn.classList.add("aladin-btn")
+    exportBtn.type = "button"
+    exportBtn.innerText = "Export view as PNG"
+    layerBox.appendChild(exportBtn)
+    exportBtn.addEventListener("click", () => self.exportAsPNG())
 
     /*
-                 '<div class="aladin-box-separator"></div>' +
-                 '<div class="aladin-label">Projection</div>' +
-                 '<select id="projectionChoice"><option>SINUS</option><option>AITOFF</option></select><br/>'
-                 */
+      '<div class="aladin-box-separator"></div>' +
+      '<div class="aladin-label">Projection</div>' +
+      '<select id="projectionChoice"><option>SINUS</option><option>AITOFF</option></select><br/>'
+    */
 
-    layerBox.find(".aladin-closeBtn").click(function () {
-      self.hideBoxes();
-      return false;
-    });
+    let projectionChoice = document.getElementById("projectionChoice")
+    if (projectionChoice) {
+      projectionChoice.addEventListener("change", (e) => aladin.setProjection(e.target.value))
+    }
+
+    layerBoxCloseBtn.addEventListener("click", () => self.hideBoxes())
 
     // update list of surveys
     this.updateSurveysDropdownList(HpxImageSurvey.getAvailableSurveys());
-    var surveySelection = $(this.aladinDiv).find(".aladin-surveySelection");
-    surveySelection.change(function () {
-      var survey = HpxImageSurvey.getAvailableSurveys()[
-        $(this)[0].selectedIndex
-      ];
-      self.setImageSurvey(survey.id, function () {
+    layerBoxSelect.addEventListener("change", (e) => {
+      let survey = HpxImageSurvey.getAvailableSurveys()[e.target.selectedIndex];
+      self.setImageSurvey(survey.id, () => {
         var baseImgLayer = self.getBaseImageLayer();
 
         if (baseImgLayer.useCors) {
           // update color map list with current value color map
-          cmSelect.val(baseImgLayer.getColorMap().mapName);
-          cmDiv.show();
-
-          exportBtn.show();
+          layerBoxCmapSelect.value = baseImgLayer.getColorMap().mapName
+          layerBoxCmapDiv.style.display = "block"
+          exportBtn.style.display = "block"
         } else {
-          cmDiv.hide();
-
-          exportBtn.hide();
+          layerBoxCmapDiv.style.display = "none"
+          exportBtn.style.display = "none"
         }
-      });
-    });
+      })
+    })
 
     //// COLOR MAP management ////////////////////////////////////////////
     // update color map
-    cmDiv.find(".aladin-cmSelection").change(function () {
-      var cmName = $(this).find(":selected").val();
-      self.getBaseImageLayer().getColorMap().update(cmName);
-    });
+    layerBoxCmapSelect.addEventListener("change", (e) => {
+      self.getBaseImageLayer().getColorMap().update(e.target.value);
+    })
 
     // reverse color map
-    cmDiv.find(".aladin-reverseCm").click(function () {
+    layerBoxCmapBtn.addEventListener("click", () => {
       self.getBaseImageLayer().getColorMap().reverse();
-    });
+    })
+
     if (this.getBaseImageLayer().useCors) {
-      cmDiv.show();
-      exportBtn.show();
+      layerBoxCmapDiv.style.display = "block"
+      exportBtn.style.display = "block"
     } else {
-      cmDiv.hide();
-      exportBtn.hide();
+      layerBoxCmapDiv.style.display = "none"
+      exportBtn.style.display = "none"
     }
-    layerBox.find(".aladin-reverseCm").parent().attr("disabled", true);
-    //////////////////////////////////////////////////////////////////////
 
-    // handler to hide/show overlays
-    $(this.aladinDiv)
-      .find(".aladin-layerBox ul input")
-      .change(function () {
-        var layerName = $(this).attr("id").substr(12);
-        var layer = self.layerByName(layerName);
-        if ($(this).is(":checked")) {
-          layer.show();
-        } else {
-          layer.hide();
-        }
-      });
-
-    // finally show
-    layerBox.show();
+    // ? parent or should be the same layerBoxCmapBtn
+    layerBoxCmapInnerDiv.parentElement.disabled = true
+    
+    // Finally display
+    layerBox.style.display = "block"
   };
 
   Aladin.prototype.layerByName = function (name) {
@@ -1716,48 +1834,95 @@ Aladin.prototype.displayFITS = function (
     data.nocache = options.nocache;
   }
   var self = this;
-  $.ajax({
-    url: "https://alasky.unistra.fr/cgi/fits2HiPS",
-    data: data,
-    method: "POST",
-    dataType: "json",
-    success: function (response) {
-      if (response.status !== "success") {
-        console.error("An error occured: " + response.message);
-        if (errorCallback) {
-          errorCallback(response.message);
-        }
-        return;
-      }
-      var label = options.label || "FITS image";
-      var meta = response.data.meta;
-      self.setOverlayImageLayer(
-        self.createImageSurvey(
-          label,
-          label,
-          response.data.url,
-          "equatorial",
-          meta.max_norder,
-          { imgFormat: "png" }
-        )
-      );
-      var transparency = (options && options.transparency) || 1.0;
-      self.getOverlayImageLayer().setAlpha(transparency);
 
-      var executeDefaultSuccessAction = true;
-      if (successCallback) {
-        executeDefaultSuccessAction = successCallback(
-          meta.ra,
-          meta.dec,
-          meta.fov
-        );
-      }
-      if (executeDefaultSuccessAction === true) {
-        self.gotoRaDec(meta.ra, meta.dec);
-        self.setFoV(meta.fov);
-      }
+  // I don't know who trigger this function, so I can't test this is working
+  fetch("https://alasky.unistra.fr/cgi/fits2HiPS", {
+    method: "POST",
+    headers: {
+      'Content-Type': 'application/json'
     },
-  });
+    body: JSON.stringify(data)
+  })
+  .then(res => res.json())
+  .then(data => {
+    // if (response.status !== "success") {
+    //   console.error("An error occured: " + response.message);
+    //   if (errorCallback) {
+    //     errorCallback(response.message);
+    //   }
+    //   return;
+    // }
+    var label = options.label || "FITS image";
+    var meta = data.data.meta;
+    self.setOverlayImageLayer(
+      self.createImageSurvey(
+        label,
+        label,
+        data.data.url,
+        "equatorial",
+        meta.max_norder,
+        { imgFormat: "png" }
+      )
+    );
+    var transparency = (options && options.transparency) || 1.0;
+    self.getOverlayImageLayer().setAlpha(transparency);
+
+    var executeDefaultSuccessAction = true;
+    if (successCallback) {
+      executeDefaultSuccessAction = successCallback(
+        meta.ra,
+        meta.dec,
+        meta.fov
+      );
+    }
+    if (executeDefaultSuccessAction === true) {
+      self.gotoRaDec(meta.ra, meta.dec);
+      self.setFoV(meta.fov);
+    }
+  })
+  .catch(err => console.log(err))
+  // $.ajax({
+  //   url: "https://alasky.unistra.fr/cgi/fits2HiPS",
+  //   data: data,
+  //   method: "POST",
+  //   dataType: "json",
+  //   success: function (response) {
+  //     if (response.status !== "success") {
+  //       console.error("An error occured: " + response.message);
+  //       if (errorCallback) {
+  //         errorCallback(response.message);
+  //       }
+  //       return;
+  //     }
+  //     var label = options.label || "FITS image";
+  //     var meta = response.data.meta;
+  //     self.setOverlayImageLayer(
+  //       self.createImageSurvey(
+  //         label,
+  //         label,
+  //         response.data.url,
+  //         "equatorial",
+  //         meta.max_norder,
+  //         { imgFormat: "png" }
+  //       )
+  //     );
+  //     var transparency = (options && options.transparency) || 1.0;
+  //     self.getOverlayImageLayer().setAlpha(transparency);
+
+  //     var executeDefaultSuccessAction = true;
+  //     if (successCallback) {
+  //       executeDefaultSuccessAction = successCallback(
+  //         meta.ra,
+  //         meta.dec,
+  //         meta.fov
+  //       );
+  //     }
+  //     if (executeDefaultSuccessAction === true) {
+  //       self.gotoRaDec(meta.ra, meta.dec);
+  //       self.setFoV(meta.fov);
+  //     }
+  //   },
+  // });
 };
 
 // @API

@@ -33,7 +33,7 @@ import Color from './Color';
 import Source from './Source';
 import Catalog from './Catalog';
 import Coo from './coo';
-import $ from 'jquery';
+// import $ from 'jquery';
 
 // TODO: index sources according to their HEALPix ipix
 // TODO : merge parsing with class Catalog
@@ -85,29 +85,53 @@ const ProgressiveCat = (function() {
         }
 
         var propertiesURL = rootUrl + '/properties';
-        $.ajax({
-            url: propertiesURL,
-            method: 'GET',
-            dataType: 'text',
-            success: function(propertiesTxt) {
-                var props = {};
-                var lines = propertiesTxt.split('\n');
-                for (var k=0; k<lines.length; k++) {
-                    var line = lines[k];
-                    var idx = line.indexOf('=');
-                    var propName  = $.trim(line.substring(0, idx));
-                    var propValue = $.trim(line.substring(idx + 1));
+        // $.ajax({
+        //     url: propertiesURL,
+        //     method: 'GET',
+        //     dataType: 'text',
+        //     success: function(propertiesTxt) {
+        //         var props = {};
+        //         var lines = propertiesTxt.split('\n');
+        //         for (var k=0; k<lines.length; k++) {
+        //             var line = lines[k];
+        //             var idx = line.indexOf('=');
+        //             var propName  = $.trim(line.substring(0, idx));
+        //             var propValue = $.trim(line.substring(idx + 1));
 
-                    props[propName] = propValue;
-                }
+        //             props[propName] = propValue;
+        //         }
 
-                successCallback(props);
+        //         successCallback(props);
 
-            },
-            error: function(err) { // TODO : which parameters should we put in the error callback
-                errorCallback && errorCallback(err);
+        //     },
+        //     error: function(err) { // TODO : which parameters should we put in the error callback
+        //         errorCallback && errorCallback(err);
+        //     }
+        // });
+
+        fetch(propertiesURL)
+        .then(res => {
+            let type = res.headers.get('content-type')
+            if (type.includes("application/json"))
+                return res.json()
+            else if (type.includes("text/html"))
+                return res.text()
+        })
+        .then(data => {
+            var props = {};
+            var lines = data.split('\n');
+            for (var k=0; k<lines.length; k++) {
+                var line = lines[k];
+                var idx = line.indexOf('=');
+                var propName  = line.substring(0, idx).trim();
+                var propValue = line.substring(idx + 1).trim();
+
+                props[propName] = propValue;
             }
-        });
+
+            successCallback(props);
+        })
+        .catch(err => errorCallback && errorCallback(err))
 
     };
 
@@ -115,41 +139,69 @@ const ProgressiveCat = (function() {
         var attributes = ["name", "ID", "ucd", "utype", "unit", "datatype", "arraysize", "width", "precision"];
 
         var fields = [];
-        var k = 0;
         instance.keyRa = instance.keyDec = null;
-        $(xml).find("FIELD").each(function() {
+        // var k = 0;
+        // $(xml).find("FIELD").each(function() {
+        //     var f = {};
+        //     for (var i=0; i<attributes.length; i++) {
+        //         var attribute = attributes[i];
+        //         if ($(this).attr(attribute)) {
+        //             f[attribute] = $(this).attr(attribute);
+        //         }
+
+        //     }
+        //     if ( ! f.ID) {
+        //         f.ID = "col_" + k;
+        //     }
+
+        //     if (!instance.keyRa && f.ucd && (f.ucd.indexOf('pos.eq.ra')===0 || f.ucd.indexOf('POS_EQ_RA')===0)) {
+        //         if (f.name) {
+        //             instance.keyRa = f.name;
+        //         }
+        //         else {
+        //             instance.keyRa = f.ID;
+        //         }
+        //     }
+        //     if (!instance.keyDec && f.ucd && (f.ucd.indexOf('pos.eq.dec')===0 || f.ucd.indexOf('POS_EQ_DEC')===0)) {
+        //         if (f.name) {
+        //             instance.keyDec = f.name;
+        //         }
+        //         else {
+        //             instance.keyDec = f.ID;
+        //         }
+        //     }
+
+        //     fields.push(f);
+        //     k++;
+        // });
+
+        let parser = new DOMParser()
+        let xmlDoc = parser.parseFromString(xml,"text/xml")
+        let xmlFields = xmlDoc.getElementsByTagName("FIELD")
+        for (let j=0; j<xmlFields.length; j++) {
             var f = {};
-            for (var i=0; i<attributes.length; i++) {
-                var attribute = attributes[i];
-                if ($(this).attr(attribute)) {
-                    f[attribute] = $(this).attr(attribute);
+            for (let i=0; i<attributes.length; i++) {
+                let attribute = attributes[i];
+                if (xmlFields[j].hasAttribute(attribute)) {
+                    f[attribute] = xmlFields[j].getAttribute(attribute);
                 }
 
             }
             if ( ! f.ID) {
-                f.ID = "col_" + k;
+                f.ID = "col_" + j;
             }
 
             if (!instance.keyRa && f.ucd && (f.ucd.indexOf('pos.eq.ra')===0 || f.ucd.indexOf('POS_EQ_RA')===0)) {
-                if (f.name) {
-                    instance.keyRa = f.name;
-                }
-                else {
-                    instance.keyRa = f.ID;
-                }
+                if (f.name) instance.keyRa = f.name;
+                else        instance.keyRa = f.ID;
             }
             if (!instance.keyDec && f.ucd && (f.ucd.indexOf('pos.eq.dec')===0 || f.ucd.indexOf('POS_EQ_DEC')===0)) {
-                if (f.name) {
-                    instance.keyDec = f.name;
-                }
-                else {
-                    instance.keyDec = f.ID;
-                }
+                if (f.name) instance.keyDec = f.name;
+                else        instance.keyDec = f.ID;
             }
 
             fields.push(f);
-            k++;
-        });
+        }
 
         return fields;
     }
@@ -232,52 +284,81 @@ const ProgressiveCat = (function() {
 
         _loadMetadata: function() {
             var self = this;
-            $.ajax({
-                url: self.rootUrl + '/Metadata.xml',
-                method: 'GET',
-                success: function(xml) {
-                    self.fields = getFields(self, xml);
-                    self._loadAllskyNewMethod();
-                },
-                error: function() {
-                    self._loadAllskyOldMethod();
-                }
-            });
+            // $.ajax({
+            //     url: self.rootUrl + '/Metadata.xml',
+            //     method: 'GET',
+            //     success: function(xml) {
+            //         self.fields = getFields(self, xml);
+            //         self._loadAllskyNewMethod();
+            //     },
+            //     error: function() {
+            //         self._loadAllskyOldMethod();
+            //     }
+            // });
+            fetch(`${self.rootUrl}/Metadata.xml`)
+            .then(res => res.text())
+            .then(data => {
+                self.fields = getFields(self, data)
+                self._loadAllskyNewMethod()
+            })
+            .catch(() => {
+                self._loadAllskyOldMethod()
+            })
         },
 
         _loadAllskyNewMethod: function() {
             var self = this;
-            $.ajax({
-                url: self.rootUrl + '/Norder1/Allsky.tsv',
-                method: 'GET',
-                success: function(tsv) {
-                    self.order1Sources = getSources(self, tsv, self.fields);
+            // $.ajax({
+            //     url: self.rootUrl + '/Norder1/Allsky.tsv',
+            //     method: 'GET',
+            //     success: function(tsv) {
+            //         self.order1Sources = getSources(self, tsv, self.fields);
 
-                    if (self.order2Sources) {
-                        self.isReady = true;
-                        self._finishInitWhenReady();
-                    }
-                },
-                error: function(err) {
-                    console.log('Something went wrong: ' + err);
+            //         if (self.order2Sources) {
+            //             self.isReady = true;
+            //             self._finishInitWhenReady();
+            //         }
+            //     },
+            //     error: function(err) {
+            //         console.log('Something went wrong: ' + err);
+            //     }
+            // });
+            fetch(`${self.rootUrl}/Norder1/Allsky.tsv`)
+            .then(res => res.text())
+            .then(data => {
+                self.order1Sources = getSources(self, data, self.fields);
+                if (self.order2Sources) {
+                    self.isReady = true
+                    self._finishInitWhenReady()
                 }
-            });
+            })
+            .catch(err => console.log(`Something went wrong: ${err}`))
 
-            $.ajax({
-                url: self.rootUrl + '/Norder2/Allsky.tsv',
-                method: 'GET',
-                success: function(tsv) {
-                    self.order2Sources = getSources(self, tsv, self.fields);
+            // $.ajax({
+            //     url: self.rootUrl + '/Norder2/Allsky.tsv',
+            //     method: 'GET',
+            //     success: function(tsv) {
+            //         self.order2Sources = getSources(self, tsv, self.fields);
 
-                    if (self.order1Sources) {
-                        self.isReady = true;
-                        self._finishInitWhenReady();
-                    }
-                },
-                error: function(err) {
-                    console.log('Something went wrong: ' + err);
+            //         if (self.order1Sources) {
+            //             self.isReady = true;
+            //             self._finishInitWhenReady();
+            //         }
+            //     },
+            //     error: function(err) {
+            //         console.log('Something went wrong: ' + err);
+            //     }
+            // });
+            fetch(`${self.rootUrl}/Norder2/Allsky.tsv`)
+            .then(res => res.text())
+            .then(data => {
+                self.order2Sources = getSources(self, data, self.fields)
+                if (self.order1Sources) {
+                    self.isReady = true
+                    self._finishInitWhenReady()
                 }
-            });
+            })
+            .catch(err => console.log(`Something went wrong: ${err}`))
 
         },
 
@@ -289,39 +370,64 @@ const ProgressiveCat = (function() {
 
         _loadLevel2Sources: function() {
             var self = this;
-            $.ajax({
-                url: self.rootUrl + '/Norder2/Allsky.xml',
-                method: 'GET',
-                success: function(xml) {
-                    self.fields = getFields(self, xml);
-                    self.order2Sources = getSources(self, $(xml).find('CSV').text(), self.fields);
-                    if (self.order3Sources) {
-                        self.isReady = true;
-                        self._finishInitWhenReady();
-                    }
-                },
-                error: function(err) {
-                    console.log('Something went wrong: ' + err);
+            // $.ajax({
+            //     url: self.rootUrl + '/Norder2/Allsky.xml',
+            //     method: 'GET',
+            //     success: function(xml) {
+            //         self.fields = getFields(self, xml);
+            //         self.order2Sources = getSources(self, $(xml).find('CSV').text(), self.fields);
+            //         if (self.order3Sources) {
+            //             self.isReady = true;
+            //             self._finishInitWhenReady();
+            //         }
+            //     },
+            //     error: function(err) {
+            //         console.log('Something went wrong: ' + err);
+            //     }
+            // });
+            fetch(`${self.rootUrl}/Norder2/Allsky.xml`)
+            .then(res => res.text())
+            .then(data => {
+                self.fields = getFields(self, data);
+                let parser = new DOMParser()
+                let xmlDoc = parser.parseFromString(data,"text/xml")
+                self.order2Sources = getSources(self, xmlDoc.getElementsByTagName("CSV")[0].innerHTML, self.fields)
+                if (self.order3Sources) {
+                    self.isReady = true
+                    self._finishInitWhenReady()
                 }
-            });
+            })
+            .catch(err => console.log(`Something went wrong: ${err}`))
         },
 
         _loadLevel3Sources: function() {
             var self = this;
-            $.ajax({
-                url: self.rootUrl + '/Norder3/Allsky.xml',
-                method: 'GET',
-                success: function(xml) {
-                    self.order3Sources = getSources(self, $(xml).find('CSV').text(), self.fields);
-                    if (self.order2Sources) {
-                        self.isReady = true;
-                        self._finishInitWhenReady();
-                    }
-                },
-                error: function(err) {
-                    console.log('Something went wrong: ' + err);
+            // $.ajax({
+            //     url: self.rootUrl + '/Norder3/Allsky.xml',
+            //     method: 'GET',
+            //     success: function(xml) {
+            //         self.order3Sources = getSources(self, $(xml).find('CSV').text(), self.fields);
+            //         if (self.order2Sources) {
+            //             self.isReady = true;
+            //             self._finishInitWhenReady();
+            //         }
+            //     },
+            //     error: function(err) {
+            //         console.log('Something went wrong: ' + err);
+            //     }
+            // });
+            fetch(`${self.rootUrl}/Norder3/Allsky.xml`)
+            .then(res => res.text())
+            .then(data => {
+                let parser = new DOMParser()
+                let xmlDoc = parser.parseFromString(data,"text/xml")
+                self.order3Sources = getSources(self, xmlDoc.getElementsByTagName("CSV")[0].innerHTML, self.fields)
+                if (self.order2Sources) {
+                    self.isReady = true
+                    self._finishInitWhenReady()
                 }
-            });
+            })
+            .catch(err => console.log(`Something went wrong: ${err}`))
         },
 
         _finishInitWhenReady: function() {
@@ -487,24 +593,33 @@ const ProgressiveCat = (function() {
                 if (!this.sourcesCache.get(key)) {
                     (function(self, norder, ipix) { // wrapping function is needed to be able to retrieve norder and ipix in ajax success function
                         var key = norder + '-' + ipix;
-                        $.ajax({
-                            /*
-                            url: Aladin.JSONP_PROXY,
-                            data: {"url": self.getTileURL(norder, ipix)},
-                            */
-                            // ATTENTIOn : je passe en JSON direct, car je n'arrive pas a choper les 404 en JSONP
-                            url: self.getTileURL(norder, ipix),
-                            method: 'GET',
-                            //dataType: 'jsonp',
-                            success: function(tsv) {
-                                self.sourcesCache.set(key, getSources(self, tsv, self.fields));
-                                self.view.requestRedraw();
-                            },
-                            error: function() {
-                                // on suppose qu'il s'agit d'une erreur 404
-                                self.sourcesCache.set(key, []);
-                            }
-                        });
+                        // $.ajax({
+                        //     /*
+                        //     url: Aladin.JSONP_PROXY,
+                        //     data: {"url": self.getTileURL(norder, ipix)},
+                        //     */
+                        //     // ATTENTIOn : je passe en JSON direct, car je n'arrive pas a choper les 404 en JSONP
+                        //     url: self.getTileURL(norder, ipix),
+                        //     method: 'GET',
+                        //     //dataType: 'jsonp',
+                        //     success: function(tsv) {
+                        //         self.sourcesCache.set(key, getSources(self, tsv, self.fields));
+                        //         self.view.requestRedraw();
+                        //     },
+                        //     error: function() {
+                        //         // on suppose qu'il s'agit d'une erreur 404
+                        //         self.sourcesCache.set(key, []);
+                        //     }
+                        // });
+                        fetch(`${self.getTileURL(norder, ipix)}`)
+                        .then(res => res.text())
+                        .then(data => {
+                            self.sourcesCache.set(key, getSources(self, data, self.fields))
+                            self.view.requestRedraw()
+                        })
+                        .catch(() => {
+                            self.sourcesCache.set(key, [])
+                        })
                     })(this, t[0], t[1]);
                 }
             }
