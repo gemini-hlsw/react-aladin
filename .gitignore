@@ -15,3 +15,4 @@ travis/secrets.tar
 demo/project/
 .vscode/
 static/
+.direnv/
