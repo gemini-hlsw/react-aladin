@@ -184,10 +184,16 @@ const Aladin = (function () {
       zoomDiv.appendChild(zoomMinus);
       aladinDiv.appendChild(zoomDiv);
 
-      zoomPlus.addEventListener("click", () => aladin.increaseZoom())
+      zoomPlus.addEventListener("click", (e) => {
+        e.preventDefault()
+        aladin.increaseZoom()
+      })
       zoomPlus.addEventListener("mousedown", (e) => e.preventDefault())
 
-      zoomMinus.addEventListener("click", () => aladin.decreaseZoom())
+      zoomMinus.addEventListener("click", (e) => {
+        e.preventDefault()
+        aladin.decreaseZoom()
+      })
       zoomMinus.addEventListener("mousedown", (e) => e.preventDefault())
     }
 
