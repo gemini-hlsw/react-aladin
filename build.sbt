@@ -3,10 +3,10 @@ import org.scalajs.linker.interface.ModuleSplitStyle
 lazy val reactJS                = "17.0.2"
 lazy val scalaJsReact           = "2.0.1"
 lazy val lucumaCoreVersion      = "0.31.0"
-lazy val lucumaUIVersion        = "0.33.0"
+lazy val lucumaUIVersion        = "0.34.0"
 lazy val aladinLiteVersion      = "0.6.2"
-lazy val reactCommonVersion     = "0.16.0"
-lazy val reactGridLayoutVersion = "0.15.0"
+lazy val reactCommonVersion     = "0.17.0"
+lazy val reactGridLayoutVersion = "0.16.0"
 lazy val munitVersion           = "0.7.29"
 lazy val svgdotjsVersion        = "0.2.1"
 
@@ -94,6 +94,7 @@ lazy val facade =
       ),
       // Requires the DOM for tests
       Test / requireJsDomEnv          := true,
+      installJsdom / version          := "19.0.0",
       // Use yarn as it is faster than npm
       useYarn                         := true,
       webpack / version               := "4.20.2",
