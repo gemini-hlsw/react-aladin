@@ -13,8 +13,8 @@
     "react-resize-detector": "7.0.0"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^1.2.0",
     "@babel/eslint-parser": "^7.5.4",
+    "@vitejs/plugin-react": "^1.2.0",
     "eslint": "8.10.0",
     "eslint-plugin-import": "2.25.4",
     "less": "4.1.2",

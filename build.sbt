@@ -94,6 +94,7 @@ lazy val facade =
       ),
       // Requires the DOM for tests
       Test / requireJsDomEnv          := true,
+      installJsdom / version          := "19.0.0",
       // Use yarn as it is faster than npm
       useYarn                         := true,
       webpack / version               := "4.20.2",
