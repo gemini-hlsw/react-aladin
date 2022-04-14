@@ -160,7 +160,9 @@ package object visualization {
       val ry = ty - dy / 2
       // Flip the svg, note we should flip around ry but that creates troubles with the viewbox
       // Instead we adjust the top attribute
-      svg.scale(1, -1)
+      // Only flip once or we may do more than one flip
+      if (scala.scalajs.js.isUndefined(svg.attr("transform")))
+        svg.scale(1, -1)
       svgBase.setSize(svgSize)
       // To workaround Safari we set the position of the surrounding div rather than the svg
       parent.setAttribute(
