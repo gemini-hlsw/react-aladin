@@ -17,6 +17,7 @@ import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.GeometryCollection
 import org.locationtech.jts.geom.Polygon
+import react.common.style._
 
 import scala.scalajs.js.JSConverters._
 
@@ -164,6 +165,36 @@ package svg {
             val c = g.toSvg(containerGroup, pp, scalingFn)
             // Set an id per geometry
             c.id(id)
+          }
+          val envelope  = composite.getBoundary.getEnvelopeInternal
+          base.viewbox(scalingFn(envelope.getMinX),
+                       scalingFn(envelope.getMinY),
+                       scalingFn(envelope.getWidth),
+                       scalingFn(envelope.getHeight)
+          )
+          // Note the svg is reversed on y but we'll let clients do the flip
+          base
+        }
+      }
+
+    implicit val renderJtsShapeMapOfCss: RenderSvg[NonEmptyMap[Css, JtsShape]] =
+      new RenderSvg[NonEmptyMap[Css, JtsShape]] {
+        def toSvg(
+          base:      Container,
+          pp:        SvgPostProcessor,
+          scalingFn: ScalingFn,
+          a:         NonEmptyMap[Css, JtsShape]
+        ): Container = {
+          // Safari doesn't support transformations on the svg directly, but it can transfor a group below it
+          val containerGroup = base.group()
+
+          containerGroup.addClass("jts-root-group")
+          // We should calculate the viewbox of the whole geometry
+          val composite = a.toNonEmptyList.map(_.g).reduce(geometryUnionSemigroup)
+          a.toNel.map { case (clazz, g) =>
+            val c = g.toSvg(containerGroup, pp, scalingFn)
+            // Set an id per geometry
+            c.addClass(clazz.htmlClass)
           }
           val envelope  = composite.getBoundary.getEnvelopeInternal
           base.viewbox(scalingFn(envelope.getMinX),

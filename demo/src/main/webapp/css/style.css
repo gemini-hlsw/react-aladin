@@ -83,8 +83,8 @@ body {
   height: 100%;
   width: 100%;
 }
-.react-aladin {
-  height: 95%;
+.react-aladin, .react-aladin-container{
+  height: 100%;
   width: 100%;
 }
 .instrument-geom {
@@ -116,28 +116,25 @@ svg {
   fill-opacity: 0.3;
   vector-effect: non-scaling-stroke;
 }
-#sss {
-  position: absolute;
-}
-#probe {
+.gmos-probe {
   stroke: red;
   z-index: 1;
   fill-opacity: 0.1;
 }
-#patrol-field {
+.gmos-patrol-field {
   stroke: red;
   stroke-dasharray: 10;
 }
-#science-area polygon {
+.gmos-science-area polygon {
   stroke: purple;
   fill: black;
   fill-opacity: 1;
 }
-#science-ccd-offset polygon {
+.gmos-science-ccd-offset polygon {
   stroke: yellow;
   fill-opacity: 0.1;
 }
-#science-ccd polygon {
+.gmos-science-ccd polygon {
   stroke: cyan;
   fill-opacity: 0.1;
 }

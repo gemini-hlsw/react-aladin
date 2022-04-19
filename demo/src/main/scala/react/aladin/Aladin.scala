@@ -244,6 +244,12 @@ object Aladin {
         case _              => Callback.empty
       }
 
+    def isReady: CallbackTo[Boolean] =
+      bs.state.flatMap {
+        case State(Some(_)) => CallbackTo.pure(true)
+        case _              => CallbackTo.pure(false)
+      }
+
     def render(props: Props): VdomElement = <.div(props.mountNodeClass)
 
     def gotoRaDec(ra: Double, dec: Double): Callback = runOnAladin(_.gotoRaDec(ra, dec))

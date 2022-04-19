@@ -4,13 +4,13 @@
 package demo
 
 import cats.syntax.all._
+import crystal.react.hooks._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.core.math._
 import react.aladin._
 import react.common._
 import react.gridlayout._
-import react.resizeDetector._
 import react.resizeDetector.hooks._
 
 import scala.annotation.nowarn
@@ -72,23 +72,23 @@ object AladinTile {
       // (BreakpointName.xs, (480, 6, layout))
     )
 
+  implicit val fovReuse = react.aladin.reusability.fovReuse(Reusability.double(0.0001))
+
   val component =
     ScalaFnComponent
       .withHooks[Props]
       .useResizeDetector()
-      .renderWithReuse { (props, s) =>
+      .useStateViewWithReuse(Fov(Angle.fromDMS(0, 15, 0, 0, 0), Angle.fromDMS(0, 15, 0, 0, 0)))
+      .renderWithReuse { (props, s, fov) =>
         <.div(
           ^.height := "100%",
           ^.width  := "100%",
           ResponsiveReactGridLayout(
             width = s.width.foldMap(_.toDouble),
-            margin = (5, 5),
-            containerPadding = (5, 5),
+            containerPadding = (1, 1),
             rowHeight = 30,
             draggableHandle = ".tileTitle",
             useCSSTransforms = false, // Not ideal, but fixes flicker on first update (0.18.3).
-            // onLayoutChange =
-            //   (_, _) => ref.get.flatMapCB(_.backend.recalculateView) *> recalculateView,
             layouts = layouts
           )(
             <.div(
@@ -96,11 +96,7 @@ object AladinTile {
               ^.width  := "100%",
               ^.key    := "target",
               ^.cls    := "tile",
-              ResizeDetector() { s =>
-                AladinContainer(Size(s.height.foldMap(_.toDouble), s.width.foldMap(_.toDouble)),
-                                props.c
-                )
-              }
+              AladinContainer(fov, props.c)
             )
           )
         )
