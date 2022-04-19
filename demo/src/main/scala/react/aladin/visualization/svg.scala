@@ -38,7 +38,7 @@ package object svg   {
   implicit class CoordinatesArrayOps(val c: Array[Coordinate]) extends AnyVal {
     def toArrayXY(fn: ScalingFn): SVGArray[ArrayXY] =
       new SVGArray(c.map(c => (fn(c.x), fn(c.y)): ArrayXY).toJSArray)
-    def toArrayXY: SVGArray[ArrayXY] =
+    def toArrayXY: SVGArray[ArrayXY]                =
       new SVGArray(c.map(c => (c.x, c.y): ArrayXY).toJSArray)
   }
 
@@ -49,8 +49,8 @@ package object svg   {
 package svg {
 
   /**
-    * Typeclass to render an A to svg
-    */
+   * Typeclass to render an A to svg
+   */
   trait RenderSvg[A] {
     def toSvg(base: Container, pp: SvgPostProcessor, scalingFn: ScalingFn, a: A): Container
   }
@@ -160,11 +160,10 @@ package svg {
           containerGroup.addClass("jts-root-group")
           // We should calculate the viewbox of the whole geometry
           val composite = a.toNonEmptyList.map(_.g).reduce(geometryUnionSemigroup)
-          a.toNel.map {
-            case (id, g) =>
-              val c = g.toSvg(containerGroup, pp, scalingFn)
-              // Set an id per geometry
-              c.id(id)
+          a.toNel.map { case (id, g) =>
+            val c = g.toSvg(containerGroup, pp, scalingFn)
+            // Set an id per geometry
+            c.id(id)
           }
           val envelope  = composite.getBoundary.getEnvelopeInternal
           base.viewbox(scalingFn(envelope.getMinX),

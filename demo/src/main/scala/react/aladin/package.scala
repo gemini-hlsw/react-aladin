@@ -3,13 +3,13 @@
 
 package react
 
-import scala.scalajs.js
-
 import japgolly.scalajs.react.Callback
 import lucuma.core.math.Angle
 import lucuma.core.math.Declination
 import lucuma.core.math.RightAscension
 import react.common._
+
+import scala.scalajs.js
 
 package aladin {
 

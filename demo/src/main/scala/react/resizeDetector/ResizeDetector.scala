@@ -4,8 +4,8 @@
 package react.resizeDetector
 
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.vdom.html_<^._
 import japgolly.scalajs.react.facade
+import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom.html
 import react.common._
 
