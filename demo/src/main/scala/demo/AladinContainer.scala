@@ -4,22 +4,21 @@
 package demo
 
 import cats.implicits._
-import crystal.react.reuse._
+import crystal.react.ReuseView
 import crystal.react.hooks._
+import crystal.react.reuse._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.core.geom.jts.interpreter._
 import lucuma.core.math._
-import lucuma.ui.reusability._
 import lucuma.svgdotjs.Svg
+import lucuma.ui.reusability._
 import monocle.macros.GenLens
 import org.scalajs.dom.Element
 import org.scalajs.dom.document
 import react.aladin._
-import react.resizeDetector.hooks._
 import react.common._
-
-import crystal.react.ReuseView
+import react.resizeDetector.hooks._
 
 final case class AladinContainer(
   fov:         ReuseView[Fov],
