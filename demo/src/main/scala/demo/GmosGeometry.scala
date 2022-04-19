@@ -3,6 +3,7 @@
 
 package demo
 
+import cats.Order
 import cats.data.NonEmptyMap
 import cats.implicits._
 import lucuma.core.enum.GmosNorthFpu
@@ -17,6 +18,7 @@ import lucuma.core.math.Offset
 import lucuma.core.math.syntax.int._
 import lucuma.svgdotjs._
 import react.aladin.visualization.svg._
+import react.common.style._
 
 object GmosGeometry {
 
@@ -35,13 +37,17 @@ object GmosGeometry {
   val port: PortDisposition =
     PortDisposition.Side
 
+  implicit val orderCss: Order[Css] = Order.by(_.htmlClass)
+
   // Shape to display
-  val shapes: NonEmptyMap[String, ShapeExpression] =
+  val shapes: NonEmptyMap[Css, ShapeExpression] =
     NonEmptyMap.of(
-      ("probe", GmosOiwfsProbeArm.shapeAt(posAngle, guideStarOffset, offsetPos, fpu, port)),
-      ("patrol-field", GmosOiwfsProbeArm.patrolFieldAt(posAngle, offsetPos, fpu, port)),
-      ("science-ccd", GmosScienceAreaGeometry.imaging ⟲ posAngle),
-      ("science-ccd-offset", GmosScienceAreaGeometry.imaging ↗ offsetPos ⟲ posAngle)
+      (Css("gmos-probe"),
+       GmosOiwfsProbeArm.shapeAt(posAngle, guideStarOffset, offsetPos, fpu, port)
+      ),
+      (Css("gmos-patrol-field"), GmosOiwfsProbeArm.patrolFieldAt(posAngle, offsetPos, fpu, port)),
+      (Css("gmos-science-ccd"), GmosScienceAreaGeometry.imaging ⟲ posAngle),
+      (Css("gmos-science-ccd-offset"), GmosScienceAreaGeometry.imaging ↗ offsetPos ⟲ posAngle)
     )
 
   // Scale

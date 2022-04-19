@@ -35,25 +35,23 @@ package object visualization {
   }
 
   def shapesToSvg(
-    shapes:      NonEmptyMap[String, ShapeExpression],
+    shapes:      NonEmptyMap[Css, ShapeExpression],
     pp:          SvgPostProcessor,
     scaleFactor: Int
   )(implicit si: ShapeInterpreter): Svg = {
     val scalingFn: ScalingFn = (v: Double) => rint(v / scaleFactor)
 
-    val svg: Svg    = new Svg()
+    val svg: Svg                                = new Svg()
     // Render the svg
-    val evaldShapes = shapes
-      .map(_.eval)
-      .toSortedMap
+    val evaldShapes: NonEmptyMap[Css, JtsShape] = shapes
+      .fmap(_.eval)
       .map {
-        case (id, jts: JtsShape) => (id, jts)
-        case x                   => sys.error(s"Whoa unexpected shape type: $x")
+        case jts: JtsShape => jts
+        case x             => sys.error(s"Whoa unexpected shape type: $x")
       }
 
     // Unsafe call but we know the map is non empty
-    NonEmptyMap
-      .fromMapUnsafe(evaldShapes)
+    evaldShapes
       .toSvg(svg, pp, scalingFn = scalingFn)
     svg
   }
@@ -180,7 +178,7 @@ package object visualization {
    * properly work on Safari
    */
   def geometryForAladin(
-    shapes:      NonEmptyMap[String, ShapeExpression],
+    shapes:      NonEmptyMap[Css, ShapeExpression],
     s:           Size,
     pixelScale:  PixelScale,
     scaleFactor: Int
