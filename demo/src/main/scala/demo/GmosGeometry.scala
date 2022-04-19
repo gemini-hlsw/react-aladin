@@ -12,7 +12,7 @@ import lucuma.core.enum.PortDisposition
 import lucuma.core.geom.GmosOiwfsProbeArm
 import lucuma.core.geom.GmosScienceAreaGeometry
 import lucuma.core.geom.ShapeExpression
-import lucuma.core.geom.svg._
+import react.aladin.visualization.svg._
 import lucuma.core.geom.syntax.shapeexpression._
 import lucuma.core.math.Angle
 import lucuma.core.math.Offset

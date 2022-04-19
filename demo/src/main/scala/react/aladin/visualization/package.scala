@@ -16,10 +16,10 @@ import lucuma.svgdotjs.Container
 import lucuma.core.geom.ShapeExpression
 import lucuma.core.geom.ShapeInterpreter
 import lucuma.core.geom.jts.JtsShape
-import lucuma.core.geom.svg._
-import lucuma.core.geom.svg.implicits._
 import lucuma.core.math.Angle
 import org.scalajs.dom.Element
+import react.aladin.visualization.svg._
+import react.aladin.visualization.svg.implicits._
 import react.common._
 
 package object visualization {

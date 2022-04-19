@@ -1,4 +1,5 @@
 import react from "@vitejs/plugin-react";
+import mkcert from "vite-plugin-mkcert";
 import path from "path";
 import fs from "fs";
 
@@ -75,6 +76,9 @@ export default ({ command, mode }) => {
       },
       outDir: path.resolve(__dirname, "static"),
     },
-    plugins: [react()],
+    plugins: [
+      mkcert({ hosts: ['localhost', 'local.lucuma.xyz'] }),
+      react()
+    ],
   };
 };
