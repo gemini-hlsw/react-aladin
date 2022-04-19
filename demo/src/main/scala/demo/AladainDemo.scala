@@ -3,9 +3,9 @@
 
 package demo
 
-import scala.scalajs.js
-
 import org.scalajs.dom
+
+import scala.scalajs.js
 
 import js.annotation._
 

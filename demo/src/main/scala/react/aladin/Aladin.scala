@@ -3,17 +3,17 @@
 
 package react.aladin
 
-import scala.scalajs.js
-import scala.scalajs.js.JSConverters._
-import scala.scalajs.js.annotation._
-
 import cats.implicits._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.core.math._
 import org.scalajs.dom.Element
 import react.common._
+
 import scala.annotation.nowarn
+import scala.scalajs.js
+import scala.scalajs.js.JSConverters._
+import scala.scalajs.js.annotation._
 
 // This will be the props object used from JS-land
 @js.native

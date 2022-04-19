@@ -3,10 +3,9 @@
 
 package react.aladin
 
+import scala.annotation.nowarn
 import scala.scalajs.js
 import scala.scalajs.js.annotation._
-
-import scala.annotation.nowarn
 
 @js.native
 @JSImport("/js/Color", JSImport.Namespace)

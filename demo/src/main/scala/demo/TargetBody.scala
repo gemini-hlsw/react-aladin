@@ -3,10 +3,8 @@
 
 package demo
 
-import scala.scalajs.js
-
-import japgolly.scalajs.react._
 import cats.syntax.all._
+import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.core.math._
 import react.aladin._
@@ -14,7 +12,9 @@ import react.common._
 import react.gridlayout._
 import react.resizeDetector._
 import react.resizeDetector.hooks._
+
 import scala.annotation.nowarn
+import scala.scalajs.js
 
 final case class TargetBody(
 ) extends ReactFnProps[TargetBody](TargetBody.component) {}

@@ -3,24 +3,24 @@
 
 package react.aladin
 
-import scala.math._
-
 import cats.data.NonEmptyMap
 import cats.implicits._
-import lucuma.svgdotjs.Svg
-import lucuma.svgdotjs.Polygon
-import lucuma.svgdotjs.Rect
-import lucuma.svgdotjs.Matrix
-import lucuma.svgdotjs.Group
-import lucuma.svgdotjs.Container
 import lucuma.core.geom.ShapeExpression
 import lucuma.core.geom.ShapeInterpreter
 import lucuma.core.geom.jts.JtsShape
-import lucuma.core.geom.svg._
-import lucuma.core.geom.svg.implicits._
 import lucuma.core.math.Angle
+import lucuma.svgdotjs.Container
+import lucuma.svgdotjs.Group
+import lucuma.svgdotjs.Matrix
+import lucuma.svgdotjs.Polygon
+import lucuma.svgdotjs.Rect
+import lucuma.svgdotjs.Svg
 import org.scalajs.dom.Element
+import react.aladin.visualization.svg._
+import react.aladin.visualization.svg.implicits._
 import react.common._
+
+import scala.math._
 
 package object visualization {
   implicit class SvgOps(val svg: Svg) extends AnyVal {

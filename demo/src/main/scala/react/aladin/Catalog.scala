@@ -3,13 +3,13 @@
 
 package react.aladin
 
+import org.scalajs.dom.CanvasRenderingContext2D
+import org.scalajs.dom.html.Image
+
+import scala.annotation.nowarn
 import scala.scalajs.js
 import scala.scalajs.js.annotation._
 import scala.scalajs.js.|
-
-import org.scalajs.dom.CanvasRenderingContext2D
-import org.scalajs.dom.html.Image
-import scala.annotation.nowarn
 
 // This will be the props object used from JS-land
 @js.native

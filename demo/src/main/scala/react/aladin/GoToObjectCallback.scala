@@ -3,9 +3,9 @@
 
 package react.aladin
 
-import scala.scalajs.js
-
 import japgolly.scalajs.react.Callback
+
+import scala.scalajs.js
 
 class GoToObjectCallback(succ: (Double, Double) => Callback, e: Callback) extends js.Object {
   val success: js.Function1[js.Array[Double], Unit] = (raDec: js.Array[Double]) =>

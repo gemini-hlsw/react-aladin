@@ -4,18 +4,19 @@
 package demo
 
 import cats.implicits._
-import lucuma.svgdotjs.Svg
 import japgolly.scalajs.react.ReactMonocle._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.core.geom.jts.interpreter._
 import lucuma.core.math._
+import lucuma.svgdotjs.Svg
 import monocle.Lens
 import monocle.macros.GenLens
-import org.scalajs.dom.document
 import org.scalajs.dom.Element
+import org.scalajs.dom.document
 import react.aladin._
 import react.common._
+
 import scala.annotation.nowarn
 import scala.scalajs.js
 
