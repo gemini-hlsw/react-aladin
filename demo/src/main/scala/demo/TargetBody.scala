@@ -9,7 +9,6 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.core.math._
 import react.aladin._
-import react.aladin.reusability._
 import react.common._
 import react.gridlayout._
 import react.resizeDetector.hooks._
@@ -72,6 +71,8 @@ object AladinTile {
       // (BreakpointName.sm, (768, 8, layout)),
       // (BreakpointName.xs, (480, 6, layout))
     )
+
+  implicit val fovReuse = react.aladin.reusability.fovReuse(Reusability.double(0.0001))
 
   val component =
     ScalaFnComponent
