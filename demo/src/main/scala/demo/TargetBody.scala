@@ -73,6 +73,8 @@ object AladinTile {
       // (BreakpointName.xs, (480, 6, layout))
     )
 
+  implicit val fovReuse = exactFovReuse
+
   val component =
     ScalaFnComponent
       .withHooks[Props]
