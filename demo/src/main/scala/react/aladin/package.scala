@@ -23,6 +23,10 @@ package aladin {
    */
   final case class Fov(x: Angle, y: Angle)
 
+  object Fov {
+    def square(a: Angle): Fov = Fov(a, a)
+  }
+
   /**
    * Aladin pixel scala in degrees per pixel
    *
