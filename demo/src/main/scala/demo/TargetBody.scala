@@ -116,7 +116,9 @@ object TargetBody {
       .renderWithReuse { (_, s) =>
         AladinTile(
           Size(s.height.foldMap(_.toDouble), s.width.foldMap(_.toDouble)),
-          Coordinates.Zero
+          Coordinates(RightAscension.fromStringHMS.getOption("10:37:02.549").get,
+                      Declination.fromStringSignedDMS.getOption("-27:33:54.17").get
+          )
         )
       }
 
