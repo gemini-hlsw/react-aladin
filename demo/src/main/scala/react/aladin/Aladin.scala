@@ -120,6 +120,7 @@ class JsAladin extends js.Object {
   def gotoObject(q: String, cb: GoToObjectCallback): Unit                             = js.native
   def animateToRaDec(ra: Double, dec: Double, time: Double): Unit                     = js.native
   def recalculateView(): Unit                                                         = js.native
+  def fixLayoutDimensions(): Unit                                                     = js.native
   def getParentDiv(): Element                                                         = js.native
   def getSize(): js.Array[Double]                                                     = js.native
   def getFov(): js.Array[Double]                                                      = js.native
@@ -310,6 +311,9 @@ object Aladin {
 
     def recalculateView: Callback =
       runOnAladin(_.recalculateView())
+
+    def fixLayoutDimensions: Callback =
+      runOnAladin(_.fixLayoutDimensions())
 
     def addCatalog(cat: AladinCatalog): Callback =
       runOnAladin(_.addCatalog(cat))
