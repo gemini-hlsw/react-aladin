@@ -591,6 +591,10 @@ const Aladin = (function () {
     this.view.fixLayoutDimensions();
   };
 
+  Aladin.prototype.fixLayoutDimensions = function () {
+    this.view.fixLayoutDimensions();
+  };
+
   // realFullscreen: AL div expands not only to the size of its parent, but takes the whole available screen estate
   Aladin.prototype.toggleFullscreen = function (realFullscreen) {
     realFullscreen = Boolean(realFullscreen);
