@@ -40,7 +40,6 @@ import HealpixCache from './HealpixCache';
 import HealpixGrid from './HealpixGrid';
 import ProjectionEnum from './ProjectionEnum';
 import SimbadPointer from './SimbadPointer';
-import requestAnimFrame from 'raf';
 // import Stats from 'stats.js';
 import Popup from './Popup';
 import {Projection} from './projection';
@@ -888,7 +887,7 @@ const View = (function() {
      */
     View.prototype.redraw = function() {
         var saveNeedRedraw = this.needRedraw;
-        requestAnimFrame(this.redraw.bind(this));
+        window.requestAnimationFrame(this.redraw.bind(this));
 
         var now = new Date().getTime();
 
