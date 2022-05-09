@@ -21,7 +21,7 @@ import react.common.style._
 
 import scala.scalajs.js.JSConverters._
 
-package object svg   {
+package object svg {
   type ScalingFn        = Double => Double
   type SvgPostProcessor = Element => Element
 
@@ -190,7 +190,7 @@ package svg {
 
           containerGroup.addClass("jts-root-group")
           // We should calculate the viewbox of the whole geometry
-          val composite = a.toNonEmptyList.map(_.g).reduce(geometryUnionSemigroup)
+          val composite = a.toNonEmptyList.map(_.g).reduce(svg.geometryUnionSemigroup)
           a.toNel.map { case (clazz, g) =>
             val c = g.toSvg(containerGroup, pp, scalingFn)
             // Set an id per geometry

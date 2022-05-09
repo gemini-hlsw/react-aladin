@@ -101,6 +101,21 @@ svg {
   position: absolute;
   pointer-events: none;
 }
+.targets-overlay-svg {
+  z-index: 999;
+}
+
+.targets-overlay-svg .crosshair-target {
+  fill: none;
+  stroke: green;
+  stroke-width: 2px;
+}
+.targets-overlay-svg .circle-target {
+  fill: none;
+  stroke: red;
+  stroke-width: 0.8px;
+}
+
 @media (min-resolution: 2ddpx) {
   svg {
     shape-rendering: optimizeSpeed;
@@ -145,6 +160,8 @@ svg {
   stroke-dasharray: 1;
 }
 .jts-svg-center {
+
+  display: none;
   stroke: green;
   stroke-width: 2px;
   vector-effect: non-scaling-stroke;

@@ -30,6 +30,27 @@ final case class AladinContainer(
 object AladinContainer {
   type Props = AladinContainer
 
+  implicit class CoordinatesOps(val c: Coordinates) extends AnyVal {
+    def offsetBy(posAngle: Angle, o: Offset): Option[Coordinates] = {
+      val paCos  = posAngle.cos
+      val paSin  = posAngle.sin
+      val pDeg   = o.p.toAngle.toSignedDoubleDegrees
+      val qDeg   = o.q.toAngle.toSignedDoubleDegrees
+      val dRa    = pDeg * paCos + qDeg * paSin
+      val dDec   = -pDeg * paSin + qDeg * paCos
+      val decCos = c.dec.toAngle.cos
+
+      Declination
+        .fromDoubleDegrees(c.dec.toAngle.toSignedDoubleDegrees + dDec)
+        .filter(_ => decCos != 0)
+        .map { d =>
+          Coordinates(RightAscension.fromDoubleDegrees(c.ra.toAngle.toDoubleDegrees + dRa / decCos),
+                      d
+          )
+        }
+    }
+  }
+
   val AladinComp = Aladin.component
 
   val coordinates = GenLens[AladinContainer](_.coordinates)
@@ -111,7 +132,7 @@ object AladinContainer {
             .getOrEmpty
         }
       }
-      .renderWithReuse { (props, currentPos, _, aladinRef, _, resize) =>
+      .renderWithReuse { (props, currentPos, _, aladinRef, world2pix, resize) =>
         /**
          * Called when the position changes, i.e. aladin pans. We want to offset the visualization
          * to keep the internal target correct
@@ -126,9 +147,24 @@ object AladinContainer {
           v.onZoom(onZoom) *> // re render on zoom
             v.onPositionChanged(onPositionChanged)
 
+        val gs =
+          props.coordinates.offsetBy(Angle.Angle0, GmosGeometry.guideStarOffset)
+
         <.div(
           // ExploreStyles.AladinContainerBody,
           Css("react-aladin-container"),
+          (resize.width, resize.height).mapN(
+            SVGTargetsOverlay(
+              _,
+              _,
+              props.fov.get,
+              world2pix.value.reuseNever,
+              List(
+                SVGTarget.CrosshairTarget(props.coordinates, Css("science-target"), 10).some,
+                gs.map(SVGTarget.CircleTarget(_, Css("guidestar"), 3))
+              ).flatten
+            )
+          ),
           // This is a bit tricky. Sometimes the height can be 0 or a very low number.
           // This happens during a second render. If we let the height to be zero, aladin
           // will take it as 1. This height ends up being a denominator, which, if low,
