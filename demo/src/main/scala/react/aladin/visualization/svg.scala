@@ -21,7 +21,7 @@ import react.common.style._
 
 import scala.scalajs.js.JSConverters._
 
-package object svg {
+package object svg   {
   type ScalingFn        = Double => Double
   type SvgPostProcessor = Element => Element
 
