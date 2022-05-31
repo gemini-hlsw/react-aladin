@@ -147,10 +147,6 @@ package object visualization {
       val tx = abs(dx * x / w) + dox
       val ty = abs(dy * y / h) - doy
 
-      // center cross
-      val reticleSizeX = ReticleSize * x / dx
-      addCross(svg, reticleSizeX)
-
       // Border to the whole svg, usually hidden
       addBorder(svg, x, y, w, h)
 
@@ -158,9 +154,11 @@ package object visualization {
       val ry = ty - dy / 2
       // Flip the svg, note we should flip around ry but that creates troubles with the viewbox
       // Instead we adjust the top attribute
-      // Only flip once or we may do more than one flip
-      if (scala.scalajs.js.isUndefined(svg.attr("transform")))
-        svg.scale(1, -1)
+
+      // Don't use scala as it accummulates in case the svg is reused.
+      // Instead set the transform directly
+      svg.transform(new Matrix().scale(1, -1))
+
       svgBase.setSize(svgSize)
       // To workaround Safari we set the position of the surrounding div rather than the svg
       parent.setAttribute(
