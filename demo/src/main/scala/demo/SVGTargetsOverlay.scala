@@ -5,14 +5,14 @@ package demo
 
 import cats.Eq
 import cats.syntax.all._
+import crystal.react.reuse._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.svg_<^._
-import react.common._
-import react.common.implicits._
 import lucuma.core.math.Coordinates
 import lucuma.ui.reusability._
 import react.aladin.Fov
-import crystal.react.reuse._
+import react.common._
+import react.common.implicits._
 
 sealed trait SVGTarget {
   def coordinates: Coordinates

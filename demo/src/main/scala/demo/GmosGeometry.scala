@@ -9,8 +9,8 @@ import cats.implicits._
 import lucuma.core.enum.GmosNorthFpu
 import lucuma.core.enum.GmosSouthFpu
 import lucuma.core.enum.PortDisposition
-import lucuma.core.geom.gmos
 import lucuma.core.geom.ShapeExpression
+import lucuma.core.geom.gmos
 import lucuma.core.geom.syntax.shapeexpression._
 import lucuma.core.math.Angle
 import lucuma.core.math.Offset
