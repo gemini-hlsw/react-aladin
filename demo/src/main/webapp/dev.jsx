@@ -1,5 +1,5 @@
 import "/css/aladin.css";
-import "/css/style.css";
+import "/css/style.scss";
 
 import { Main } from "@sjs/main.js";
 Main.main();

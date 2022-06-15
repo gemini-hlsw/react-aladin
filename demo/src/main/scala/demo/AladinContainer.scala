@@ -30,27 +30,6 @@ final case class AladinContainer(
 object AladinContainer {
   type Props = AladinContainer
 
-  implicit class CoordinatesOps(val c: Coordinates) extends AnyVal {
-    def offsetBy(posAngle: Angle, o: Offset): Option[Coordinates] = {
-      val paCos  = posAngle.cos
-      val paSin  = posAngle.sin
-      val pDeg   = o.p.toAngle.toSignedDoubleDegrees
-      val qDeg   = o.q.toAngle.toSignedDoubleDegrees
-      val dRa    = pDeg * paCos + qDeg * paSin
-      val dDec   = -pDeg * paSin + qDeg * paCos
-      val decCos = c.dec.toAngle.cos
-
-      Declination
-        .fromDoubleDegrees(c.dec.toAngle.toSignedDoubleDegrees + dDec)
-        .filter(_ => decCos != 0)
-        .map { d =>
-          Coordinates(RightAscension.fromDoubleDegrees(c.ra.toAngle.toDoubleDegrees + dRa / decCos),
-                      d
-          )
-        }
-    }
-  }
-
   val AladinComp = Aladin.component
 
   val coordinates = GenLens[AladinContainer](_.coordinates)
@@ -153,6 +132,16 @@ object AladinContainer {
         <.div(
           // ExploreStyles.AladinContainerBody,
           Css("react-aladin-container"),
+          (resize.width, resize.height).mapN(
+            VisualizationOverlay(
+              _,
+              _,
+              GmosGeometry.ScaleFactor,
+              props.fov.get,
+              world2pix.value.reuseNever,
+              GmosGeometry.shapes
+            )
+          ),
           (resize.width, resize.height).mapN(
             SVGTargetsOverlay(
               _,
