@@ -102,13 +102,12 @@ object AladinContainer {
         (p.fov, currentPos, world2pix.value(p.coordinates), resize)
       ) { (_, _, svg, aladinRef, _, _) =>
         { case (_, _, off, _) =>
-          off
-            .map(off =>
-              aladinRef.get.asCBO
-                .flatMapCB(_.backend.runOnAladinCB(updateVisualization(svg, off)))
-                .toCallback
-            )
-            .getOrEmpty
+          off.map { off =>
+            println(off)
+            aladinRef.get.asCBO
+              .flatMapCB(_.backend.runOnAladinCB(updateVisualization(svg, off)))
+              .toCallback
+          }.getOrEmpty
         }
       }
       .renderWithReuse { (props, currentPos, _, aladinRef, world2pix, resize) =>
@@ -121,6 +120,8 @@ object AladinContainer {
 
         def onZoom = (v: Fov) => Callback.log(s"onZoom $v") *> props.fov.set(v)
         // def onZoom = (v: Fov) => props.fov.set(v)
+
+        val screenOffset = world2pix.value(currentPos.value)
 
         def customizeAladin(v: JsAladin): Callback =
           v.onZoom(onZoom) *> // re render on zoom
@@ -138,7 +139,7 @@ object AladinContainer {
               _,
               GmosGeometry.ScaleFactor,
               props.fov.get,
-              world2pix.value.reuseNever,
+              screenOffset,
               GmosGeometry.shapes
             )
           ),

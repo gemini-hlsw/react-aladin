@@ -24,12 +24,12 @@ import react.aladin.Fov
 import react.aladin.PixelScale
 
 final case class VisualizationOverlay(
-  width:       Int,
-  height:      Int,
-  scaleFactor: Int,
-  fov:         Fov,
-  world2pix:   Coordinates ==> Option[(Double, Double)],
-  shapes:      NonEmptyMap[Css, ShapeExpression]
+  width:        Int,
+  height:       Int,
+  scaleFactor:  Int,
+  fov:          Fov,
+  screenOffset: Option[(Double, Double)],
+  shapes:       NonEmptyMap[Css, ShapeExpression]
 ) extends ReactFnProps[VisualizationOverlay](VisualizationOverlay.component)
 
 object VisualizationOverlay {
@@ -89,8 +89,8 @@ object VisualizationOverlay {
          scalingFn(envelope.getHeight)
         )
 
-      println(pixelsPerMicroarcsecondsY)
-      println(p.height / (h * pixelsPerMicroarcsecondsY))
+      // println(pixelsPerMicroarcsecondsY)
+      // println(p.height / (h * pixelsPerMicroarcsecondsY))
       val sx2    = p.width / (w * pixelsPerMicroarcsecondsX)
       val sy2    = p.height / (h * pixelsPerMicroarcsecondsY)
       // Angular size of the geometry
@@ -106,6 +106,9 @@ object VisualizationOverlay {
       val dox = p.width.toDouble / 2  // - offX
       val doy = p.height.toDouble / 2 // - offY
 
+      val dx2 = scalingFn(p.fov.x.toMicroarcseconds.toDouble) / 2 - w / 2
+      val dy2 = scalingFn(p.fov.y.toMicroarcseconds.toDouble) / 2 - h / 2
+
       // Translation coordinates
       val tx      = abs(dx * x / w) // + dox
       val ty      = abs(dy * y / h) // - doy
@@ -120,9 +123,12 @@ object VisualizationOverlay {
       val tty     = p.scaleFactor * (h / 2) / pixelScale.y
       val ry      = p.scaleFactor * (ty - dy / 2)
       // println(s"ttx: ${ttx} tty: $tty")
-      // println(s"sx: $sx sy: $sy")
-      val viewBox = s"${x + ttx} ${y - tty} ${w * sx2} ${h * sy2}"
-      println(s"sy: ${1 / sy} $sy2")
+      println(s"sx: $sx2 sy: $sy2")
+      // val viewBox = s"${x - dx2 / 2} ${y - dy2 / 2} ${w * sx2} ${h * sy2}"
+      val viewBox = s"${x - dx2} ${y - dy2} ${w * sx2} ${h * sy2}"
+      // println(s"sy: ${1 / sy} $sy2")
+      // println(s"dx2: $tx ${dox * sx2}")
+      println(s"dx2: $dx2")
       println(s"viewBox: $viewBox")
 
       val svg = <.svg(

@@ -138,6 +138,7 @@ svg {
 }
 
 .jts {
+  // display: none;
   z-index: 10;
 }
 
@@ -188,4 +189,60 @@ svg {
   stroke: green;
   stroke-width: 2px;
   vector-effect: non-scaling-stroke;
+}
+
+
+.visualization-overlay-svg {
+  .jts {
+    z-index: 10;
+  }
+
+  .jts-polygon {
+    stroke: gray;
+    stroke-width: 2px;
+    fill: lightgray;
+    fill-opacity: 0.3;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .gmos-probe {
+    stroke: red;
+    z-index: 1;
+    fill-opacity: 0.1;
+  }
+
+  .gmos-patrol-field {
+    stroke: red;
+    stroke-dasharray: 10;
+  }
+
+  .gmos-science-area polygon {
+    stroke: purple;
+    fill: black;
+    fill-opacity: 1;
+  }
+
+  .gmos-science-ccd-offset polygon {
+    stroke: yellow;
+    fill-opacity: 0.1;
+  }
+
+  .gmos-science-ccd polygon {
+    stroke: cyan;
+    fill-opacity: 0.1;
+  }
+
+  .jts-svg-border {
+    stroke: yellow;
+    stroke-width: 2px;
+    vector-effect: non-scaling-stroke;
+    stroke-dasharray: 1;
+  }
+
+  .jts-svg-center {
+    display: none;
+    stroke: green;
+    stroke-width: 2px;
+    vector-effect: non-scaling-stroke;
+  }
 }
