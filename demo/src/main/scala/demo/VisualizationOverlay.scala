@@ -71,19 +71,28 @@ object VisualizationOverlay {
       val pixelScale: PixelScale =
         PixelScale(p.width / p.fov.x.toDoubleDegrees, p.height / p.fov.y.toDoubleDegrees)
 
-      println(pixelScale)
+      // Unit: pixels / microArcseconds
+      val pixelsPerMicroarcsecondsX: Double =
+        p.width / scalingFn(p.fov.x.toMicroarcseconds.toDouble)
+      val pixelsPerMicroarcsecondsY: Double =
+        p.height / scalingFn(p.fov.y.toMicroarcseconds.toDouble)
+
       // We should calculate the viewbox of the whole geometry
       val composite    = evaldShapes.map(_.g).reduce(geometryUnionSemigroup)
       // a.map(_.g).toList.map(_.toSvg(containerGroup, pp, scalingFn))
       val envelope     = composite.getBoundary.getEnvelopeInternal
+      // dimension in micro arcseconds
       val (x, y, w, h) =
         (scalingFn(envelope.getMinX),
          scalingFn(envelope.getMinY),
          scalingFn(envelope.getWidth),
          scalingFn(envelope.getHeight)
         )
-      val viewBox      = s"$x $y $w $h"
 
+      println(pixelsPerMicroarcsecondsY)
+      println(p.height / (h * pixelsPerMicroarcsecondsY))
+      val sx2    = p.width / (w * pixelsPerMicroarcsecondsX)
+      val sy2    = p.height / (h * pixelsPerMicroarcsecondsY)
       // Angular size of the geometry
       val hAngle = Angle.fromMicroarcseconds((h.toLong * p.scaleFactor).toLong)
       val wAngle = Angle.fromMicroarcseconds((w.toLong * p.scaleFactor).toLong)
@@ -92,17 +101,41 @@ object VisualizationOverlay {
       val dy     = (hAngle.toDoubleDegrees) * pixelScale.y
 
       // Svg on screen coordinates
-      val svgSize = Size(rint(dy), rint(dx))
-      println(s"$dx $dy")
+      // val svgSize = Size(rint(dy), rint(dx))
+      // println(s"W $w ${scalingFn(wAngle.toMicroarcseconds)}")
+      val dox = p.width.toDouble / 2  // - offX
+      val doy = p.height.toDouble / 2 // - offY
+
+      // Translation coordinates
+      val tx      = abs(dx * x / w) // + dox
+      val ty      = abs(dy * y / h) // - doy
+      // println(s"tx: $tx ty: $ty")
+      // val ttx     = p.scaleFactor * (tx / pixelScale.x)
+      // val tty     = p.scaleFactor * (ty / pixelScale.y)
+      // println(s"dx: $dox px  dy: $doy px")
+      // println(s"outx: ${p.width} outy: ${p.height}")
+      val sx      = dx / p.width
+      val sy      = dy / p.height
+      val ttx     = p.scaleFactor * (w / 2) / pixelScale.x
+      val tty     = p.scaleFactor * (h / 2) / pixelScale.y
+      val ry      = p.scaleFactor * (ty - dy / 2)
+      // println(s"ttx: ${ttx} tty: $tty")
+      // println(s"sx: $sx sy: $sy")
+      val viewBox = s"${x + ttx} ${y - tty} ${w * sx2} ${h * sy2}"
+      println(s"sy: ${1 / sy} $sy2")
+      println(s"viewBox: $viewBox")
 
       val svg = <.svg(
         ^.`class`    := "visualization-overlay-svg",
         ^.viewBox    := viewBox,
+        // canvasWidth  := s"${dx}px",
+        // canvasHeight := s"${dy}px",
         canvasWidth  := s"${p.width}px",
         canvasHeight := s"${p.height}px",
         <.g(
           ^.`class`   := "jts-root-group",
-          ^.transform := "scale(1, -1) translate(-150000)",
+          // ^.transform := s"scale($sy, -$sy) translate(-165000)",
+          ^.transform := s"scale(1, -1)",
           evaldShapes.toNel
             .map { case (css, shape) =>
               forGeometry(css, shape.g, scalingFn)
