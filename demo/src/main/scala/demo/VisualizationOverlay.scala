@@ -59,7 +59,8 @@ object VisualizationOverlay {
   val canvasHeight = VdomAttr("height")
   val component    =
     ScalaFnComponent[Props] { p =>
-      val scalingFn: Double => Double             = (v: Double) => rint(v / p.scaleFactor)
+      val scalingFn: Double => Double = (v: Double) => v // rint(v / p.scaleFactor)
+
       // Render the svg
       val evaldShapes: NonEmptyMap[Css, JtsShape] = p.shapes
         .fmap(_.eval)
@@ -91,14 +92,14 @@ object VisualizationOverlay {
 
       // println(pixelsPerMicroarcsecondsY)
       // println(p.height / (h * pixelsPerMicroarcsecondsY))
-      val sx2    = p.width / (w * pixelsPerMicroarcsecondsX)
-      val sy2    = p.height / (h * pixelsPerMicroarcsecondsY)
+      val sx2 = p.width / (w * pixelsPerMicroarcsecondsX)
+      val sy2 = p.height / (h * pixelsPerMicroarcsecondsY)
       // Angular size of the geometry
-      val hAngle = Angle.fromMicroarcseconds((h.toLong * p.scaleFactor).toLong)
-      val wAngle = Angle.fromMicroarcseconds((w.toLong * p.scaleFactor).toLong)
+      // val hAngle = Angle.fromMicroarcseconds((h.toLong * p.scaleFactor).toLong)
+      // val wAngle = Angle.fromMicroarcseconds((w.toLong * p.scaleFactor).toLong)
       // Deltas to calculate the size of the svg on aladin scale
-      val dx     = (wAngle.toDoubleDegrees) * pixelScale.x
-      val dy     = (hAngle.toDoubleDegrees) * pixelScale.y
+      // val dx     = (wAngle.toDoubleDegrees) * pixelScale.x
+      // val dy     = (hAngle.toDoubleDegrees) * pixelScale.y
 
       // Svg on screen coordinates
       // val svgSize = Size(rint(dy), rint(dx))
@@ -106,29 +107,31 @@ object VisualizationOverlay {
       val dox = p.width.toDouble / 2  // - offX
       val doy = p.height.toDouble / 2 // - offY
 
-      val dx2 = scalingFn(p.fov.x.toMicroarcseconds.toDouble) / 2 - w / 2
-      val dy2 = scalingFn(p.fov.y.toMicroarcseconds.toDouble) / 2 - h / 2
-
+      println(s"coord $x $w ${x / w}")
       // Translation coordinates
-      val tx      = abs(dx * x / w) // + dox
-      val ty      = abs(dy * y / h) // - doy
+      val tx = scalingFn(p.fov.x.toMicroarcseconds.toDouble) * (x / w) // + dox
+      val ty = scalingFn(p.fov.y.toMicroarcseconds.toDouble) * (y / h) // + dox
+      // val ty = abs(dy * y / h)                                            // - doy
+
+      val dx2     = scalingFn(p.fov.x.toMicroarcseconds.toDouble) + tx - w / 2
+      val dy2     = scalingFn(p.fov.y.toMicroarcseconds.toDouble) + ty - h / 2
       // println(s"tx: $tx ty: $ty")
       // val ttx     = p.scaleFactor * (tx / pixelScale.x)
       // val tty     = p.scaleFactor * (ty / pixelScale.y)
       // println(s"dx: $dox px  dy: $doy px")
       // println(s"outx: ${p.width} outy: ${p.height}")
-      val sx      = dx / p.width
-      val sy      = dy / p.height
-      val ttx     = p.scaleFactor * (w / 2) / pixelScale.x
-      val tty     = p.scaleFactor * (h / 2) / pixelScale.y
-      val ry      = p.scaleFactor * (ty - dy / 2)
+      // val sx      = dx / p.width
+      // val sy      = dy / p.height
+      // val ttx     = p.scaleFactor * (w / 2) / pixelScale.x
+      // val tty     = p.scaleFactor * (h / 2) / pixelScale.y
+      // val ry      = p.scaleFactor * (ty - dy / 2)
       // println(s"ttx: ${ttx} tty: $tty")
       println(s"sx: $sx2 sy: $sy2")
       // val viewBox = s"${x - dx2 / 2} ${y - dy2 / 2} ${w * sx2} ${h * sy2}"
       val viewBox = s"${x - dx2} ${y - dy2} ${w * sx2} ${h * sy2}"
       // println(s"sy: ${1 / sy} $sy2")
       // println(s"dx2: $tx ${dox * sx2}")
-      println(s"dx2: $dx2")
+      println(s"dx2: ${x / w} ${y / h} $dx2")
       println(s"viewBox: $viewBox")
 
       val svg = <.svg(
