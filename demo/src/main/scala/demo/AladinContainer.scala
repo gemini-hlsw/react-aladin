@@ -136,7 +136,6 @@ object AladinContainer {
             VisualizationOverlay(
               _,
               _,
-              GmosGeometry.ScaleFactor,
               props.fov.get,
               screenOffset,
               GmosGeometry.shapes

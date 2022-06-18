@@ -193,11 +193,11 @@ svg {
 
 
 .visualization-overlay-svg {
-  .jts {
+  .viz {
     z-index: 10;
   }
 
-  .jts-polygon {
+  .viz-polygon {
     stroke: gray;
     stroke-width: 2px;
     fill: lightgray;
@@ -232,14 +232,14 @@ svg {
     fill-opacity: 0.1;
   }
 
-  .jts-svg-border {
+  .viz-svg-border {
     stroke: yellow;
     stroke-width: 2px;
     vector-effect: non-scaling-stroke;
     stroke-dasharray: 1;
   }
 
-  .jts-svg-center {
+  .viz-svg-center {
     display: none;
     stroke: green;
     stroke-width: 2px;
