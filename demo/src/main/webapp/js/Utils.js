@@ -67,8 +67,8 @@ function relMouseCoords(event) {
         let clientX = e.clientX;
         let clientY = e.clientY;
         if (e.clientX === undefined) {
-            clientX = e.originalEvent.changedTouches[0].clientX;
-            clientY = e.originalEvent.changedTouches[0].clientY;
+            clientX = e.changedTouches[0].clientX;
+            clientY = e.changedTouches[0].clientY;
         }
 
         const offsetX = clientX - borderLeftWidth - rect.left;
