@@ -12,6 +12,7 @@ import lucuma.ui.reusability._
 import react.aladin.Fov
 import react.common._
 import react.common.implicits._
+
 import scala.math._
 
 final case class TargetsOverlay(
