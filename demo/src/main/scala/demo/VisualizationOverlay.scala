@@ -37,20 +37,22 @@ object VisualizationOverlay {
   val geometryUnionSemigroup: Semigroup[Geometry] =
     Semigroup.instance(_.union(_))
 
+  val scale = (v: Double) => rint(v / 1000)
+
   val JtsPolygon    = Css("jts-polygon")
   val JtsCollection = Css("jts")
 
-  def forGeometry(css: Css, g: Geometry, scalingFn: Double => Double): VdomNode =
+  def forGeometry(css: Css, g: Geometry): VdomNode =
     g match {
       case p: Polygon            =>
         val points = p.getCoordinates
-          .map(c => s"${scalingFn(c.x)},${scalingFn(c.y)}")
+          .map(c => s"${scale(c.x)},${scale(c.y)}")
           .mkString(" ")
         <.polygon(css |+| JtsPolygon, ^.points := points)
       case p: GeometryCollection =>
         <.g(
           css |+| JtsCollection,
-          p.geometries.map(forGeometry(css, _, scalingFn)).toTagMod
+          p.geometries.map(forGeometry(css, _)).toTagMod
         )
       case _                     => EmptyVdom
     }
@@ -74,9 +76,9 @@ object VisualizationOverlay {
 
       // Unit: pixels / microArcseconds
       val pixelsPerMicroarcsecondsX: Double =
-        p.width / scalingFn(p.fov.x.toMicroarcseconds.toDouble)
+        p.width / p.fov.x.toMicroarcseconds.toDouble
       val pixelsPerMicroarcsecondsY: Double =
-        p.height / scalingFn(p.fov.y.toMicroarcseconds.toDouble)
+        p.height / p.fov.y.toMicroarcseconds.toDouble
 
       // We should calculate the viewbox of the whole geometry
       val composite    = evaldShapes.map(_.g).reduce(geometryUnionSemigroup)
@@ -84,16 +86,21 @@ object VisualizationOverlay {
       val envelope     = composite.getBoundary.getEnvelopeInternal
       // dimension in micro arcseconds
       val (x, y, w, h) =
-        (scalingFn(envelope.getMinX),
-         scalingFn(envelope.getMinY),
-         scalingFn(envelope.getWidth),
-         scalingFn(envelope.getHeight)
-        )
+        (envelope.getMinX, envelope.getMinY, envelope.getWidth, envelope.getHeight)
 
+      println(s"minx: ${envelope.getMinX}")
+      println(s"maxx: ${envelope.getMaxX}")
+      val px  = abs(x / w) - 0.5
+      val mx  = p.fov.x.toMicroarcseconds.toDouble * px // + dox
+      println(s"pct: ${px}")
+      println(
+        s"width: ${abs(envelope.getMinX) + abs(envelope.getMaxX)} ${envelope.getWidth} ${w - mx}"
+      )
       // println(pixelsPerMicroarcsecondsY)
       // println(p.height / (h * pixelsPerMicroarcsecondsY))
       val sx2 = p.width / (w * pixelsPerMicroarcsecondsX)
       val sy2 = p.height / (h * pixelsPerMicroarcsecondsY)
+      val sx3 = p.fov.x.toMicroarcseconds / w
       // Angular size of the geometry
       // val hAngle = Angle.fromMicroarcseconds((h.toLong * p.scaleFactor).toLong)
       // val wAngle = Angle.fromMicroarcseconds((w.toLong * p.scaleFactor).toLong)
@@ -107,15 +114,17 @@ object VisualizationOverlay {
       val dox = p.width.toDouble / 2  // - offX
       val doy = p.height.toDouble / 2 // - offY
 
-      println(s"coord $x $w ${x / w}")
+      // println(s"coord $x $w ${x / w}")
+      // println(s"off ${p.screenOffset}")
       // Translation coordinates
-      val tx = scalingFn(p.fov.x.toMicroarcseconds.toDouble) * (x / w) // + dox
-      val ty = scalingFn(p.fov.y.toMicroarcseconds.toDouble) * (y / h) // + dox
+      val tx = p.fov.x.toMicroarcseconds.toDouble * px      // + dox
+      val ty = p.fov.y.toMicroarcseconds.toDouble * (y / h) // + dox
       // val ty = abs(dy * y / h)                                            // - doy
 
-      val dx2     = scalingFn(p.fov.x.toMicroarcseconds.toDouble) + tx - w / 2
-      val dy2     = scalingFn(p.fov.y.toMicroarcseconds.toDouble) + ty - h / 2
-      // println(s"tx: $tx ty: $ty")
+      val dx2     = (p.fov.x.toMicroarcseconds.toDouble) + tx - w / 2
+      val dy2     = (p.fov.y.toMicroarcseconds.toDouble) + ty - h / 2
+      println(s"tx: $tx ty: $ty")
+      // println(s"tot: ${p.fov.x.toMicroarcseconds} x: $x")
       // val ttx     = p.scaleFactor * (tx / pixelScale.x)
       // val tty     = p.scaleFactor * (ty / pixelScale.y)
       // println(s"dx: $dox px  dy: $doy px")
@@ -126,13 +135,19 @@ object VisualizationOverlay {
       // val tty     = p.scaleFactor * (h / 2) / pixelScale.y
       // val ry      = p.scaleFactor * (ty - dy / 2)
       // println(s"ttx: ${ttx} tty: $tty")
-      println(s"sx: $sx2 sy: $sy2")
-      // val viewBox = s"${x - dx2 / 2} ${y - dy2 / 2} ${w * sx2} ${h * sy2}"
-      val viewBox = s"${x - dx2} ${y - dy2} ${w * sx2} ${h * sy2}"
+      println(s"sx: $mx $sx2 sy: $sy2 sx3: $sx3")
+      // val viewBox =::
+      //   s"${x} ${y - dy2} ${w} ${h * sy2}"
+      val viewBox =
+        s"${scale(x + px * w) * sx3} ${scale(y)} ${scale(w) * sx3} ${scale(h)}"
+
+      // val viewBox = s"${x - dx2} ${y - dy2} ${w * sx2} ${h * sy2}"
+      // val viewBox = s"$x $y ${w * sx2} ${h * sy2}"
       // println(s"sy: ${1 / sy} $sy2")
+      println(s"dx2: $dx2 ${2 * dx2 * sy2}")
       // println(s"dx2: $tx ${dox * sx2}")
-      println(s"dx2: ${x / w} ${y / h} $dx2")
-      println(s"viewBox: $viewBox")
+      // println(s"dx2: ${x / w} ${y / h} $dx2")
+      // println(s"viewBox: $viewBox")
 
       val svg = <.svg(
         ^.`class`    := "visualization-overlay-svg",
@@ -143,14 +158,34 @@ object VisualizationOverlay {
         canvasHeight := s"${p.height}px",
         <.g(
           ^.`class`   := "jts-root-group",
-          // ^.transform := s"scale($sy, -$sy) translate(-165000)",
           ^.transform := s"scale(1, -1)",
           evaldShapes.toNel
             .map { case (css, shape) =>
-              forGeometry(css, shape.g, scalingFn)
+              forGeometry(css, shape.g)
             }
             .toList
-            .mkTagMod(<.g)
+            .toTagMod
+        ),
+        <.rect(
+          ^.`class`   := "helper",
+          ^.x         := scale(x),
+          ^.y         := scale(y),
+          ^.width     := scale(w),
+          ^.height    := scale(h)
+        ),
+        <.line(
+          ^.`class`   := "helper",
+          ^.x1        := 0,
+          ^.y1        := 0,
+          ^.x2        := scale(w) / 2,
+          ^.y2        := scale(h) / 2
+        ),
+        <.line(
+          ^.`class`   := "helper",
+          ^.x1        := -scale(w) / 2,
+          ^.y1        := scale(h) / 2,
+          ^.x2        := 0,
+          ^.y2        := 0
         )
       )
       svg

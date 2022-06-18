@@ -41,8 +41,8 @@ object GmosGeometry {
   // Shape to display
   val shapes: NonEmptyMap[Css, ShapeExpression] =
     NonEmptyMap.of(
-      (Css("gmos-probe"), gmos.probeArm.shapeAt(posAngle, guideStarOffset, offsetPos, fpu, port)),
-      // (Css("gmos-patrol-field"), gmos.probeArm.patrolFieldAt(posAngle, offsetPos, fpu, port)),
+      // (Css("gmos-probe"), gmos.probeArm.shapeAt(posAngle, guideStarOffset, offsetPos, fpu, port)),
+      (Css("gmos-patrol-field"), gmos.probeArm.patrolFieldAt(posAngle, offsetPos, fpu, port)),
       (Css("gmos-science-ccd"), gmos.scienceArea.imaging ⟲ posAngle)
       // (Css("gmos-science-ccd-offset"), gmos.scienceArea.imaging ↗ offsetPos ⟲ posAngle)
     )

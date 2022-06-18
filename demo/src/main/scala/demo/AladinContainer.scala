@@ -103,7 +103,6 @@ object AladinContainer {
       ) { (_, _, svg, aladinRef, _, _) =>
         { case (_, _, off, _) =>
           off.map { off =>
-            println(off)
             aladinRef.get.asCBO
               .flatMapCB(_.backend.runOnAladinCB(updateVisualization(svg, off)))
               .toCallback
