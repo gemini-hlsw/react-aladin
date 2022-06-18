@@ -10,11 +10,8 @@ import crystal.react.reuse._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.core.math._
-import lucuma.svgdotjs.Svg
 import lucuma.ui.reusability._
 import monocle.macros.GenLens
-import org.scalajs.dom.Element
-import org.scalajs.dom.document
 import react.aladin._
 import react.common._
 import react.resizeDetector.hooks._
@@ -41,49 +38,11 @@ object AladinContainer {
   type World2PixFn = Coordinates => Option[(Double, Double)]
   val DefaultWorld2PixFn: World2PixFn = (_: Coordinates) => None
 
-  def updateVisualization(svg: Svg, off: (Double, Double))(v: JsAladin): Callback = {
-    val size = Size(v.getParentDiv().clientHeight.toDouble, v.getParentDiv().clientWidth.toDouble)
-    val div  = v.getParentDiv()
-    renderVisualization(svg, off, div, size, v.pixelScale)
-  }
-
-  def renderVisualization(
-    svg:        Svg,
-    offset:     (Double, Double),
-    div:        Element,
-    size:       Size,
-    pixelScale: PixelScale
-  ): Callback =
-    Callback {
-      val (x, y) = offset
-      // Delete any viz previously rendered
-      val g      = Option(div.querySelector(".aladin-visualization"))
-        .map { g =>
-          g.childNodes.toList.foreach(g.removeChild)
-          g
-        }
-        .getOrElse {
-          val g = document.createElement("div")
-          g.classList.add("aladin-visualization")
-          // Include the svg on the dom
-          div.appendChild(g)
-          g
-        }
-      // Render the svg
-      visualization.geometryForAladin(svg, g, size, pixelScale, GmosGeometry.ScaleFactor, (x, y))
-    }
-
   val component =
     ScalaFnComponent
       .withHooks[Props]
       // View coordinates (in case the user pans)
       .useStateBy(_.coordinates)
-      // Memoized svg
-      // .useMemoBy((p, _) => p.fov) { case (_, _) =>
-      //   _ =>
-      //     visualization
-      //       .shapesToSvg(GmosGeometry.shapes, GmosGeometry.pp, GmosGeometry.ScaleFactor)
-      // }
       // Ref to the aladin component
       .useRefToScalaComponent(AladinComp)
       // Function to calculate coordinates
@@ -96,18 +55,6 @@ object AladinContainer {
       } { (_, _, aladinRef, w, _) => _ =>
         aladinRef.get.asCBO.flatMapCB(_.backend.world2pixFn.flatMap(w.setState))
       }
-      // Render the visualization, only if current pos, fov or size changes
-      // .useEffectWithDepsBy((p, currentPos, _, _, world2pix, resize) =>
-      //   (p.fov, currentPos, world2pix.value(p.coordinates), resize)
-      // ) { (_, _, svg, aladinRef, _, _) =>
-      //   { case (_, _, off, _) =>
-      //     off.map { off =>
-      //       aladinRef.get.asCBO
-      //         .flatMapCB(_.backend.runOnAladinCB(updateVisualization(svg, off)))
-      //         .toCallback
-      //     }.getOrEmpty
-      //   }
-      // }
       .renderWithReuse { (props, currentPos, aladinRef, world2pix, resize) =>
         /**
          * Called when the position changes, i.e. aladin pans. We want to offset the visualization
