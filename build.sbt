@@ -10,7 +10,7 @@ lazy val reactGridLayoutVersion = "0.16.1"
 lazy val munitVersion           = "0.7.29"
 lazy val svgdotjsVersion        = "0.2.1"
 
-ThisBuild / tlBaseVersion       := "0.21"
+ThisBuild / tlBaseVersion       := "0.22"
 ThisBuild / tlCiReleaseBranches := Seq("master")
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
