@@ -82,10 +82,10 @@ object VisualizationOverlay {
       .render { (p, _, shapes) =>
         val (evaldShapes, composite) = shapes.value
         val envelope                 = composite.getBoundary.getEnvelopeInternal
-        
+
         // We should calculate the viewbox of the whole geometry
         // dimension in micro arcseconds
-        val (x, y, w, h)             =
+        val (x, y, w, h) =
           (envelope.getMinX, envelope.getMinY, envelope.getWidth, envelope.getHeight)
 
         // Shift factors on x/y, basically the percentage shifted on x/y

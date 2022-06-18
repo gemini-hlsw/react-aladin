@@ -81,11 +81,6 @@ lazy val facade =
     .settings(commonSettings: _*)
     .settings(
       name                            := "react-aladin",
-      Compile / npmDependencies ++= Seq(
-        "react"                -> reactJS,
-        "react-dom"            -> reactJS,
-        "@cquiroz/aladin-lite" -> aladinLiteVersion
-      ),
       Test / npmDevDependencies ++= Seq(
         "chokidar" -> "3.4.2"
       ),
@@ -100,12 +95,12 @@ lazy val facade =
       // Compile tests to JS using fast-optimisation
       Test / scalaJSStage             := FastOptStage,
       libraryDependencies ++= Seq(
-        "edu.gemini"                        %%% "lucuma-core"       % lucumaCoreVersion,
-        "edu.gemini"                        %%% "lucuma-ui"         % lucumaUIVersion,
-        "com.github.japgolly.scalajs-react" %%% "core-bundle-cb_io" % scalaJsReact,
-        "com.github.japgolly.scalajs-react" %%% "test"              % scalaJsReact % Test,
-        "io.github.cquiroz.react"           %%% "common"            % reactCommonVersion,
-        "org.scalameta"                     %%% "munit"             % munitVersion % Test
+        "edu.gemini"                        %%% "lucuma-core" % lucumaCoreVersion,
+        "edu.gemini"                        %%% "lucuma-ui"   % lucumaUIVersion,
+        "com.github.japgolly.scalajs-react" %%% "core"        % scalaJsReact,
+        "com.github.japgolly.scalajs-react" %%% "test"        % scalaJsReact % Test,
+        "io.github.cquiroz.react"           %%% "common"      % reactCommonVersion,
+        "org.scalameta"                     %%% "munit"       % munitVersion % Test
       ),
       testFrameworks += new TestFramework("munit.Framework"),
       Test / webpackConfigFile        := Some(

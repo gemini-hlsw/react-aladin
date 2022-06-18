@@ -5,7 +5,6 @@ package demo
 
 import cats.implicits._
 import crystal.react.ReuseView
-import crystal.react.hooks._
 import crystal.react.reuse._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
@@ -35,9 +34,6 @@ object AladinContainer {
 
   implicit val reuseDouble = Reusability.double(0.00001)
 
-  type World2PixFn = Coordinates => Option[(Double, Double)]
-  val DefaultWorld2PixFn: World2PixFn = (_: Coordinates) => None
-
   val component =
     ScalaFnComponent
       .withHooks[Props]
@@ -45,17 +41,9 @@ object AladinContainer {
       .useStateBy(_.coordinates)
       // Ref to the aladin component
       .useRefToScalaComponent(AladinComp)
-      // Function to calculate coordinates
-      .useSerialState(DefaultWorld2PixFn)
       // resize detector
       .useResizeDetector()
-      // Update the world2pix function
-      .useEffectWithDepsBy { (p, currentPos, aladinRef, _, resize) =>
-        (resize, p.fov, currentPos, aladinRef)
-      } { (_, _, aladinRef, w, _) => _ =>
-        aladinRef.get.asCBO.flatMapCB(_.backend.world2pixFn.flatMap(w.setState))
-      }
-      .renderWithReuse { (props, currentPos, aladinRef, world2pix, resize) =>
+      .renderWithReuse { (props, currentPos, aladinRef, resize) =>
         /**
          * Called when the position changes, i.e. aladin pans. We want to offset the visualization
          * to keep the internal target correct
@@ -87,16 +75,19 @@ object AladinContainer {
               )
             )
             .when(resize.height.exists(_ >= 100)),
-          (resize.width, resize.height).mapN(
-            SVGTargetsOverlay(
-              _,
-              _,
-              props.fov.get,
-              world2pix.value,
-              List(
-                SVGTarget.CrosshairTarget(props.coordinates, Css("science-target"), 10).some,
-                gs.map(SVGTarget.CircleTarget(_, Css("guidestar"), 3))
-              ).flatten
+          (resize.width, resize.height)
+            .mapN(
+              TargetsOverlay(
+                _,
+                _,
+                props.fov.get,
+                currentPos.value.diff(props.coordinates).offset,
+                props.coordinates,
+                List(
+                  SVGTarget.CrosshairTarget(props.coordinates, Css("science-target"), 10).some,
+                  gs.map(SVGTarget.CircleTarget(_, Css("guidestar"), 3))
+                ).flatten
+              )
             )
             .when(resize.height.exists(_ >= 100)),
 
