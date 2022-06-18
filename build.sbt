@@ -81,6 +81,11 @@ lazy val facade =
     .settings(commonSettings: _*)
     .settings(
       name                            := "react-aladin",
+      Compile / npmDependencies ++= Seq(
+        "react"                -> reactJS,
+        "react-dom"            -> reactJS,
+        "@cquiroz/aladin-lite" -> aladinLiteVersion
+      ),
       Test / npmDevDependencies ++= Seq(
         "chokidar" -> "3.4.2"
       ),
