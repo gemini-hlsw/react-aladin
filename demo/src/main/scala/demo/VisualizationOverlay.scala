@@ -6,16 +6,14 @@ package demo
 import cats.Semigroup
 import cats.syntax.all._
 import cats.data.NonEmptyMap
-import crystal.react.reuse._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.svg_<^._
-import lucuma.core.math.Coordinates
+import lucuma.core.math.Offset
 import react.common._
 import react.common.implicits._
 import lucuma.core.geom.ShapeExpression
 import lucuma.core.geom.jts.JtsShape
 import lucuma.core.geom.jts.interpreter._
-import lucuma.core.math.Angle
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.GeometryCollection
 import org.locationtech.jts.geom.Polygon
@@ -26,7 +24,7 @@ final case class VisualizationOverlay(
   width:        Int,
   height:       Int,
   fov:          Fov,
-  screenOffset: Option[(Double, Double)],
+  screenOffset: Offset,
   shapes:       NonEmptyMap[Css, ShapeExpression]
 ) extends ReactFnProps[VisualizationOverlay](VisualizationOverlay.component)
 
@@ -62,7 +60,9 @@ object VisualizationOverlay {
   val canvasWidth  = VdomAttr("width")
   val canvasHeight = VdomAttr("height")
   val component    =
-    ScalaFnComponent[Props] { p =>
+    ScalaFnComponent
+      .withHooks[Props]
+      .render { p =>
       // Render the svg
       val evaldShapes: NonEmptyMap[Css, JtsShape] = p.shapes
         .fmap(_.eval)
@@ -85,13 +85,16 @@ object VisualizationOverlay {
       val sx = p.fov.x.toMicroarcseconds / w
       val sy = p.fov.y.toMicroarcseconds / h
 
-      // Translation coordinates
-      // val tx = p.fov.x.toMicroarcseconds.toDouble * px      // + dox
-      // val ty = p.fov.y.toMicroarcseconds.toDouble * (y / h) // + dox
-      // val ty = abs(dy * y / h)                                            // - doy
+      // Offset amount
+      val offP =
+        Offset.P.signedDecimalArcseconds.get(p.screenOffset.p).toDouble * 1e6
 
+      val offQ =
+        Offset.Q.signedDecimalArcseconds.get(p.screenOffset.q).toDouble * 1e6
+
+      // Do the shifting and offseting via viewbox
       val viewBox =
-        s"${scale(x + px * w) * sx} ${scale(y + py * h) * sy} ${scale(w) * sx} ${scale(h) * sy}"
+        s"${scale(x + px * w) * sx + scale(offP)} ${scale(y + py * h) * sy + scale(offQ)} ${scale(w) * sx} ${scale(h) * sy}"
 
       val svg = <.svg(
         ^.`class`    := "visualization-overlay-svg",

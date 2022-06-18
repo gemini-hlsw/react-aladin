@@ -98,17 +98,17 @@ object AladinContainer {
         aladinRef.get.asCBO.flatMapCB(_.backend.world2pixFn.flatMap(w.setState))
       }
       // Render the visualization, only if current pos, fov or size changes
-      .useEffectWithDepsBy((p, currentPos, _, _, world2pix, resize) =>
-        (p.fov, currentPos, world2pix.value(p.coordinates), resize)
-      ) { (_, _, svg, aladinRef, _, _) =>
-        { case (_, _, off, _) =>
-          off.map { off =>
-            aladinRef.get.asCBO
-              .flatMapCB(_.backend.runOnAladinCB(updateVisualization(svg, off)))
-              .toCallback
-          }.getOrEmpty
-        }
-      }
+      // .useEffectWithDepsBy((p, currentPos, _, _, world2pix, resize) =>
+      //   (p.fov, currentPos, world2pix.value(p.coordinates), resize)
+      // ) { (_, _, svg, aladinRef, _, _) =>
+      //   { case (_, _, off, _) =>
+      //     off.map { off =>
+      //       aladinRef.get.asCBO
+      //         .flatMapCB(_.backend.runOnAladinCB(updateVisualization(svg, off)))
+      //         .toCallback
+      //     }.getOrEmpty
+      //   }
+      // }
       .renderWithReuse { (props, currentPos, _, aladinRef, world2pix, resize) =>
         /**
          * Called when the position changes, i.e. aladin pans. We want to offset the visualization
@@ -137,7 +137,8 @@ object AladinContainer {
               _,
               _,
               props.fov.get,
-              screenOffset,
+              currentPos.value.diff(props.coordinates).offset,
+              // screenOffset,
               GmosGeometry.shapes
             )
           ),

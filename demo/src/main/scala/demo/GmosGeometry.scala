@@ -28,7 +28,7 @@ object GmosGeometry {
     Offset(170543999.µas.p, -24177003.µas.q)
 
   val offsetPos: Offset =
-    Offset.Zero // (-60.arcsec.p, 60.arcsec.q)
+    Offset(-60.arcsec.p, 60.arcsec.q)
 
   val fpu: Option[Either[GmosNorthFpu, GmosSouthFpu]] =
     Some(Right(GmosSouthFpu.LongSlit_5_00))
@@ -41,10 +41,10 @@ object GmosGeometry {
   // Shape to display
   val shapes: NonEmptyMap[Css, ShapeExpression] =
     NonEmptyMap.of(
-      // (Css("gmos-probe"), gmos.probeArm.shapeAt(posAngle, guideStarOffset, offsetPos, fpu, port)),
+      (Css("gmos-probe"), gmos.probeArm.shapeAt(posAngle, guideStarOffset, offsetPos, fpu, port)),
       (Css("gmos-patrol-field"), gmos.probeArm.patrolFieldAt(posAngle, offsetPos, fpu, port)),
-      (Css("gmos-science-ccd"), gmos.scienceArea.imaging ⟲ posAngle)
-      // (Css("gmos-science-ccd-offset"), gmos.scienceArea.imaging ↗ offsetPos ⟲ posAngle)
+      (Css("gmos-science-ccd"), gmos.scienceArea.imaging ⟲ posAngle),
+      (Css("gmos-science-ccd-offset"), gmos.scienceArea.imaging ↗ offsetPos ⟲ posAngle)
     )
 
   // Scale
