@@ -9,7 +9,6 @@ import crystal.react.hooks._
 import crystal.react.reuse._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
-import lucuma.core.geom.jts.interpreter._
 import lucuma.core.math._
 import lucuma.svgdotjs.Svg
 import lucuma.ui.reusability._
@@ -80,11 +79,11 @@ object AladinContainer {
       // View coordinates (in case the user pans)
       .useStateBy(_.coordinates)
       // Memoized svg
-      .useMemoBy((p, _) => p.fov) { case (_, _) =>
-        _ =>
-          visualization
-            .shapesToSvg(GmosGeometry.shapes, GmosGeometry.pp, GmosGeometry.ScaleFactor)
-      }
+      // .useMemoBy((p, _) => p.fov) { case (_, _) =>
+      //   _ =>
+      //     visualization
+      //       .shapesToSvg(GmosGeometry.shapes, GmosGeometry.pp, GmosGeometry.ScaleFactor)
+      // }
       // Ref to the aladin component
       .useRefToScalaComponent(AladinComp)
       // Function to calculate coordinates
@@ -92,9 +91,9 @@ object AladinContainer {
       // resize detector
       .useResizeDetector()
       // Update the world2pix function
-      .useEffectWithDepsBy { (p, currentPos, _, aladinRef, _, resize) =>
+      .useEffectWithDepsBy { (p, currentPos, aladinRef, _, resize) =>
         (resize, p.fov, currentPos, aladinRef)
-      } { (_, _, _, aladinRef, w, _) => _ =>
+      } { (_, _, aladinRef, w, _) => _ =>
         aladinRef.get.asCBO.flatMapCB(_.backend.world2pixFn.flatMap(w.setState))
       }
       // Render the visualization, only if current pos, fov or size changes
@@ -109,7 +108,7 @@ object AladinContainer {
       //     }.getOrEmpty
       //   }
       // }
-      .renderWithReuse { (props, currentPos, _, aladinRef, world2pix, resize) =>
+      .renderWithReuse { (props, currentPos, aladinRef, world2pix, resize) =>
         /**
          * Called when the position changes, i.e. aladin pans. We want to offset the visualization
          * to keep the internal target correct
@@ -118,9 +117,6 @@ object AladinContainer {
           currentPos.setState(Coordinates(u.ra, u.dec))
 
         def onZoom = (v: Fov) => Callback.log(s"onZoom $v") *> props.fov.set(v)
-        // def onZoom = (v: Fov) => props.fov.set(v)
-
-        val screenOffset = world2pix.value(currentPos.value)
 
         def customizeAladin(v: JsAladin): Callback =
           v.onZoom(onZoom) *> // re render on zoom
@@ -132,16 +128,18 @@ object AladinContainer {
         <.div(
           // ExploreStyles.AladinContainerBody,
           Css("react-aladin-container"),
-          (resize.width, resize.height).mapN(
-            VisualizationOverlay(
-              _,
-              _,
-              props.fov.get,
-              currentPos.value.diff(props.coordinates).offset,
-              // screenOffset,
-              GmosGeometry.shapes
+          (resize.width, resize.height)
+            .mapN(
+              VisualizationOverlay(
+                _,
+                _,
+                props.fov.get,
+                currentPos.value.diff(props.coordinates).offset,
+                // screenOffset,
+                GmosGeometry.shapes
+              )
             )
-          ),
+            .when(resize.height.exists(_ >= 100)),
           (resize.width, resize.height).mapN(
             SVGTargetsOverlay(
               _,
@@ -153,7 +151,8 @@ object AladinContainer {
                 gs.map(SVGTarget.CircleTarget(_, Css("guidestar"), 3))
               ).flatten
             )
-          ),
+            .when(resize.height.exists(_ >= 100)),
+
           // This is a bit tricky. Sometimes the height can be 0 or a very low number.
           // This happens during a second render. If we let the height to be zero, aladin
           // will take it as 1. This height ends up being a denominator, which, if low,

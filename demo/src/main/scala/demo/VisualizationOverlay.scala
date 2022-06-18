@@ -6,6 +6,7 @@ package demo
 import cats.Semigroup
 import cats.syntax.all._
 import cats.data.NonEmptyMap
+import crystal.react.hooks._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.svg_<^._
 import lucuma.core.math.Offset
@@ -25,7 +26,8 @@ final case class VisualizationOverlay(
   height:       Int,
   fov:          Fov,
   screenOffset: Offset,
-  shapes:       NonEmptyMap[Css, ShapeExpression]
+  shapes:       NonEmptyMap[Css, ShapeExpression],
+  clazz:        Css = Css.Empty
 ) extends ReactFnProps[VisualizationOverlay](VisualizationOverlay.component)
 
 object VisualizationOverlay {
@@ -41,6 +43,7 @@ object VisualizationOverlay {
   val JtsPolygon    = Css("viz-polygon")
   val JtsCollection = Css("viz-collecttion")
   val JtsGuides     = Css("viz-guides")
+  val JtsSvg        = Css("visualization-overlay-svg")
 
   def forGeometry(css: Css, g: Geometry): VdomNode =
     g match {
@@ -62,77 +65,87 @@ object VisualizationOverlay {
   val component    =
     ScalaFnComponent
       .withHooks[Props]
-      .render { p =>
-      // Render the svg
-      val evaldShapes: NonEmptyMap[Css, JtsShape] = p.shapes
-        .fmap(_.eval)
-        .map {
-          case jts: JtsShape => jts
-          case x             => sys.error(s"Whoa unexpected shape type: $x")
-        }
+      .useSerialStateBy(_.shapes)
+      .useMemoBy((_, s) => s) { (_, _) => shapes =>
+        // Render the svg
+        val evald: NonEmptyMap[Css, JtsShape] = shapes.value
+          .fmap(_.eval)
+          .map {
+            case jts: JtsShape => jts
+            case x             => sys.error(s"Whoa unexpected shape type: $x")
+          }
+        val composite                         = evald
+          .map(_.g)
+          .reduce(geometryUnionSemigroup)
+        (evald, composite)
+      }
+      .render { (p, _, shapes) =>
+        val (evaldShapes, composite) = shapes.value
+        val envelope                 = composite.getBoundary.getEnvelopeInternal
+        
+        // We should calculate the viewbox of the whole geometry
+        // dimension in micro arcseconds
+        val (x, y, w, h)             =
+          (envelope.getMinX, envelope.getMinY, envelope.getWidth, envelope.getHeight)
 
-      // We should calculate the viewbox of the whole geometry
-      val composite    = evaldShapes.map(_.g).reduce(geometryUnionSemigroup)
-      val envelope     = composite.getBoundary.getEnvelopeInternal
-      // dimension in micro arcseconds
-      val (x, y, w, h) =
-        (envelope.getMinX, envelope.getMinY, envelope.getWidth, envelope.getHeight)
+        // Shift factors on x/y, basically the percentage shifted on x/y
+        val px = abs(x / w) - 0.5
+        val py = abs(y / h) - 0.5
+        // scaling factors on x/y
+        val sx = p.fov.x.toMicroarcseconds / w
+        val sy = p.fov.y.toMicroarcseconds / h
 
-      // Shift factors on x/y, basically the percentage shifted on x/y
-      val px = abs(x / w) - 0.5
-      val py = abs(y / h) - 0.5
-      // scaling factors on x/y
-      val sx = p.fov.x.toMicroarcseconds / w
-      val sy = p.fov.y.toMicroarcseconds / h
+        // Offset amount
+        val offP =
+          Offset.P.signedDecimalArcseconds.get(p.screenOffset.p).toDouble * 1e6
 
-      // Offset amount
-      val offP =
-        Offset.P.signedDecimalArcseconds.get(p.screenOffset.p).toDouble * 1e6
+        val offQ =
+          Offset.Q.signedDecimalArcseconds.get(p.screenOffset.q).toDouble * 1e6
 
-      val offQ =
-        Offset.Q.signedDecimalArcseconds.get(p.screenOffset.q).toDouble * 1e6
+        // Do the shifting and offseting via viewbox
+        val viewBoxX = scale(x + px * w) * sx + scale(offP)
+        val viewBoxY = scale(y + py * h) * sy + scale(offQ)
+        val viewBoxW = scale(w) * sx
+        val viewBoxH = scale(h) * sy
 
-      // Do the shifting and offseting via viewbox
-      val viewBox =
-        s"${scale(x + px * w) * sx + scale(offP)} ${scale(y + py * h) * sy + scale(offQ)} ${scale(w) * sx} ${scale(h) * sy}"
+        val viewBox = s"$viewBoxX $viewBoxY $viewBoxW $viewBoxH"
 
-      val svg = <.svg(
-        ^.`class`    := "visualization-overlay-svg",
-        ^.viewBox    := viewBox,
-        canvasWidth  := s"${p.width}px",
-        canvasHeight := s"${p.height}px",
-        <.g(
-          ^.`class`   := "jts-root-group",
-          ^.transform := s"scale(1, -1)",
-          evaldShapes.toNel
-            .map { case (css, shape) =>
-              forGeometry(css, shape.g)
-            }
-            .toList
-            .toTagMod
-        ),
-        <.rect(
-          ^.`class`   := "helper",
-          ^.x         := scale(x),
-          ^.y         := scale(y),
-          ^.width     := scale(w),
-          ^.height    := scale(h)
-        ),
-        <.line(
-          ^.`class`   := "helper",
-          ^.x1        := scale(x),
-          ^.y1        := scale(y),
-          ^.x2        := scale(x + w),
-          ^.y2        := scale(y + h)
-        ),
-        <.line(
-          ^.`class`   := "helper",
-          ^.x1        := scale(x),
-          ^.y1        := -scale(y),
-          ^.x2        := scale(x + w),
-          ^.y2        := -scale(y + h)
+        val svg = <.svg(
+          JtsSvg |+| p.clazz,
+          ^.viewBox    := viewBox,
+          canvasWidth  := s"${p.width}px",
+          canvasHeight := s"${p.height}px",
+          <.g(
+            ^.transform := s"scale(1, -1)",
+            evaldShapes.toNel
+              .map { case (css, shape) =>
+                forGeometry(css, shape.g)
+              }
+              .toList
+              .toTagMod
+          ),
+          <.rect(
+            JtsGuides,
+            ^.x         := scale(x),
+            ^.y         := scale(y),
+            ^.width     := scale(w),
+            ^.height    := scale(h)
+          ),
+          <.line(
+            JtsGuides,
+            ^.x1        := scale(x),
+            ^.y1        := scale(y),
+            ^.x2        := scale(x + w),
+            ^.y2        := scale(y + h)
+          ),
+          <.line(
+            JtsGuides,
+            ^.x1        := scale(x),
+            ^.y1        := -scale(y),
+            ^.x2        := scale(x + w),
+            ^.y2        := -scale(y + h)
+          )
         )
-      )
-      svg
-    }
+        svg
+      }
 }
