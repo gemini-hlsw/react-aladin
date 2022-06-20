@@ -7,6 +7,7 @@ import cats.implicits._
 import crystal.react.ReuseView
 import crystal.react.reuse._
 import japgolly.scalajs.react._
+import japgolly.scalajs.react.feature.ReactFragment
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.core.math._
 import lucuma.ui.reusability._
@@ -61,52 +62,51 @@ object AladinContainer {
           props.coordinates.offsetBy(Angle.Angle0, GmosGeometry.guideStarOffset)
 
         <.div(
-          // ExploreStyles.AladinContainerBody,
           Css("react-aladin-container"),
-          (resize.width, resize.height)
-            .mapN(
-              VisualizationOverlay(
-                _,
-                _,
-                props.fov.get,
-                currentPos.value.diff(props.coordinates).offset,
-                // screenOffset,
-                GmosGeometry.shapes
-              )
-            )
-            .when(resize.height.exists(_ >= 100)),
-          (resize.width, resize.height)
-            .mapN(
-              TargetsOverlay(
-                _,
-                _,
-                props.fov.get,
-                currentPos.value.diff(props.coordinates).offset,
-                props.coordinates,
-                List(
-                  SVGTarget.CrosshairTarget(props.coordinates, Css("science-target"), 10).some,
-                  gs.map(SVGTarget.CircleTarget(_, Css("guidestar"), 3))
-                ).flatten
-              )
-            )
-            .when(resize.height.exists(_ >= 100)),
-
-          // This is a bit tricky. Sometimes the height can be 0 or a very low number.
           // This happens during a second render. If we let the height to be zero, aladin
           // will take it as 1. This height ends up being a denominator, which, if low,
           // will make aladin request a large amount of tiles and end up freeze explore.
           if (resize.height.exists(_ >= 100))
-            AladinComp.withRef(aladinRef) {
-              Aladin(
-                Css("react-aladin"),
-                showReticle = false,
-                showLayersControl = false,
-                target = props.aladinCoordsStr,
-                fov = props.fov.get.x,
-                showGotoControl = false,
-                customize = customizeAladin _
-              )
-            }
+            ReactFragment(
+              (resize.width, resize.height)
+                .mapN(
+                  VisualizationOverlay(
+                    _,
+                    _,
+                    props.fov.get,
+                    currentPos.value.diff(props.coordinates).offset,
+                    // screenOffset,
+                    GmosGeometry.shapes
+                  )
+                ),
+              (resize.width, resize.height)
+                .mapN(
+                  TargetsOverlay(
+                    _,
+                    _,
+                    props.fov.get,
+                    currentPos.value.diff(props.coordinates).offset,
+                    props.coordinates,
+                    List(
+                      SVGTarget.CrosshairTarget(props.coordinates, Css("science-target"), 10).some,
+                      gs.map(SVGTarget.CircleTarget(_, Css("guidestar"), 3))
+                    ).flatten
+                  )
+                ),
+
+              // This is a bit tricky. Sometimes the height can be 0 or a very low number.
+              AladinComp.withRef(aladinRef) {
+                Aladin(
+                  Css("react-aladin"),
+                  showReticle = false,
+                  showLayersControl = false,
+                  target = props.aladinCoordsStr,
+                  fov = props.fov.get.x,
+                  showGotoControl = false,
+                  customize = customizeAladin _
+                )
+              }
+            )
           else EmptyVdom
         )
           .withRef(resize.ref)
