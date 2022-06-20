@@ -8,7 +8,6 @@ lazy val aladinLiteVersion      = "0.6.2"
 lazy val reactCommonVersion     = "0.17.0"
 lazy val reactGridLayoutVersion = "0.16.1"
 lazy val munitVersion           = "0.7.29"
-lazy val svgdotjsVersion        = "0.2.1"
 
 ThisBuild / tlBaseVersion       := "0.22"
 ThisBuild / tlCiReleaseBranches := Seq("master")
@@ -100,12 +99,12 @@ lazy val facade =
       // Compile tests to JS using fast-optimisation
       Test / scalaJSStage             := FastOptStage,
       libraryDependencies ++= Seq(
-        "edu.gemini"                        %%% "lucuma-core" % lucumaCoreVersion,
-        "edu.gemini"                        %%% "lucuma-ui"   % lucumaUIVersion,
-        "com.github.japgolly.scalajs-react" %%% "core"        % scalaJsReact,
-        "com.github.japgolly.scalajs-react" %%% "test"        % scalaJsReact % Test,
-        "io.github.cquiroz.react"           %%% "common"      % reactCommonVersion,
-        "org.scalameta"                     %%% "munit"       % munitVersion % Test
+        "edu.gemini"                        %%% "lucuma-core"       % lucumaCoreVersion,
+        "edu.gemini"                        %%% "lucuma-ui"         % lucumaUIVersion,
+        "com.github.japgolly.scalajs-react" %%% "core-bundle-cb_io" % scalaJsReact,
+        "com.github.japgolly.scalajs-react" %%% "test"              % scalaJsReact % Test,
+        "io.github.cquiroz.react"           %%% "common"            % reactCommonVersion,
+        "org.scalameta"                     %%% "munit"             % munitVersion % Test
       ),
       testFrameworks += new TestFramework("munit.Framework"),
       Test / webpackConfigFile        := Some(
