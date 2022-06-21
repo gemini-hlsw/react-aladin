@@ -158,7 +158,7 @@ object AladinContainer {
               _,
               _,
               props.fov.get,
-              world2pix.value.reuseNever,
+              world2pix.value,
               List(
                 SVGTarget.CrosshairTarget(props.coordinates, Css("science-target"), 10).some,
                 gs.map(SVGTarget.CircleTarget(_, Css("guidestar"), 3))
