@@ -63,13 +63,14 @@ object VisualizationOverlay {
 
   val canvasWidth  = VdomAttr("width")
   val canvasHeight = VdomAttr("height")
-  val component    =
+
+  val component =
     ScalaFnComponent
       .withHooks[Props]
       .useSerialStateBy(_.shapes)
       .useMemoBy((_, s) => s) { (_, _) => shapes =>
         // Render the svg
-        val evald: NonEmptyMap[Css, JtsShape] = shapes.value
+        val evald: NonEmptyMap[Css, JtsShape] = shapes.value.value
           .fmap(_.eval)
           .map {
             case jts: JtsShape => jts
