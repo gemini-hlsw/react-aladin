@@ -5,17 +5,13 @@ package demo
 
 import cats.implicits._
 import crystal.react.ReuseView
-import crystal.react.hooks._
 import crystal.react.reuse._
 import japgolly.scalajs.react._
+import japgolly.scalajs.react.feature.ReactFragment
 import japgolly.scalajs.react.vdom.html_<^._
-import lucuma.core.geom.jts.interpreter._
 import lucuma.core.math._
-import lucuma.svgdotjs.Svg
 import lucuma.ui.reusability._
 import monocle.macros.GenLens
-import org.scalajs.dom.Element
-import org.scalajs.dom.document
 import react.aladin._
 import react.common._
 import react.resizeDetector.hooks._
@@ -30,27 +26,6 @@ final case class AladinContainer(
 object AladinContainer {
   type Props = AladinContainer
 
-  implicit class CoordinatesOps(val c: Coordinates) extends AnyVal {
-    def offsetBy(posAngle: Angle, o: Offset): Option[Coordinates] = {
-      val paCos  = posAngle.cos
-      val paSin  = posAngle.sin
-      val pDeg   = o.p.toAngle.toSignedDoubleDegrees
-      val qDeg   = o.q.toAngle.toSignedDoubleDegrees
-      val dRa    = pDeg * paCos + qDeg * paSin
-      val dDec   = -pDeg * paSin + qDeg * paCos
-      val decCos = c.dec.toAngle.cos
-
-      Declination
-        .fromDoubleDegrees(c.dec.toAngle.toSignedDoubleDegrees + dDec)
-        .filter(_ => decCos != 0)
-        .map { d =>
-          Coordinates(RightAscension.fromDoubleDegrees(c.ra.toAngle.toDoubleDegrees + dRa / decCos),
-                      d
-          )
-        }
-    }
-  }
-
   val AladinComp = Aladin.component
 
   val coordinates = GenLens[AladinContainer](_.coordinates)
@@ -60,79 +35,16 @@ object AladinContainer {
 
   implicit val reuseDouble = Reusability.double(0.00001)
 
-  type World2PixFn = Coordinates => Option[(Double, Double)]
-  val DefaultWorld2PixFn: World2PixFn = (_: Coordinates) => None
-
-  def updateVisualization(svg: Svg, off: (Double, Double))(v: JsAladin): Callback = {
-    val size = Size(v.getParentDiv().clientHeight.toDouble, v.getParentDiv().clientWidth.toDouble)
-    val div  = v.getParentDiv()
-    renderVisualization(svg, off, div, size, v.pixelScale)
-  }
-
-  def renderVisualization(
-    svg:        Svg,
-    offset:     (Double, Double),
-    div:        Element,
-    size:       Size,
-    pixelScale: PixelScale
-  ): Callback =
-    Callback {
-      val (x, y) = offset
-      // Delete any viz previously rendered
-      val g      = Option(div.querySelector(".aladin-visualization"))
-        .map { g =>
-          g.childNodes.toList.foreach(g.removeChild)
-          g
-        }
-        .getOrElse {
-          val g = document.createElement("div")
-          g.classList.add("aladin-visualization")
-          // Include the svg on the dom
-          div.appendChild(g)
-          g
-        }
-      // Render the svg
-      visualization.geometryForAladin(svg, g, size, pixelScale, GmosGeometry.ScaleFactor, (x, y))
-    }
-
   val component =
     ScalaFnComponent
       .withHooks[Props]
       // View coordinates (in case the user pans)
       .useStateBy(_.coordinates)
-      // Memoized svg
-      .useMemoBy((p, _) => p.fov) { case (_, _) =>
-        _ =>
-          visualization
-            .shapesToSvg(GmosGeometry.shapes, GmosGeometry.pp, GmosGeometry.ScaleFactor)
-      }
       // Ref to the aladin component
       .useRefToScalaComponent(AladinComp)
-      // Function to calculate coordinates
-      .useSerialState(DefaultWorld2PixFn)
       // resize detector
       .useResizeDetector()
-      // Update the world2pix function
-      .useEffectWithDepsBy { (p, currentPos, _, aladinRef, _, resize) =>
-        (resize, p.fov, currentPos, aladinRef)
-      } { (_, _, _, aladinRef, w, _) => _ =>
-        aladinRef.get.asCBO.flatMapCB(_.backend.world2pixFn.flatMap(w.setState))
-      }
-      // Render the visualization, only if current pos, fov or size changes
-      .useEffectWithDepsBy((p, currentPos, _, _, world2pix, resize) =>
-        (p.fov, currentPos, world2pix.value(p.coordinates), resize)
-      ) { (_, _, svg, aladinRef, _, _) =>
-        { case (_, _, off, _) =>
-          off
-            .map(off =>
-              aladinRef.get.asCBO
-                .flatMapCB(_.backend.runOnAladinCB(updateVisualization(svg, off)))
-                .toCallback
-            )
-            .getOrEmpty
-        }
-      }
-      .renderWithReuse { (props, currentPos, _, aladinRef, world2pix, resize) =>
+      .renderWithReuse { (props, currentPos, aladinRef, resize) =>
         /**
          * Called when the position changes, i.e. aladin pans. We want to offset the visualization
          * to keep the internal target correct
@@ -141,7 +53,6 @@ object AladinContainer {
           currentPos.setState(Coordinates(u.ra, u.dec))
 
         def onZoom = (v: Fov) => Callback.log(s"onZoom $v") *> props.fov.set(v)
-        // def onZoom = (v: Fov) => props.fov.set(v)
 
         def customizeAladin(v: JsAladin): Callback =
           v.onZoom(onZoom) *> // re render on zoom
@@ -151,36 +62,51 @@ object AladinContainer {
           props.coordinates.offsetBy(Angle.Angle0, GmosGeometry.guideStarOffset)
 
         <.div(
-          // ExploreStyles.AladinContainerBody,
           Css("react-aladin-container"),
-          (resize.width, resize.height).mapN(
-            SVGTargetsOverlay(
-              _,
-              _,
-              props.fov.get,
-              world2pix.value,
-              List(
-                SVGTarget.CrosshairTarget(props.coordinates, Css("science-target"), 10).some,
-                gs.map(SVGTarget.CircleTarget(_, Css("guidestar"), 3))
-              ).flatten
-            )
-          ),
-          // This is a bit tricky. Sometimes the height can be 0 or a very low number.
           // This happens during a second render. If we let the height to be zero, aladin
           // will take it as 1. This height ends up being a denominator, which, if low,
           // will make aladin request a large amount of tiles and end up freeze explore.
           if (resize.height.exists(_ >= 100))
-            AladinComp.withRef(aladinRef) {
-              Aladin(
-                Css("react-aladin"),
-                showReticle = false,
-                showLayersControl = false,
-                target = props.aladinCoordsStr,
-                fov = props.fov.get.x,
-                showGotoControl = false,
-                customize = customizeAladin _
-              )
-            }
+            ReactFragment(
+              (resize.width, resize.height)
+                .mapN(
+                  VisualizationOverlay(
+                    _,
+                    _,
+                    props.fov.get,
+                    currentPos.value.diff(props.coordinates).offset,
+                    // screenOffset,
+                    GmosGeometry.shapes
+                  )
+                ),
+              (resize.width, resize.height)
+                .mapN(
+                  TargetsOverlay(
+                    _,
+                    _,
+                    props.fov.get,
+                    currentPos.value.diff(props.coordinates).offset,
+                    props.coordinates,
+                    List(
+                      SVGTarget.CrosshairTarget(props.coordinates, Css("science-target"), 10).some,
+                      gs.map(SVGTarget.CircleTarget(_, Css("guidestar"), 3))
+                    ).flatten
+                  )
+                ),
+
+              // This is a bit tricky. Sometimes the height can be 0 or a very low number.
+              AladinComp.withRef(aladinRef) {
+                Aladin(
+                  Css("react-aladin"),
+                  showReticle = false,
+                  showLayersControl = false,
+                  target = props.aladinCoordsStr,
+                  fov = props.fov.get.x,
+                  showGotoControl = false,
+                  customize = customizeAladin _
+                )
+              }
+            )
           else EmptyVdom
         )
           .withRef(resize.ref)

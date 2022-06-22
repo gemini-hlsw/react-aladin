@@ -8,9 +8,8 @@ lazy val aladinLiteVersion      = "0.6.2"
 lazy val reactCommonVersion     = "0.17.0"
 lazy val reactGridLayoutVersion = "0.16.1"
 lazy val munitVersion           = "0.7.29"
-lazy val svgdotjsVersion        = "0.2.1"
 
-ThisBuild / tlBaseVersion       := "0.21"
+ThisBuild / tlBaseVersion       := "0.22"
 ThisBuild / tlCiReleaseBranches := Seq("master")
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
@@ -46,7 +45,6 @@ val demo =
       libraryDependencies ++= Seq(
         "edu.gemini"                        %%% "lucuma-core"        % lucumaCoreVersion,
         "edu.gemini"                        %%% "lucuma-ui"          % lucumaUIVersion,
-        "edu.gemini"                        %%% "lucuma-svgdotjs"    % svgdotjsVersion,
         "com.github.japgolly.scalajs-react" %%% "core-bundle-cb_io"  % scalaJsReact,
         "com.github.japgolly.scalajs-react" %%% "extra-ext-monocle3" % scalaJsReact,
         "com.github.japgolly.scalajs-react" %%% "test"               % scalaJsReact % Test,
@@ -103,7 +101,6 @@ lazy val facade =
       libraryDependencies ++= Seq(
         "edu.gemini"                        %%% "lucuma-core"       % lucumaCoreVersion,
         "edu.gemini"                        %%% "lucuma-ui"         % lucumaUIVersion,
-        "edu.gemini"                        %%% "lucuma-svgdotjs"   % svgdotjsVersion,
         "com.github.japgolly.scalajs-react" %%% "core-bundle-cb_io" % scalaJsReact,
         "com.github.japgolly.scalajs-react" %%% "test"              % scalaJsReact % Test,
         "io.github.cquiroz.react"           %%% "common"            % reactCommonVersion,

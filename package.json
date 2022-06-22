@@ -2,9 +2,6 @@
   "private": true,
   "license": "UNLICENSED",
   "dependencies": {
-    "@svgdotjs/svg.js": "3.0.16",
-    "chokidar": "3.5.3",
-    "jsdom": "19.0.0",
     "loglevel": "^1.8.0",
     "react": "17.0.2",
     "react-dom": "17.0.2",
@@ -12,13 +9,15 @@
     "react-resize-detector": "7.0.0"
   },
   "devDependencies": {
+    "jsdom": "19.0.0",
+    "sass": "^1.52.3",
     "@babel/eslint-parser": "^7.5.4",
     "@vitejs/plugin-react": "^1.2.0",
     "eslint": "8.10.0",
     "eslint-plugin-import": "2.25.4",
     "less": "4.1.2",
     "less-watch-compiler": "1.16.3",
-    "vite": "2.8.6",
+    "vite": "2.9.12",
     "vite-plugin-mkcert": "^1.6.0"
   }
 }

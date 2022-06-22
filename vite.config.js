@@ -70,10 +70,6 @@ export default ({ command, mode }) => {
     },
     build: {
       sourcemap: true,
-      minify: false,
-      terserOptions: {
-        sourceMap: false,
-      },
       outDir: path.resolve(__dirname, "static"),
     },
     plugins: [
