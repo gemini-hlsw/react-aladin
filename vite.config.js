@@ -5,7 +5,7 @@ import fs from "fs";
 
 // https://vitejs.dev/config/
 export default ({ command, mode }) => {
-  const scalaClassesDir = path.resolve(__dirname, "demo/target/scala-2.13");
+  const scalaClassesDir = path.resolve(__dirname, "demo/target/scala-3.1.3");
   const sjs =
     mode == "production"
       ? path.resolve(scalaClassesDir, "demo-opt")

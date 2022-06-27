@@ -73,7 +73,7 @@ object AladinTile {
       // (BreakpointName.xs, (480, 6, layout))
     )
 
-  implicit val fovReuse = exactFovReuse
+  implicit val fovReuse: Reusability[Fov] = exactFovReuse
 
   val component =
     ScalaFnComponent
@@ -85,7 +85,7 @@ object AladinTile {
           ^.height := "100%",
           ^.width  := "100%",
           ResponsiveReactGridLayout(
-            width = s.width.foldMap(_.toDouble),
+            width = s.width.foldMap(_.toInt),
             containerPadding = (1, 1),
             rowHeight = 30,
             draggableHandle = ".tileTitle",

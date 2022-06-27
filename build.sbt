@@ -1,29 +1,27 @@
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-lazy val reactJS                = "17.0.2"
-lazy val scalaJsReact           = "2.1.1"
-lazy val lucumaCoreVersion      = "0.42.1"
-lazy val lucumaUIVersion        = "0.36.6"
-lazy val aladinLiteVersion      = "0.6.2"
-lazy val reactCommonVersion     = "0.17.0"
-lazy val reactGridLayoutVersion = "0.16.1"
-lazy val munitVersion           = "0.7.29"
+lazy val reactJS            = "17.0.2"
+lazy val scalaJsReact       = "2.1.1"
+lazy val lucumaCoreVersion  = "0.41-8517424-SNAPSHOT"
+lazy val lucumaUIVersion    = "0.37-28c9fa7-SNAPSHOT"
+lazy val lucumaReactVersion = "1.0-7e5ce9c-SNAPSHOT"
+lazy val aladinLiteVersion  = "0.6.2"
+// lazy val reactCommonVersion     = "0.17.0"
+// lazy val reactGridLayoutVersion = "0.16.1"
+lazy val munitVersion       = "0.7.29"
 
 ThisBuild / tlBaseVersion       := "0.22"
 ThisBuild / tlCiReleaseBranches := Seq("master")
 
-Global / onChangedBuildSource := ReloadOnSourceChanges
-ThisBuild / scalacOptions += "-Ymacro-annotations"
+Global / onChangedBuildSource  := ReloadOnSourceChanges
 ThisBuild / scalacOptions ~= { _.filterNot(Set("-Wunused:params")) }
-ThisBuild / coverageEnabled   := false
-ThisBuild / Test / bspEnabled := false
+ThisBuild / coverageEnabled    := false
 Global / resolvers += Resolver.sonatypeRepo("public")
-
-addCommandAlias(
-  "restartWDS",
-  "; demo/fastOptJS::stopWebpackDevServer; demo/fastOptJS::startWebpackDevServer; ~demo/fastOptJS"
+ThisBuild / scalaVersion       := "3.1.3"
+ThisBuild / crossScalaVersions := Seq("3.1.3")
+ThisBuild / scalacOptions ++= Seq(
+  "-language:implicitConversions"
 )
-
 enablePlugins(NoPublishPlugin)
 
 val demo =
@@ -34,7 +32,7 @@ val demo =
     .settings(
       scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
       Compile / fastLinkJS / scalaJSLinkerConfig ~= (_.withModuleSplitStyle(
-        ModuleSplitStyle.SmallestModules
+        ModuleSplitStyle.FewestModules
       )),
       Compile / fullLinkJS / scalaJSLinkerConfig ~= (_.withModuleSplitStyle(
         ModuleSplitStyle.FewestModules
@@ -43,13 +41,14 @@ val demo =
       Compile / fullOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(false) },
       test := {},
       libraryDependencies ++= Seq(
-        "edu.gemini"                        %%% "lucuma-core"        % lucumaCoreVersion,
-        "edu.gemini"                        %%% "lucuma-ui"          % lucumaUIVersion,
-        "com.github.japgolly.scalajs-react" %%% "core-bundle-cb_io"  % scalaJsReact,
-        "com.github.japgolly.scalajs-react" %%% "extra-ext-monocle3" % scalaJsReact,
-        "com.github.japgolly.scalajs-react" %%% "test"               % scalaJsReact % Test,
-        "io.github.cquiroz.react"           %%% "common"             % reactCommonVersion,
-        "io.github.cquiroz.react"           %%% "react-grid-layout"  % reactGridLayoutVersion
+        "edu.gemini"                        %%% "lucuma-core"              % lucumaCoreVersion,
+        "edu.gemini"                        %%% "lucuma-ui"                % lucumaUIVersion,
+        "com.github.japgolly.scalajs-react" %%% "core-bundle-cb_io"        % scalaJsReact,
+        "com.github.japgolly.scalajs-react" %%% "extra-ext-monocle3"       % scalaJsReact,
+        "com.github.japgolly.scalajs-react" %%% "test"                     % scalaJsReact % Test,
+        "edu.gemini"                        %%% "lucuma-react-common"      % lucumaReactVersion,
+        "edu.gemini"                        %%% "lucuma-react-grid-layout" % lucumaReactVersion,
+        "edu.gemini"                        %%% "lucuma-react-cats"        % lucumaReactVersion
       )
     )
 
@@ -99,12 +98,12 @@ lazy val facade =
       // Compile tests to JS using fast-optimisation
       Test / scalaJSStage             := FastOptStage,
       libraryDependencies ++= Seq(
-        "edu.gemini"                        %%% "lucuma-core"       % lucumaCoreVersion,
-        "edu.gemini"                        %%% "lucuma-ui"         % lucumaUIVersion,
-        "com.github.japgolly.scalajs-react" %%% "core-bundle-cb_io" % scalaJsReact,
-        "com.github.japgolly.scalajs-react" %%% "test"              % scalaJsReact % Test,
-        "io.github.cquiroz.react"           %%% "common"            % reactCommonVersion,
-        "org.scalameta"                     %%% "munit"             % munitVersion % Test
+        "edu.gemini"                        %%% "lucuma-core"         % lucumaCoreVersion,
+        "edu.gemini"                        %%% "lucuma-ui"           % lucumaUIVersion,
+        "com.github.japgolly.scalajs-react" %%% "core-bundle-cb_io"   % scalaJsReact,
+        "com.github.japgolly.scalajs-react" %%% "test"                % scalaJsReact % Test,
+        "edu.gemini"                        %%% "lucuma-react-common" % lucumaReactVersion,
+        "org.scalameta"                     %%% "munit"               % munitVersion % Test
       ),
       testFrameworks += new TestFramework("munit.Framework"),
       Test / webpackConfigFile        := Some(

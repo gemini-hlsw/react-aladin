@@ -6,6 +6,7 @@ package demo
 import org.scalajs.dom
 
 import scala.scalajs.js
+import react.common._
 
 import js.annotation._
 
