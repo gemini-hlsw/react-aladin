@@ -9,7 +9,7 @@ val lucumaReactVersion = "1.0-0f7eb8e-SNAPSHOT"
 lazy val aladinLiteVersion = "0.6.2"
 lazy val munitVersion      = "0.7.29"
 
-ThisBuild / tlBaseVersion       := "0.22"
+ThisBuild / tlBaseVersion       := "0.23"
 ThisBuild / tlCiReleaseBranches := Seq("master", "scala3")
 
 Global / onChangedBuildSource  := ReloadOnSourceChanges
