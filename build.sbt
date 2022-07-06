@@ -1,17 +1,16 @@
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-lazy val reactJS            = "17.0.2"
-lazy val scalaJsReact       = "2.1.1"
-lazy val lucumaCoreVersion  = "0.41-8517424-SNAPSHOT"
-lazy val lucumaUIVersion    = "0.37-28c9fa7-SNAPSHOT"
-lazy val lucumaReactVersion = "1.0-7e5ce9c-SNAPSHOT"
-lazy val aladinLiteVersion  = "0.6.2"
-// lazy val reactCommonVersion     = "0.17.0"
-// lazy val reactGridLayoutVersion = "0.16.1"
-lazy val munitVersion       = "0.7.29"
+lazy val reactJS       = "17.0.2"
+lazy val scalaJsReact  = "2.1.1"
+val lucumaCoreVersion  = "0.44-13de521-SNAPSHOT"
+val lucumaUIVersion    = "0.37-c0466b2-SNAPSHOT"
+val lucumaReactVersion = "1.0-0f7eb8e-SNAPSHOT"
+
+lazy val aladinLiteVersion = "0.6.2"
+lazy val munitVersion      = "0.7.29"
 
 ThisBuild / tlBaseVersion       := "0.22"
-ThisBuild / tlCiReleaseBranches := Seq("master")
+ThisBuild / tlCiReleaseBranches := Seq("master", "scala3")
 
 Global / onChangedBuildSource  := ReloadOnSourceChanges
 ThisBuild / scalacOptions ~= { _.filterNot(Set("-Wunused:params")) }

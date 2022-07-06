@@ -229,12 +229,10 @@ object Aladin {
 
   class Backend(bs: BackendScope[Aladin, State]) {
     def runOnAladinOpt[A](f: JsAladin => A): CallbackOption[A] =
-      bs.state
-        .map {
-          case State(Some(a)) => f(a).some
-          case _              => none
-        }
-        .asCBO
+      bs.state.map {
+        case State(Some(a)) => f(a).some
+        case _              => none
+      }.asCBO
 
     def runOnAladinCB[A](f: JsAladin => CallbackTo[A]): Callback =
       bs.state.flatMap {
