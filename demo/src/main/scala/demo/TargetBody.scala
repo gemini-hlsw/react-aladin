@@ -110,6 +110,10 @@ object TargetBody {
 
   protected implicit val propsReuse: Reusability[Props] = Reusability.derive
 
+  val coords = (RightAscension.fromStringHMS.getOption("02:09:33.319"),
+                Declination.fromStringSignedDMS.getOption("-4:37:31.11")
+  ).mapN(Coordinates.apply).getOrElse(Coordinates.Zero)
+
   val component =
     ScalaFnComponent
       .withHooks[TargetBody]
@@ -117,7 +121,7 @@ object TargetBody {
       .renderWithReuse { (_, s) =>
         AladinTile(
           Size(s.height.foldMap(_.toDouble), s.width.foldMap(_.toDouble)),
-          Coordinates.Zero
+          coords
         )
       }
 
