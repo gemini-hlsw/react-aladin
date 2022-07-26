@@ -3,7 +3,7 @@ import org.scalajs.linker.interface.ModuleSplitStyle
 lazy val reactJS           = "17.0.2"
 lazy val scalaJsReact      = "2.1.1"
 val lucumaCoreVersion      = "0.45-e482287-SNAPSHOT"
-val lucumaUIVersion        = "0.38-d3419db-SNAPSHOT"
+val lucumaUIVersion        = "0.39-0e0ab77-SNAPSHOT"
 val lucumaReactVersion     = "1.0-30e8e44-SNAPSHOT"
 lazy val aladinLiteVersion = "0.6.2"
 lazy val munitVersion      = "0.7.29"
@@ -14,7 +14,7 @@ ThisBuild / tlCiReleaseBranches := Seq("master", "scala3")
 Global / onChangedBuildSource  := ReloadOnSourceChanges
 ThisBuild / scalacOptions ~= { _.filterNot(Set("-Wunused:params")) }
 ThisBuild / coverageEnabled    := false
-Global / resolvers += Resolver.sonatypeRepo("public")
+Global / resolvers ++= Resolver.sonatypeOssRepos("public")
 ThisBuild / scalaVersion       := "3.1.3"
 ThisBuild / crossScalaVersions := Seq("3.1.3")
 ThisBuild / scalacOptions ++= Seq(
