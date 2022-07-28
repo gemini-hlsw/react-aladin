@@ -2,13 +2,13 @@ import org.scalajs.linker.interface.ModuleSplitStyle
 
 lazy val reactJS           = "17.0.2"
 lazy val scalaJsReact      = "2.1.1"
-val lucumaCoreVersion      = "0.45-e482287-SNAPSHOT"
-val lucumaUIVersion        = "0.39-0e0ab77-SNAPSHOT"
-val lucumaReactVersion     = "1.0-30e8e44-SNAPSHOT"
+val lucumaCoreVersion      = "0.46-3e17ca5-SNAPSHOT"
+val lucumaUIVersion        = "0.40-4a05a5a-SNAPSHOT"
+val lucumaReactVersion     = "1.0-9b30bcf-SNAPSHOT"
 lazy val aladinLiteVersion = "0.6.2"
 lazy val munitVersion      = "0.7.29"
 
-ThisBuild / tlBaseVersion       := "0.23"
+ThisBuild / tlBaseVersion       := "0.24"
 ThisBuild / tlCiReleaseBranches := Seq("master", "scala3")
 
 Global / onChangedBuildSource  := ReloadOnSourceChanges
@@ -45,8 +45,7 @@ val demo =
         "com.github.japgolly.scalajs-react" %%% "extra-ext-monocle3"       % scalaJsReact,
         "com.github.japgolly.scalajs-react" %%% "test"                     % scalaJsReact % Test,
         "edu.gemini"                        %%% "lucuma-react-common"      % lucumaReactVersion,
-        "edu.gemini"                        %%% "lucuma-react-grid-layout" % lucumaReactVersion,
-        "edu.gemini"                        %%% "lucuma-react-cats"        % lucumaReactVersion
+        "edu.gemini"                        %%% "lucuma-react-grid-layout" % lucumaReactVersion
       )
     )
 
