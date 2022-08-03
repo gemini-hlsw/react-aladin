@@ -33,7 +33,7 @@ object AladinContainer {
   implicit val propsReuse: Reusability[Props] =
     Reusability.by_== // by(p => (p.aladinCoordsStr, p.s.width.toDouble, p.s.height.toDouble))
 
-  implicit val reuseDouble = Reusability.double(0.00001)
+  implicit val reuseDouble: Reusability[Double] = Reusability.double(0.00001)
 
   val component =
     ScalaFnComponent

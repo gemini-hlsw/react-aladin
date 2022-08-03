@@ -229,12 +229,10 @@ object Aladin {
 
   class Backend(bs: BackendScope[Aladin, State]) {
     def runOnAladinOpt[A](f: JsAladin => A): CallbackOption[A] =
-      bs.state
-        .map {
-          case State(Some(a)) => f(a).some
-          case _              => none
-        }
-        .asCBO[A]
+      bs.state.map {
+        case State(Some(a)) => f(a).some
+        case _              => none
+      }.asCBO
 
     def runOnAladinCB[A](f: JsAladin => CallbackTo[A]): Callback =
       bs.state.flatMap {
@@ -384,7 +382,7 @@ object Aladin {
     q.fov.foreach(v => p.fov = v.toDoubleDegrees)
     q.target.foreach(v => p.target = v)
     q.survey.foreach(v => p.survey = v)
-    q.cooFrame.foreach(v => p.cooFrame = v.toJs)
+    // q.cooFrame.foreach(v => p.cooFrame = v.toJs)
     q.reticleColor.foreach(v => p.reticleColor = v: String)
     q.reticleSize.foreach(v => p.reticleSize = v)
     q.imageSurvey.foreach(v => p.imageSurvey = v)

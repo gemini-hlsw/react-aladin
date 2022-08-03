@@ -4,6 +4,7 @@
 package demo
 
 import org.scalajs.dom
+import react.common._
 
 import scala.scalajs.js
 
