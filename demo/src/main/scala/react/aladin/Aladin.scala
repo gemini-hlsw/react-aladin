@@ -133,6 +133,35 @@ class JsAladin extends js.Object {
   def on(n: String, f: js.Function): Unit                                             = js.native
 }
 
+extension (a: JsAladin)
+  def size: Size = Size(a.getSize()(0), a.getSize()(1))
+
+  def fov: Fov =
+    Fov(Angle.fromDoubleDegrees(a.getFov()(0)), Angle.fromDoubleDegrees(a.getFov()(1)))
+
+  def onPositionChanged(cb: PositionChanged => Callback): Callback =
+    Callback(
+      a.on("positionChanged", (o: JsPositionChanged) => cb(PositionChanged.fromJs(o)).runNow())
+    )
+
+  def onZoom(cb: Fov => Callback): Callback =
+    Callback(a.on("zoomChanged", (_: Double) => cb(fov).runNow()))
+
+  def onZoom(cb: => Callback): Callback =
+    Callback(a.on("zoomChanged", (_: Double) => cb.runNow()))
+
+  def onFullScreenToggle(cb: Boolean => Callback): Callback =
+    Callback(a.on("fullScreenToggled", (t: Boolean) => cb(t).runNow()))
+
+  def onFullScreenToggle(cb: => Callback): Callback =
+    Callback(a.on("fullScreenToggled", (_: Boolean) => cb.runNow()))
+
+  def onMouseMove(cb: MouseMoved => Callback): Callback =
+    Callback(a.on("mouseMove", (t: JsMouseMoved) => cb(MouseMoved.fromJs(t)).runNow()))
+
+  def pixelScale: PixelScale =
+    PixelScale(a.getSize()(0) / a.getFov()(0), a.getSize()(1) / a.getFov()(1))
+
 @js.native
 @JSImport("/js/A", JSImport.Namespace)
 @nowarn
