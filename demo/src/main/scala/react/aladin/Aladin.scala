@@ -190,7 +190,7 @@ object A extends js.Object {
   ): AladinCatalog = js.native
 }
 
-final case class Aladin(
+case class Aladin(
   mountNodeClass:           Css,
   target:                   js.UndefOr[String] = js.undefined,
   fov:                      js.UndefOr[Angle] = js.undefined,
@@ -222,10 +222,10 @@ final case class Aladin(
 object Aladin {
   type Props = Aladin
 
-  final case class State(a: Option[JsAladin])
+  case class State(a: Option[JsAladin])
 
-  implicit val propsReuse: Reusability[Props] = Reusability.always
-  implicit val stateReuse: Reusability[State] = Reusability.by(_.a.isDefined)
+  given Reusability[Props] = Reusability.always
+  given Reusability[State] = Reusability.by(_.a.isDefined)
 
   class Backend(bs: BackendScope[Aladin, State]) {
     def runOnAladinOpt[A](f: JsAladin => A): CallbackOption[A] =

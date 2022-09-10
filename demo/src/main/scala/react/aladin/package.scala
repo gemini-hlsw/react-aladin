@@ -21,7 +21,7 @@ package aladin {
    * @param y
    *   Vertical (Dec) field of view
    */
-  final case class Fov(x: Angle, y: Angle)
+  case class Fov(x: Angle, y: Angle)
 
   object Fov {
     def square(a: Angle): Fov = Fov(a, a)
@@ -33,7 +33,7 @@ package aladin {
    * @param x
    * @param y
    */
-  final case class PixelScale(x: Double, y: Double)
+  case class PixelScale(x: Double, y: Double)
 
   object PixelScale {
     val Default: PixelScale = PixelScale(1, 1)
@@ -61,7 +61,7 @@ package aladin {
     val dragging: Boolean
   }
 
-  final case class PositionChanged(ra: RightAscension, dec: Declination, dragging: Boolean)
+  case class PositionChanged(ra: RightAscension, dec: Declination, dragging: Boolean)
 
   object PositionChanged {
     def fromJs(p: JsPositionChanged): PositionChanged =
@@ -80,7 +80,7 @@ package aladin {
     val y: Double
   }
 
-  final case class MouseMoved(ra: RightAscension, dec: Declination, x: Double, y: Double)
+  case class MouseMoved(ra: RightAscension, dec: Declination, x: Double, y: Double)
 
   object MouseMoved   {
     def fromJs(p: JsMouseMoved): MouseMoved =

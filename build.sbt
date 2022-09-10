@@ -2,13 +2,13 @@ import org.scalajs.linker.interface.ModuleSplitStyle
 
 lazy val reactJS           = "17.0.2"
 lazy val scalaJsReact      = "2.1.1"
-val lucumaCoreVersion      = "0.54.0"
-val lucumaUIVersion        = "0.44.0"
+val lucumaCoreVersion      = "0.55.1"
+val lucumaUIVersion        = "0.44.1"
 val lucumaReactVersion     = "0.3.0"
 lazy val aladinLiteVersion = "0.6.2"
 lazy val munitVersion      = "0.7.29"
 
-ThisBuild / tlBaseVersion       := "0.25"
+ThisBuild / tlBaseVersion       := "0.26"
 ThisBuild / tlCiReleaseBranches := Seq("master")
 
 Global / onChangedBuildSource  := ReloadOnSourceChanges
@@ -39,13 +39,14 @@ val demo =
       Compile / fullOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(false) },
       test := {},
       libraryDependencies ++= Seq(
-        "edu.gemini"                        %%% "lucuma-core"              % lucumaCoreVersion,
-        "edu.gemini"                        %%% "lucuma-ui"                % lucumaUIVersion,
-        "com.github.japgolly.scalajs-react" %%% "core-bundle-cb_io"        % scalaJsReact,
-        "com.github.japgolly.scalajs-react" %%% "extra-ext-monocle3"       % scalaJsReact,
-        "com.github.japgolly.scalajs-react" %%% "test"                     % scalaJsReact % Test,
-        "edu.gemini"                        %%% "lucuma-react-common"      % lucumaReactVersion,
-        "edu.gemini"                        %%% "lucuma-react-grid-layout" % lucumaReactVersion
+        "edu.gemini"                        %%% "lucuma-core"                  % lucumaCoreVersion,
+        "edu.gemini"                        %%% "lucuma-ui"                    % lucumaUIVersion,
+        "com.github.japgolly.scalajs-react" %%% "core-bundle-cb_io"            % scalaJsReact,
+        "com.github.japgolly.scalajs-react" %%% "extra-ext-monocle3"           % scalaJsReact,
+        "com.github.japgolly.scalajs-react" %%% "test"                         % scalaJsReact % Test,
+        "edu.gemini"                        %%% "lucuma-react-common"          % lucumaReactVersion,
+        "edu.gemini"                        %%% "lucuma-react-grid-layout"     % lucumaReactVersion,
+        "edu.gemini"                        %%% "lucuma-react-resize-detector" % lucumaReactVersion
       )
     )
 
