@@ -21,7 +21,7 @@ package aladin {
    * @param y
    *   Vertical (Dec) field of view
    */
-  final case class Fov(x: Angle, y: Angle)
+  case class Fov(x: Angle, y: Angle)
 
   object Fov {
     def square(a: Angle): Fov = Fov(a, a)
@@ -33,7 +33,7 @@ package aladin {
    * @param x
    * @param y
    */
-  final case class PixelScale(x: Double, y: Double)
+  case class PixelScale(x: Double, y: Double)
 
   object PixelScale {
     val Default: PixelScale = PixelScale(1, 1)
@@ -61,7 +61,7 @@ package aladin {
     val dragging: Boolean
   }
 
-  final case class PositionChanged(ra: RightAscension, dec: Declination, dragging: Boolean)
+  case class PositionChanged(ra: RightAscension, dec: Declination, dragging: Boolean)
 
   object PositionChanged {
     def fromJs(p: JsPositionChanged): PositionChanged =
@@ -80,9 +80,9 @@ package aladin {
     val y: Double
   }
 
-  final case class MouseMoved(ra: RightAscension, dec: Declination, x: Double, y: Double)
+  case class MouseMoved(ra: RightAscension, dec: Declination, x: Double, y: Double)
 
-  object MouseMoved   {
+  object MouseMoved {
     def fromJs(p: JsMouseMoved): MouseMoved =
       MouseMoved(
         RightAscension.fromDoubleDegrees(p.ra),
@@ -90,39 +90,6 @@ package aladin {
         p.x,
         p.y
       )
-  }
-
-}
-
-package object aladin {
-  implicit class JsAladinOps(val a: JsAladin) extends AnyVal {
-    def size: Size = Size(a.getSize()(0), a.getSize()(1))
-
-    def fov: Fov =
-      Fov(Angle.fromDoubleDegrees(a.getFov()(0)), Angle.fromDoubleDegrees(a.getFov()(1)))
-
-    def onPositionChanged(cb: PositionChanged => Callback): Callback =
-      Callback(
-        a.on("positionChanged", (o: JsPositionChanged) => cb(PositionChanged.fromJs(o)).runNow())
-      )
-
-    def onZoom(cb: Fov => Callback): Callback =
-      Callback(a.on("zoomChanged", (_: Double) => cb(fov).runNow()))
-
-    def onZoom(cb: => Callback): Callback =
-      Callback(a.on("zoomChanged", (_: Double) => cb.runNow()))
-
-    def onFullScreenToggle(cb: Boolean => Callback): Callback =
-      Callback(a.on("fullScreenToggled", (t: Boolean) => cb(t).runNow()))
-
-    def onFullScreenToggle(cb: => Callback): Callback =
-      Callback(a.on("fullScreenToggled", (_: Boolean) => cb.runNow()))
-
-    def onMouseMove(cb: MouseMoved => Callback): Callback =
-      Callback(a.on("mouseMove", (t: JsMouseMoved) => cb(MouseMoved.fromJs(t)).runNow()))
-
-    def pixelScale: PixelScale =
-      PixelScale(a.getSize()(0) / a.getFov()(0), a.getSize()(1) / a.getFov()(1))
   }
 
 }

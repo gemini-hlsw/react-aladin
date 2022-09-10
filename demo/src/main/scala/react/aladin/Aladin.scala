@@ -133,6 +133,35 @@ class JsAladin extends js.Object {
   def on(n: String, f: js.Function): Unit                                             = js.native
 }
 
+extension (a: JsAladin)
+  def size: Size = Size(a.getSize()(0), a.getSize()(1))
+
+  def fov: Fov =
+    Fov(Angle.fromDoubleDegrees(a.getFov()(0)), Angle.fromDoubleDegrees(a.getFov()(1)))
+
+  def onPositionChanged(cb: PositionChanged => Callback): Callback =
+    Callback(
+      a.on("positionChanged", (o: JsPositionChanged) => cb(PositionChanged.fromJs(o)).runNow())
+    )
+
+  def onZoom(cb: Fov => Callback): Callback =
+    Callback(a.on("zoomChanged", (_: Double) => cb(fov).runNow()))
+
+  def onZoom(cb: => Callback): Callback =
+    Callback(a.on("zoomChanged", (_: Double) => cb.runNow()))
+
+  def onFullScreenToggle(cb: Boolean => Callback): Callback =
+    Callback(a.on("fullScreenToggled", (t: Boolean) => cb(t).runNow()))
+
+  def onFullScreenToggle(cb: => Callback): Callback =
+    Callback(a.on("fullScreenToggled", (_: Boolean) => cb.runNow()))
+
+  def onMouseMove(cb: MouseMoved => Callback): Callback =
+    Callback(a.on("mouseMove", (t: JsMouseMoved) => cb(MouseMoved.fromJs(t)).runNow()))
+
+  def pixelScale: PixelScale =
+    PixelScale(a.getSize()(0) / a.getFov()(0), a.getSize()(1) / a.getFov()(1))
+
 @js.native
 @JSImport("/js/A", JSImport.Namespace)
 @nowarn
@@ -190,7 +219,7 @@ object A extends js.Object {
   ): AladinCatalog = js.native
 }
 
-final case class Aladin(
+case class Aladin(
   mountNodeClass:           Css,
   target:                   js.UndefOr[String] = js.undefined,
   fov:                      js.UndefOr[Angle] = js.undefined,
@@ -222,10 +251,10 @@ final case class Aladin(
 object Aladin {
   type Props = Aladin
 
-  final case class State(a: Option[JsAladin])
+  case class State(a: Option[JsAladin])
 
-  implicit val propsReuse: Reusability[Props] = Reusability.always
-  implicit val stateReuse: Reusability[State] = Reusability.by(_.a.isDefined)
+  given Reusability[Props] = Reusability.always
+  given Reusability[State] = Reusability.by(_.a.isDefined)
 
   class Backend(bs: BackendScope[Aladin, State]) {
     def runOnAladinOpt[A](f: JsAladin => A): CallbackOption[A] =
