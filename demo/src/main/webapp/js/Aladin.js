@@ -1321,7 +1321,7 @@ const Aladin = (function () {
       let divElem = document.createElement("div")
       let labelElem = document.createElement("label")
       inputElem.type = "checkbox"
-      
+
       var layer = layers[k];
       var name = layer.name;
       var tooltipText = "";
@@ -1466,7 +1466,7 @@ const Aladin = (function () {
 
     // ? parent or should be the same layerBoxCmapBtn
     layerBoxCmapInnerDiv.parentElement.disabled = true
-    
+
     // Finally display
     layerBox.style.display = "block"
   };
@@ -1958,6 +1958,10 @@ Aladin.prototype.displayJPG = Aladin.prototype.displayPNG = function (
 
 Aladin.prototype.setReduceDeformations = function (reduce) {
   this.reduceDeformations = reduce;
+  this.view.requestRedraw();
+};
+
+Aladin.prototype.requestRedraw = function() {
   this.view.requestRedraw();
 };
 

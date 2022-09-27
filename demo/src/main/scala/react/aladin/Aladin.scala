@@ -122,6 +122,7 @@ class JsAladin extends js.Object {
   def recalculateView(): Unit                                                         = js.native
   def increaseZoom(): Unit                                                            = js.native
   def decreaseZoom(): Unit                                                            = js.native
+  def requestRedraw(): Unit                                                           = js.native
   def toggleFullscreen(): Unit                                                        = js.native
   def fixLayoutDimensions(): Unit                                                     = js.native
   def getParentDiv(): Element                                                         = js.native
@@ -344,6 +345,9 @@ object Aladin {
 
     def fixLayoutDimensions: Callback =
       runOnAladin(_.fixLayoutDimensions())
+
+    def requestRedraw: Callback =
+      runOnAladin(_.requestRedraw())
 
     def increaseZoom: Callback =
       runOnAladin(_.increaseZoom())
