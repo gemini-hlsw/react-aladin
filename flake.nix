@@ -19,6 +19,8 @@
           imports = [ typelevel-nix.typelevelShell ];
           packages = [
             pkgs.nodePackages.vscode-langservers-extracted
+            pkgs.nodePackages.typescript-language-server
+            pkgs.nodePackages.prettier
           ];
           typelevelShell = {
             nodejs.enable = true;
