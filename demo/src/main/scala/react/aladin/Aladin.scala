@@ -128,6 +128,7 @@ class JsAladin extends js.Object {
   def getParentDiv(): Element                                                         = js.native
   def getSize(): js.Array[Double]                                                     = js.native
   def getFov(): js.Array[Double]                                                      = js.native
+  def setZoom(fovDegrees: Double): js.Array[Double]                                   = js.native
   def box(): Unit                                                                     = js.native
   def pix2world(x: Double, y: Double): js.Array[Double]                               = js.native
   def world2pix(x: Double, y: Double): js.Array[Double]                               = js.native
@@ -354,6 +355,9 @@ object Aladin {
 
     def decreaseZoom: Callback =
       runOnAladin(_.decreaseZoom())
+
+    def setZoom(fovDegrees: Double): Callback =
+      runOnAladin(_.setZoom(fovDegrees))
 
     def toggleFullscreen: Callback =
       runOnAladin(_.toggleFullscreen())
