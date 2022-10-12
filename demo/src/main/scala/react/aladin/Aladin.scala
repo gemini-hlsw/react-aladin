@@ -247,7 +247,7 @@ case class Aladin(
   def render   = Aladin.component(this)
   def renderJs = Aladin.jsComponent(Aladin.fromProps(this))
 
-  lazy val mountNodeClassSelector = mountNodeClass.htmlClasses.map(cls => s".$cls").mkString
+  lazy val mountNodeClassSelector = mountNodeClass.value.map(cls => s".$cls").mkString
 }
 
 object Aladin {
