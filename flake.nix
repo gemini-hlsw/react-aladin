@@ -20,6 +20,7 @@
           packages = [
             pkgs.nodePackages.vscode-langservers-extracted
             pkgs.nodePackages.typescript-language-server
+            pkgs.nodePackages.typescript
             pkgs.nodePackages.prettier
           ];
           typelevelShell = {
