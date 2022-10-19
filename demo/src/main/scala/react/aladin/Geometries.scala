@@ -35,5 +35,5 @@ class AladinCircle extends js.Object {}
 @nowarn
 class HpxImageSurvey extends js.Object {
   def setAlpha(a: Double): Unit = js.native
-  def getColorMap(): ColorMap   = js.native
+  def getColorMap(): ColorMap = js.native
 }
