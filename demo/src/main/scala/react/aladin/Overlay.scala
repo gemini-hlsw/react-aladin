@@ -13,7 +13,7 @@ import scala.scalajs.js.|
 @nowarn
 class AladinOverlay extends js.Object {
   def addFootprints(s: js.Array[AladinOverlay.Shapes]): Unit = js.native
-  def add(s: AladinOverlay.Shapes): Unit                     = js.native
+  def add(s:           AladinOverlay.Shapes): Unit           = js.native
 }
 
 object AladinOverlay {
