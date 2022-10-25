@@ -15,8 +15,8 @@ Global / onChangedBuildSource  := ReloadOnSourceChanges
 ThisBuild / scalacOptions ~= { _.filterNot(Set("-Wunused:params")) }
 ThisBuild / coverageEnabled    := false
 Global / resolvers ++= Resolver.sonatypeOssRepos("public")
-ThisBuild / scalaVersion       := "3.2.1-RC2"
-ThisBuild / crossScalaVersions := Seq("3.2.1-RC2")
+ThisBuild / scalaVersion       := "3.2.1-RC4"
+ThisBuild / crossScalaVersions := Seq("3.2.1-RC4")
 ThisBuild / scalacOptions ++= Seq(
   "-language:implicitConversions"
 )
