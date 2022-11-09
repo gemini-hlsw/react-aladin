@@ -4,7 +4,7 @@ lazy val reactJS           = "17.0.2"
 lazy val scalaJsReact      = "2.1.1"
 val lucumaCoreVersion      = "0.58.0"
 val lucumaUIVersion        = "0.54.1"
-val lucumaReactVersion     = "0.18.0"
+val lucumaReactVersion     = "0.21.0"
 lazy val aladinLiteVersion = "0.6.2"
 lazy val munitVersion      = "0.7.29"
 
