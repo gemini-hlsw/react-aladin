@@ -77,8 +77,8 @@ object SVGTargetsOverlay {
               case (SVGTarget.CrosshairTarget(_, css, side, title), Some((x, y))) =>
                 val pointCss = Css("crosshair-target") |+| css
                 <.g(
-                  <.line(^.x1 := x - side, ^.x2 := x + side, ^.y1 := y, ^.y2        := y, pointCss),
-                  <.line(^.x1 := x, ^.x2        := x, ^.y1        := y - side, ^.y2 := y + side, pointCss),
+                  <.line(^.x1 := x - side, ^.x2 := x + side, ^.y1 := y,        ^.y2 := y, pointCss),
+                  <.line(^.x1 := x,        ^.x2 := x,        ^.y1 := y - side, ^.y2 := y + side, pointCss),
                   title.map(<.title(_))
                 )
             }
