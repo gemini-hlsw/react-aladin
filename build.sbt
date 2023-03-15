@@ -90,8 +90,8 @@ lazy val facade =
       installJsdom / version          := "19.0.0",
       // Use yarn as it is faster than npm
       useYarn                         := true,
-      webpack / version               := "4.20.2",
-      startWebpackDevServer / version := "3.1.8",
+      webpack / version               := "5.76.1",
+      startWebpackDevServer / version := "4.12.0",
       scalaJSUseMainModuleInitializer := false,
       // Compile tests to JS using fast-optimisation
       Test / scalaJSStage             := FastOptStage,
