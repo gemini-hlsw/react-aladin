@@ -3,17 +3,19 @@
 
 package react.aladin
 
-import cats.implicits._
-import japgolly.scalajs.react._
-import japgolly.scalajs.react.vdom.html_<^._
-import lucuma.core.math._
+import cats.Eq
+import cats.derived.*
+import cats.syntax.all.*
+import japgolly.scalajs.react.*
+import japgolly.scalajs.react.vdom.html_<^.*
+import lucuma.core.math.*
 import org.scalajs.dom.Element
-import react.common._
+import react.common.*
 
 import scala.annotation.nowarn
 import scala.scalajs.js
-import scala.scalajs.js.JSConverters._
-import scala.scalajs.js.annotation._
+import scala.scalajs.js.JSConverters.*
+import scala.scalajs.js.annotation.*
 
 // This will be the props object used from JS-land
 @js.native
@@ -255,9 +257,6 @@ object Aladin {
 
   case class State(a: Option[JsAladin])
 
-  given Reusability[Props] = Reusability.always
-  given Reusability[State] = Reusability.by(_.a.isDefined)
-
   class Backend(bs: BackendScope[Aladin, State]) {
     def runOnAladinOpt[A](f: JsAladin => A): CallbackOption[A] =
       bs.state.map {
@@ -386,7 +385,6 @@ object Aladin {
         _      <- b.setState(State(Some(aladin)))
       } yield ()
     }
-    .configure(Reusability.shouldComponentUpdate)
     .build
 
   def fromProps(q: AladinProps): Props =
