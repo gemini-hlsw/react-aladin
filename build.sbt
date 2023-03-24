@@ -22,6 +22,15 @@ ThisBuild / scalacOptions ++= Seq(
 )
 enablePlugins(NoPublishPlugin)
 
+ThisBuild / githubWorkflowBuildPreamble ++= Seq(
+  WorkflowStep.Use(
+    UseRef.Public("actions", "setup-node", "v3"),
+    name = Some("Setup Node"),
+    params = Map("node-version" -> "18", "cache" -> "npm")
+  ),
+  WorkflowStep.Run(List("npm install"))
+)
+
 val demo =
   project
     .in(file("demo"))
