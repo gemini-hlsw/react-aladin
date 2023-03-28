@@ -21,12 +21,12 @@ import react.common.style._
 
 import scala.scalajs.js.JSConverters._
 
-package object svg   {
+package object svg {
   type ScalingFn        = Double => Double
   type SvgPostProcessor = Element => Element
 
   implicit class RenderSvgSyntax[A](val a: A) extends AnyVal {
-    def toSvg(base:    Container, pp: SvgPostProcessor = identity, scalingFn: ScalingFn = identity)(
+    def toSvg(base: Container, pp: SvgPostProcessor = identity, scalingFn: ScalingFn = identity)(
       implicit render: RenderSvg[A]
     ): Container =
       pp(render.toSvg(base, pp, scalingFn, a)).asInstanceOf[Container]
