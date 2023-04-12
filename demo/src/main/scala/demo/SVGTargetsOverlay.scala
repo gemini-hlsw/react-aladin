@@ -4,15 +4,15 @@
 package demo
 
 import cats.Eq
-import cats.syntax.all._
-import crystal.react.reuse._
-import japgolly.scalajs.react._
-import japgolly.scalajs.react.vdom.svg_<^._
+import cats.syntax.all.*
+import crystal.react.reuse.*
+import japgolly.scalajs.react.*
+import japgolly.scalajs.react.vdom.svg_<^.*
 import lucuma.core.math.Coordinates
-import lucuma.ui.reusability._
+import lucuma.ui.reusability.given
 import react.aladin.Fov
-import react.common._
-import react.common.implicits._
+import react.common.*
+import react.common.implicits.*
 
 sealed trait SVGTarget {
   def coordinates: Coordinates
