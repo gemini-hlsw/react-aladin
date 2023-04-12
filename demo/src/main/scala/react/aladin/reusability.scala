@@ -4,9 +4,9 @@
 package react.aladin
 
 import japgolly.scalajs.react.Reusability
-import japgolly.scalajs.react.Reusability._
+import japgolly.scalajs.react.Reusability.*
 import lucuma.core.math.Angle
-import lucuma.ui.reusability._
+import lucuma.ui.reusability.given
 
 object reusability {
   def microArcsecondsFovReuse(tolerance: Angle): Reusability[Fov] =
