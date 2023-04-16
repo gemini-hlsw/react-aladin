@@ -5,20 +5,20 @@ package react.aladin
 
 import cats.Semigroup
 import cats.data.NonEmptyMap
-import cats.syntax.all._
-import crystal.react.hooks._
-import japgolly.scalajs.react._
-import japgolly.scalajs.react.vdom.svg_<^._
+import cats.syntax.all.*
+import crystal.react.hooks.*
+import japgolly.scalajs.react.*
+import japgolly.scalajs.react.vdom.svg_<^.*
 import lucuma.core.geom.ShapeExpression
 import lucuma.core.geom.jts.JtsShape
-import lucuma.core.geom.jts.interpreter._
+import lucuma.core.geom.jts.interpreter.given
 import lucuma.core.math.Offset
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.GeometryCollection
 import org.locationtech.jts.geom.Polygon
 import react.aladin.Fov
-import react.common._
-import react.common.implicits._
+import react.common.*
+import react.common.implicits.*
 
 import scala.math._
 
