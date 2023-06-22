@@ -3,16 +3,16 @@
 
 package demo
 
-import cats.syntax.all._
-import crystal.react.hooks._
-import japgolly.scalajs.react._
-import japgolly.scalajs.react.vdom.html_<^._
-import lucuma.core.math._
-import react.aladin._
-import react.aladin.reusability._
-import react.common._
-import react.gridlayout._
-import react.resizeDetector.hooks._
+import cats.syntax.all.*
+import crystal.react.hooks.*
+import japgolly.scalajs.react.*
+import japgolly.scalajs.react.vdom.html_<^.*
+import lucuma.core.math.*
+import lucuma.ui.reusability.given
+import react.aladin.*
+import react.common.*
+import react.gridlayout.*
+import react.resizeDetector.hooks.*
 
 import scala.annotation.nowarn
 import scala.scalajs.js
@@ -42,6 +42,7 @@ object SourceData {
 final case class AladinTile(s: Size, c: Coordinates)
     extends ReactFnProps[AladinTile](AladinTile.component)
 
+@nowarn
 object AladinTile {
   type Props = AladinTile
 
@@ -73,7 +74,7 @@ object AladinTile {
       // (BreakpointName.xs, (480, 6, layout))
     )
 
-  implicit val fovReuse: Reusability[Fov] = exactFovReuse
+  given Reusability[Fov] = Reusability.derive
 
   val component =
     ScalaFnComponent

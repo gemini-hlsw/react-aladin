@@ -11,8 +11,8 @@ import lucuma.core.math.Offset
 import lucuma.ui.reusability.given
 import react.aladin.Fov
 import react.common.*
-import react.common.implicits.*
 
+import scala.annotation.nowarn
 import scala.math._
 
 final case class TargetsOverlay(
@@ -24,11 +24,12 @@ final case class TargetsOverlay(
   targets:         List[SVGTarget]
 ) extends ReactFnProps[TargetsOverlay](TargetsOverlay.component)
 
+@nowarn
 object TargetsOverlay {
   type Props = TargetsOverlay
-  implicit val doubleReuse: Reusability[Double] = Reusability.double(1)
-  implicit val exactFovReuse: Reusability[Fov]  = Reusability.derive
-  implicit val reuse: Reusability[Props]        = Reusability.derive
+  given Reusability[Double] = Reusability.double(1)
+  given Reusability[Fov]    = Reusability.derive
+  given Reusability[Props]  = Reusability.derive
 
   val JtsSvg    = Css("targets-overlay-svg")
   val JtsGuides = Css("viz-guides")

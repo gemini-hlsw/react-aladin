@@ -3,7 +3,6 @@
 
 package react
 
-import japgolly.scalajs.react.Callback
 import lucuma.core.math.Angle
 import lucuma.core.math.Declination
 import lucuma.core.math.RightAscension
