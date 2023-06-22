@@ -6,15 +6,12 @@ package react.aladin
 import japgolly.scalajs.react.Reusability
 import japgolly.scalajs.react.Reusability.*
 import lucuma.core.math.Angle
-import lucuma.ui.reusability.given
 
 object reusability {
   def microArcsecondsFovReuse(tolerance: Angle): Reusability[Fov] =
     Reusability.apply { case (a: Fov, b: Fov) =>
       (a.x - b.x).toMicroarcseconds < tolerance.toMicroarcseconds && (a.y - b.y).toMicroarcseconds < tolerance.toMicroarcseconds
     }
-
-  val exactFovReuse: Reusability[Fov] = Reusability.derive
 
   def pixelScaleReuse(implicit
     dr: Reusability[Double] = Reusability.double(0.001)

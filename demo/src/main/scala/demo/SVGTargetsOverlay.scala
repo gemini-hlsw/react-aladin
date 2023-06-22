@@ -12,7 +12,8 @@ import lucuma.core.math.Coordinates
 import lucuma.ui.reusability.given
 import react.aladin.Fov
 import react.common.*
-import react.common.implicits.*
+
+import scala.annotation.nowarn
 
 sealed trait SVGTarget {
   def coordinates: Coordinates
@@ -53,11 +54,12 @@ final case class SVGTargetsOverlay(
   targets:   List[SVGTarget]
 ) extends ReactFnProps[SVGTargetsOverlay](SVGTargetsOverlay.component)
 
+@nowarn
 object SVGTargetsOverlay {
   type Props = SVGTargetsOverlay
-  implicit val doubleReuse: Reusability[Double] = Reusability.double(1)
-  implicit val exactFovReuse: Reusability[Fov]  = Reusability.derive
-  implicit val reuse: Reusability[Props]        = Reusability.derive
+  given Reusability[Double] = Reusability.double(1)
+  given Reusability[Fov]    = Reusability.derive
+  given Reusability[Props]  = Reusability.derive
 
   val canvasWidth  = VdomAttr("width")
   val canvasHeight = VdomAttr("height")

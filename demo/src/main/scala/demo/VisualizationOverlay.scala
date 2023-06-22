@@ -16,9 +16,7 @@ import lucuma.core.math.Offset
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.GeometryCollection
 import org.locationtech.jts.geom.Polygon
-import react.aladin.Fov
 import react.common.*
-import react.common.implicits.*
 
 import scala.math._
 

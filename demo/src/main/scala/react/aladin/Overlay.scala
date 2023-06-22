@@ -6,7 +6,6 @@ package react.aladin
 import scala.annotation.nowarn
 import scala.scalajs.js
 import scala.scalajs.js.annotation._
-import scala.scalajs.js.|
 
 @js.native
 @JSImport("@cquiroz/aladin-lite/lib/Overlay", JSImport.Namespace)
