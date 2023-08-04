@@ -10,11 +10,11 @@ import japgolly.scalajs.react.*
 import japgolly.scalajs.react.feature.ReactFragment
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.core.math.*
+import lucuma.react.aladin.*
+import lucuma.react.common.*
+import lucuma.react.resizeDetector.hooks.*
 import lucuma.ui.reusability.given
 import monocle.macros.GenLens
-import react.aladin.*
-import react.common.*
-import react.resizeDetector.hooks.*
 
 final case class AladinContainer(
   fov:         ReuseView[Fov],

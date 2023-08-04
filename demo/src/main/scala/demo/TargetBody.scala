@@ -8,11 +8,11 @@ import crystal.react.hooks.*
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.core.math.*
+import lucuma.react.aladin.*
+import lucuma.react.common.*
+import lucuma.react.gridlayout.*
+import lucuma.react.resizeDetector.hooks.*
 import lucuma.ui.reusability.given
-import react.aladin.*
-import react.common.*
-import react.gridlayout.*
-import react.resizeDetector.hooks.*
 
 import scala.annotation.nowarn
 import scala.scalajs.js
