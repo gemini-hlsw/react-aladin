@@ -8,9 +8,9 @@ import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.svg_<^.*
 import lucuma.core.math.Coordinates
 import lucuma.core.math.Offset
+import lucuma.react.aladin.Fov
+import lucuma.react.common.*
 import lucuma.ui.reusability.given
-import react.aladin.Fov
-import react.common.*
 
 import scala.annotation.nowarn
 import scala.math._
