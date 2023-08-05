@@ -3,8 +3,8 @@
 
 package demo
 
+import lucuma.react.common._
 import org.scalajs.dom
-import react.common._
 
 import scala.scalajs.js
 

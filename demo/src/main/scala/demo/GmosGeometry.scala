@@ -15,7 +15,7 @@ import lucuma.core.geom.syntax.shapeexpression._
 import lucuma.core.math.Angle
 import lucuma.core.math.Offset
 import lucuma.core.math.syntax.int._
-import react.common.style._
+import lucuma.react.common.style._
 
 object GmosGeometry {
 

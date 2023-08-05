@@ -1,7 +1,7 @@
 // Copyright (c) 2016-2023 Association of Universities for Research in Astronomy, Inc. (AURA)
 // For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
 
-package react.aladin
+package lucuma.react.aladin
 
 import cats.Semigroup
 import cats.data.NonEmptyMap
@@ -13,10 +13,10 @@ import lucuma.core.geom.ShapeExpression
 import lucuma.core.geom.jts.JtsShape
 import lucuma.core.geom.jts.interpreter.given
 import lucuma.core.math.Offset
+import lucuma.react.common.*
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.GeometryCollection
 import org.locationtech.jts.geom.Polygon
-import react.common.*
 
 import scala.math._
 

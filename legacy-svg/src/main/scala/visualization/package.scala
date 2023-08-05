@@ -1,7 +1,7 @@
 // Copyright (c) 2016-2022 Association of Universities for Research in Astronomy, Inc. (AURA)
 // For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
 
-package react.aladin
+package lucuma.react.aladin
 
 import cats.data.NonEmptyMap
 import cats.implicits._
@@ -16,9 +16,9 @@ import lucuma.svgdotjs.Polygon
 import lucuma.svgdotjs.Rect
 import lucuma.svgdotjs.Svg
 import org.scalajs.dom.Element
-import react.aladin.visualization.svg._
-import react.aladin.visualization.svg.implicits._
-import react.common._
+import lucuma.react.aladin.visualization.svg._
+import lucuma.react.aladin.visualization.svg.implicits._
+import lucuma.react.common._
 
 import scala.math._
 
