@@ -117,7 +117,7 @@ object TargetsOverlay {
               val offQ =
                 Offset.Q.signedDecimalArcseconds.get(offset.q).toDouble * 1e6
 
-              <.circle(^.cx := scale(offP),
+              <.circle(^.cx       := scale(offP),
                        ^.cy := scale(offQ),
                        ^.r  := scale(maxP * radius),
                        pointCss,
@@ -134,13 +134,13 @@ object TargetsOverlay {
                 Offset.Q.signedDecimalArcseconds.get(offset.q).toDouble * 1e6
               val side = scale(maxP * sidePx)
               <.g(
-                <.line(^.x1 := scale(offP) - side,
+                <.line(^.x1       := scale(offP) - side,
                        ^.x2 := scale(offP) + side,
                        ^.y1 := scale(offQ),
                        ^.y2 := scale(offQ),
                        pointCss
                 ),
-                <.line(^.x1 := scale(offP),
+                <.line(^.x1       := scale(offP),
                        ^.x2 := scale(offP),
                        ^.y1 := scale(offQ) - side,
                        ^.y2 := scale(offQ) + side,
