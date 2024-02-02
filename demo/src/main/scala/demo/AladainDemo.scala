@@ -3,6 +3,7 @@
 
 package demo
 
+import japgolly.scalajs.react.ReactDOMClient
 import lucuma.react.common._
 import org.scalajs.dom
 
@@ -21,7 +22,8 @@ object AladinDemo {
       dom.document.body.appendChild(elem)
       elem
     }
-    TargetBody().renderIntoDOM(container)
+
+    ReactDOMClient.createRoot(container).render(TargetBody())
 
     ()
   }
