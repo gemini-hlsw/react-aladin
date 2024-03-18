@@ -50,8 +50,11 @@ object TargetsOverlay {
                 Offset.P.signedDecimalArcseconds.get(offset.p).toDouble * 1e6
 
               val offQ =
-                Offset.Q.signedDecimalArcseconds.get(offset.q).toDouble * 1e6
-              (x.min(offP), y.min(offQ), w.max(offP), h.max(offQ))
+                Offset.Q.signedDecimalArcseconds.get(offset.q).toDouble * 1e6 (x.min(offP),
+                                                                               y.min(offQ),
+                                                                               w.max(offP),
+                                                                               h.max(offQ)
+                )
           }
 
         val w = abs(maxX - x)
