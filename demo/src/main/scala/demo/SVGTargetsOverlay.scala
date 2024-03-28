@@ -4,15 +4,16 @@
 package demo
 
 import cats.Eq
-import cats.syntax.all._
-import crystal.react.reuse._
-import japgolly.scalajs.react._
-import japgolly.scalajs.react.vdom.svg_<^._
+import cats.syntax.all.*
+import crystal.react.reuse.*
+import japgolly.scalajs.react.*
+import japgolly.scalajs.react.vdom.svg_<^.*
 import lucuma.core.math.Coordinates
-import lucuma.ui.reusability._
-import react.aladin.Fov
-import react.common._
-import react.common.implicits._
+import lucuma.react.aladin.Fov
+import lucuma.react.common.*
+import lucuma.ui.reusability.given
+
+import scala.annotation.nowarn
 
 sealed trait SVGTarget {
   def coordinates: Coordinates
@@ -53,11 +54,12 @@ final case class SVGTargetsOverlay(
   targets:   List[SVGTarget]
 ) extends ReactFnProps[SVGTargetsOverlay](SVGTargetsOverlay.component)
 
+@nowarn
 object SVGTargetsOverlay {
   type Props = SVGTargetsOverlay
-  implicit val doubleReuse: Reusability[Double] = Reusability.double(1)
-  implicit val exactFovReuse: Reusability[Fov]  = Reusability.derive
-  implicit val reuse: Reusability[Props]        = Reusability.derive
+  given Reusability[Double] = Reusability.double(1)
+  given Reusability[Fov]    = Reusability.derive
+  given Reusability[Props]  = Reusability.derive
 
   val canvasWidth  = VdomAttr("width")
   val canvasHeight = VdomAttr("height")

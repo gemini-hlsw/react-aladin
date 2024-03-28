@@ -1,16 +1,14 @@
 // Copyright (c) 2016-2023 Association of Universities for Research in Astronomy, Inc. (AURA)
 // For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
 
-package react.aladin
+package lucuma.react.aladin
 
-import cats.Eq
-import cats.derived.*
 import cats.syntax.all.*
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.core.math.*
+import lucuma.react.common.*
 import org.scalajs.dom.Element
-import react.common.*
 
 import scala.annotation.nowarn
 import scala.scalajs.js

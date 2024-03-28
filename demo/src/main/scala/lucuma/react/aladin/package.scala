@@ -1,13 +1,12 @@
 // Copyright (c) 2016-2023 Association of Universities for Research in Astronomy, Inc. (AURA)
 // For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
 
-package react
+package lucuma.react
 
-import japgolly.scalajs.react.Callback
 import lucuma.core.math.Angle
 import lucuma.core.math.Declination
 import lucuma.core.math.RightAscension
-import react.common._
+import lucuma.react.common.*
 
 import scala.scalajs.js
 

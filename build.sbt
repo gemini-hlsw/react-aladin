@@ -1,22 +1,22 @@
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-lazy val reactJS           = "17.0.2"
-lazy val scalaJsReact      = "2.1.1"
-val lucumaCoreVersion      = "0.70.0"
-val lucumaUIVersion        = "0.65.1"
-val lucumaReactVersion     = "0.32.0"
-lazy val aladinLiteVersion = "0.6.2"
-lazy val munitVersion      = "0.7.29"
+val reactJS            = "18.2.0"
+val scalaJsReact       = "3.0.0-beta3"
+val lucumaCoreVersion  = "0.94.1"
+val lucumaUIVersion    = "0.96.1"
+val lucumaReactVersion = "0.56.0"
+val aladinLiteVersion  = "0.6.2"
+val munitVersion       = "0.7.29"
 
-ThisBuild / tlBaseVersion       := "0.29"
+ThisBuild / tlBaseVersion       := "0.32"
 ThisBuild / tlCiReleaseBranches := Seq("master")
 
 Global / onChangedBuildSource  := ReloadOnSourceChanges
 ThisBuild / scalacOptions ~= { _.filterNot(Set("-Wunused:params")) }
 ThisBuild / coverageEnabled    := false
 Global / resolvers ++= Resolver.sonatypeOssRepos("public")
-ThisBuild / scalaVersion       := "3.2.2"
-ThisBuild / crossScalaVersions := Seq("3.2.2")
+ThisBuild / scalaVersion       := "3.4.1"
+ThisBuild / crossScalaVersions := Seq("3.4.1")
 ThisBuild / scalacOptions ++= Seq(
   "-language:implicitConversions"
 )

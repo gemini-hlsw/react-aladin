@@ -3,18 +3,18 @@
 
 package demo
 
-import cats.implicits._
+import cats.implicits.*
 import crystal.react.ReuseView
-import crystal.react.reuse._
-import japgolly.scalajs.react._
+import crystal.react.reuse.*
+import japgolly.scalajs.react.*
 import japgolly.scalajs.react.feature.ReactFragment
-import japgolly.scalajs.react.vdom.html_<^._
-import lucuma.core.math._
-import lucuma.ui.reusability._
+import japgolly.scalajs.react.vdom.html_<^.*
+import lucuma.core.math.*
+import lucuma.react.aladin.*
+import lucuma.react.common.*
+import lucuma.react.resizeDetector.hooks.*
+import lucuma.ui.reusability.given
 import monocle.macros.GenLens
-import react.aladin._
-import react.common._
-import react.resizeDetector.hooks._
 
 final case class AladinContainer(
   fov:         ReuseView[Fov],
@@ -103,7 +103,7 @@ object AladinContainer {
                   target = props.aladinCoordsStr,
                   fov = props.fov.get.x,
                   showGotoControl = false,
-                  customize = customizeAladin _
+                  customize = customizeAladin(_)
                 )
               }
             )

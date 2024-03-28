@@ -3,17 +3,17 @@
 
 package demo
 
-import cats.syntax.all._
-import japgolly.scalajs.react._
-import japgolly.scalajs.react.vdom.svg_<^._
+import cats.syntax.all.*
+import japgolly.scalajs.react.*
+import japgolly.scalajs.react.vdom.svg_<^.*
 import lucuma.core.math.Coordinates
 import lucuma.core.math.Offset
-import lucuma.ui.reusability._
-import react.aladin.Fov
-import react.common._
-import react.common.implicits._
+import lucuma.react.aladin.Fov
+import lucuma.react.common.*
+import lucuma.ui.reusability.given
 
-import scala.math._
+import scala.annotation.nowarn
+import scala.math.*
 
 final case class TargetsOverlay(
   width:           Int,
@@ -24,11 +24,12 @@ final case class TargetsOverlay(
   targets:         List[SVGTarget]
 ) extends ReactFnProps[TargetsOverlay](TargetsOverlay.component)
 
+@nowarn
 object TargetsOverlay {
   type Props = TargetsOverlay
-  implicit val doubleReuse: Reusability[Double] = Reusability.double(1)
-  implicit val exactFovReuse: Reusability[Fov]  = Reusability.derive
-  implicit val reuse: Reusability[Props]        = Reusability.derive
+  given Reusability[Double] = Reusability.double(1)
+  given Reusability[Fov]    = Reusability.derive
+  given Reusability[Props]  = Reusability.derive
 
   val JtsSvg    = Css("targets-overlay-svg")
   val JtsGuides = Css("viz-guides")
@@ -50,6 +51,7 @@ object TargetsOverlay {
 
               val offQ =
                 Offset.Q.signedDecimalArcseconds.get(offset.q).toDouble * 1e6
+
               (x.min(offP), y.min(offQ), w.max(offP), h.max(offQ))
           }
 
@@ -116,7 +118,7 @@ object TargetsOverlay {
               val offQ =
                 Offset.Q.signedDecimalArcseconds.get(offset.q).toDouble * 1e6
 
-              <.circle(^.cx := scale(offP),
+              <.circle(^.cx       := scale(offP),
                        ^.cy := scale(offQ),
                        ^.r  := scale(maxP * radius),
                        pointCss,
@@ -133,13 +135,13 @@ object TargetsOverlay {
                 Offset.Q.signedDecimalArcseconds.get(offset.q).toDouble * 1e6
               val side = scale(maxP * sidePx)
               <.g(
-                <.line(^.x1 := scale(offP) - side,
+                <.line(^.x1       := scale(offP) - side,
                        ^.x2 := scale(offP) + side,
                        ^.y1 := scale(offQ),
                        ^.y2 := scale(offQ),
                        pointCss
                 ),
-                <.line(^.x1 := scale(offP),
+                <.line(^.x1       := scale(offP),
                        ^.x2 := scale(offP),
                        ^.y1 := scale(offQ) - side,
                        ^.y2 := scale(offQ) + side,

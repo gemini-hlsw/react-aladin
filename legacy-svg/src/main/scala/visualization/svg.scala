@@ -1,7 +1,7 @@
 // Copyright (c) 2016-2022 Association of Universities for Research in Astronomy, Inc. (AURA)
 // For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
 
-package react.aladin.visualization
+package lucuma.react.aladin.visualization
 
 import cats._
 import cats.data.NonEmptyList
@@ -17,16 +17,16 @@ import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.GeometryCollection
 import org.locationtech.jts.geom.Polygon
-import react.common.style._
+import lucuma.react.common.style._
 
 import scala.scalajs.js.JSConverters._
 
-package object svg   {
+package object svg {
   type ScalingFn        = Double => Double
   type SvgPostProcessor = Element => Element
 
   implicit class RenderSvgSyntax[A](val a: A) extends AnyVal {
-    def toSvg(base:    Container, pp: SvgPostProcessor = identity, scalingFn: ScalingFn = identity)(
+    def toSvg(base: Container, pp: SvgPostProcessor = identity, scalingFn: ScalingFn = identity)(
       implicit render: RenderSvg[A]
     ): Container =
       pp(render.toSvg(base, pp, scalingFn, a)).asInstanceOf[Container]
