@@ -103,7 +103,7 @@ object AladinContainer {
                   target = props.aladinCoordsStr,
                   fov = props.fov.get.x,
                   showGotoControl = false,
-                  customize = customizeAladin _
+                  customize = customizeAladin(_)
                 )
               }
             )
