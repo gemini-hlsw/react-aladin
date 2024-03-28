@@ -22,6 +22,15 @@ ThisBuild / scalacOptions ++= Seq(
 )
 enablePlugins(NoPublishPlugin)
 
+ThisBuild / githubWorkflowBuildPreamble ++= Seq(
+  WorkflowStep.Use(
+    UseRef.Public("actions", "setup-node", "v4"),
+    name = Some("Setup Node"),
+    params = Map("node-version" -> "20", "cache" -> "npm")
+  ),
+  WorkflowStep.Run(List("npm ci"))
+)
+
 val demo =
   project
     .in(file("demo"))
@@ -73,26 +82,9 @@ lazy val facade =
   project
     .in(file("facade"))
     .enablePlugins(ScalaJSPlugin)
-    .enablePlugins(ScalaJSBundlerPlugin)
     .settings(commonSettings: _*)
     .settings(
-      name                            := "react-aladin",
-      Compile / npmDependencies ++= Seq(
-        "react"                -> reactJS,
-        "react-dom"            -> reactJS,
-        "@cquiroz/aladin-lite" -> aladinLiteVersion
-      ),
-      Test / npmDevDependencies ++= Seq(
-        "chokidar" -> "3.6.0"
-      ),
-      // Requires the DOM for tests
-      Test / requireJsDomEnv          := true,
-      installJsdom / version          := "19.0.0",
-      webpack / version               := "5.76.1",
-      startWebpackDevServer / version := "4.12.0",
-      scalaJSUseMainModuleInitializer := false,
-      // Compile tests to JS using fast-optimisation
-      Test / scalaJSStage             := FastOptStage,
+      name  := "react-aladin",
       libraryDependencies ++= Seq(
         "edu.gemini"                        %%% "lucuma-core"         % lucumaCoreVersion,
         "edu.gemini"                        %%% "lucuma-ui"           % lucumaUIVersion,
@@ -101,16 +93,14 @@ lazy val facade =
         "edu.gemini"                        %%% "lucuma-react-common" % lucumaReactVersion,
         "org.scalameta"                     %%% "munit"               % munitVersion % Test
       ),
-      testFrameworks += new TestFramework("munit.Framework"),
-      Test / webpackConfigFile        := Some(
-        baseDirectory.value / "src" / "webpack" / "test.webpack.config.js"
-      ),
       Compile / sourceGenerators += Def.task {
         val srcDir         = (demo / Compile / scalaSource).value
         val srcFiles       = srcDir ** "*.scala"
         val destinationDir = (Compile / sourceManaged).value
         copyAndReplace(srcFiles.get, srcDir, destinationDir)
-      }.taskValue
+      }.taskValue,
+      scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
+      jsEnv := new lucuma.LucumaJSDOMNodeJSEnv()
     )
 
 lazy val commonSettings = Seq(
