@@ -9,7 +9,7 @@ metals.sbt
 .bloop/
 local.*
 node_modules/
-yarn.lock
+/facade/package-lock.json
 travis/secrets.tar
 .bsp/
 demo/project/

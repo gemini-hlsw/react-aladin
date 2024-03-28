@@ -6,7 +6,7 @@ package lucuma.react
 import lucuma.core.math.Angle
 import lucuma.core.math.Declination
 import lucuma.core.math.RightAscension
-import lucuma.react.common._
+import lucuma.react.common.*
 
 import scala.scalajs.js
 
