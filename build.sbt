@@ -24,11 +24,11 @@ enablePlugins(NoPublishPlugin)
 
 ThisBuild / githubWorkflowBuildPreamble ++= Seq(
   WorkflowStep.Use(
-    UseRef.Public("actions", "setup-node", "v3"),
+    UseRef.Public("actions", "setup-node", "v4"),
     name = Some("Setup Node"),
-    params = Map("node-version" -> "18", "cache" -> "npm")
+    params = Map("node-version" -> "20", "cache" -> "npm")
   ),
-  WorkflowStep.Run(List("npm install"))
+  WorkflowStep.Run(List("npm ci"))
 )
 
 val demo =
