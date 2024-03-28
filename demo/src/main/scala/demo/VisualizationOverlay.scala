@@ -18,7 +18,7 @@ import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.GeometryCollection
 import org.locationtech.jts.geom.Polygon
 
-import scala.math._
+import scala.math.*
 
 final case class VisualizationOverlay(
   width:        Int,

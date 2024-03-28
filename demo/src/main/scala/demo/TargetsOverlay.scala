@@ -13,7 +13,7 @@ import lucuma.react.common.*
 import lucuma.ui.reusability.given
 
 import scala.annotation.nowarn
-import scala.math._
+import scala.math.*
 
 final case class TargetsOverlay(
   width:           Int,
@@ -51,6 +51,7 @@ object TargetsOverlay {
 
               val offQ =
                 Offset.Q.signedDecimalArcseconds.get(offset.q).toDouble * 1e6
+
               (x.min(offP), y.min(offQ), w.max(offP), h.max(offQ))
           }
 
