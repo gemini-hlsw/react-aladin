@@ -5,17 +5,17 @@ package demo
 
 import cats.Order
 import cats.data.NonEmptyMap
-import cats.implicits._
+import cats.implicits.*
 import lucuma.core.enums.GmosNorthFpu
 import lucuma.core.enums.GmosSouthFpu
 import lucuma.core.enums.PortDisposition
 import lucuma.core.geom.ShapeExpression
 import lucuma.core.geom.gmos
-import lucuma.core.geom.syntax.shapeexpression._
+import lucuma.core.geom.syntax.shapeexpression.*
 import lucuma.core.math.Angle
 import lucuma.core.math.Offset
-import lucuma.core.math.syntax.int._
-import lucuma.react.common.style._
+import lucuma.core.math.syntax.int.*
+import lucuma.react.common.style.*
 
 object GmosGeometry {
 
