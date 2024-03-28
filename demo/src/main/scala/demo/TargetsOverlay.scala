@@ -13,7 +13,7 @@ import lucuma.react.common.*
 import lucuma.ui.reusability.given
 
 import scala.annotation.nowarn
-import scala.math._
+import scala.math.*
 
 final case class TargetsOverlay(
   width:           Int,
