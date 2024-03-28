@@ -15,8 +15,8 @@ Global / onChangedBuildSource  := ReloadOnSourceChanges
 ThisBuild / scalacOptions ~= { _.filterNot(Set("-Wunused:params")) }
 ThisBuild / coverageEnabled    := false
 Global / resolvers ++= Resolver.sonatypeOssRepos("public")
-ThisBuild / scalaVersion       := "3.4.0"
-ThisBuild / crossScalaVersions := Seq("3.4.0")
+ThisBuild / scalaVersion       := "3.4.1"
+ThisBuild / crossScalaVersions := Seq("3.4.1")
 ThisBuild / scalacOptions ++= Seq(
   "-language:implicitConversions"
 )
@@ -83,13 +83,11 @@ lazy val facade =
         "@cquiroz/aladin-lite" -> aladinLiteVersion
       ),
       Test / npmDevDependencies ++= Seq(
-        "chokidar" -> "3.4.2"
+        "chokidar" -> "3.6.0"
       ),
       // Requires the DOM for tests
       Test / requireJsDomEnv          := true,
       installJsdom / version          := "19.0.0",
-      // Use yarn as it is faster than npm
-      useYarn                         := true,
       webpack / version               := "5.76.1",
       startWebpackDevServer / version := "4.12.0",
       scalaJSUseMainModuleInitializer := false,
