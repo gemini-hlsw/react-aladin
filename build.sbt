@@ -1,10 +1,15 @@
 import org.scalajs.linker.interface.ModuleSplitStyle
 
 val reactJS            = "18.2.0"
+<<<<<<< update/lucuma-core-0.104.0
 val scalaJsReact       = "3.0.0-beta3"
 val lucumaCoreVersion  = "0.104.0"
+=======
+val scalaJsReact       = "3.0.0-beta6"
+val lucumaCoreVersion  = "0.100.1"
+>>>>>>> master
 val lucumaUIVersion    = "0.108.3"
-val lucumaReactVersion = "0.68.1"
+val lucumaReactVersion = "0.71.1"
 val aladinLiteVersion  = "0.6.2"
 val munitVersion       = "1.0.1"
 
