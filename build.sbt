@@ -4,7 +4,7 @@ val reactJS            = "18.2.0"
 val scalaJsReact       = "3.0.0-beta6"
 val lucumaCoreVersion  = "0.104.0"
 val lucumaUIVersion    = "0.117.0"
-val lucumaReactVersion = "0.71.1"
+val lucumaReactVersion = "0.71.2"
 val aladinLiteVersion  = "0.6.2"
 val munitVersion       = "1.0.2"
 
