@@ -99,11 +99,11 @@ class AladinSource extends js.Object {
 @JSImport("/js/Aladin", JSImport.Namespace)
 @nowarn
 class JsAladin extends js.Object {
-  def setImageSurvey(s:    String): Unit = js.native
-  def setBaseImageLayer(s: String): Unit = js.native
-  def getBaseImageLayer(): HpxImageSurvey = js.native
-  def setOverlayImageLayer(i: HpxImageSurvey): Unit = js.native
-  def getOverlayImageLayer(): HpxImageSurvey = js.native
+  def setImageSurvey(s:           String): Unit                                       = js.native
+  def setBaseImageLayer(s:        String): Unit                                       = js.native
+  def getBaseImageLayer(): HpxImageSurvey                                             = js.native
+  def setOverlayImageLayer(i:     HpxImageSurvey): Unit                               = js.native
+  def getOverlayImageLayer(): HpxImageSurvey                                          = js.native
   def getFovForObject(objectName: String, callback: js.Function1[Double, Unit]): Unit = js.native
   def createImageSurvey(
     id:       String,
@@ -113,26 +113,26 @@ class JsAladin extends js.Object {
     maxOrder: Double,
     options:  js.Object
   ): HpxImageSurvey = js.native
-  def addCatalog(c:               AladinCatalog): Unit = js.native
-  def addOverlay(c:               AladinOverlay): Unit = js.native
+  def addCatalog(c:               AladinCatalog): Unit                                = js.native
+  def addOverlay(c:               AladinOverlay): Unit                                = js.native
   def gotoRaDec(ra:               Double, dec:      Double): Unit                     = js.native
-  def getRaDec(): js.Array[Double] = js.native
-  def gotoObject(q:      String, cb:  GoToObjectCallback): Unit = js.native
-  def animateToRaDec(ra: Double, dec: Double, time: Double): Unit = js.native
-  def recalculateView(): Unit     = js.native
-  def increaseZoom(): Unit        = js.native
-  def decreaseZoom(): Unit        = js.native
-  def requestRedraw(): Unit       = js.native
-  def toggleFullscreen(): Unit    = js.native
-  def fixLayoutDimensions(): Unit = js.native
-  def getParentDiv(): Element     = js.native
-  def getSize(): js.Array[Double] = js.native
-  def getFov(): js.Array[Double]  = js.native
-  def setZoom(fovDegrees: Double): js.Array[Double] = js.native
-  def box(): Unit = js.native
-  def pix2world(x: Double, y: Double): js.Array[Double] = js.native
-  def world2pix(x: Double, y: Double): js.Array[Double] = js.native
-  def on(n:        String, f: js.Function): Unit        = js.native
+  def getRaDec(): js.Array[Double]                                                    = js.native
+  def gotoObject(q:               String, cb:       GoToObjectCallback): Unit         = js.native
+  def animateToRaDec(ra:          Double, dec:      Double, time: Double): Unit       = js.native
+  def recalculateView(): Unit                                                         = js.native
+  def increaseZoom(): Unit                                                            = js.native
+  def decreaseZoom(): Unit                                                            = js.native
+  def requestRedraw(): Unit                                                           = js.native
+  def toggleFullscreen(): Unit                                                        = js.native
+  def fixLayoutDimensions(): Unit                                                     = js.native
+  def getParentDiv(): Element                                                         = js.native
+  def getSize(): js.Array[Double]                                                     = js.native
+  def getFov(): js.Array[Double]                                                      = js.native
+  def setZoom(fovDegrees:         Double): js.Array[Double]                           = js.native
+  def box(): Unit                                                                     = js.native
+  def pix2world(x:                Double, y:        Double): js.Array[Double]         = js.native
+  def world2pix(x:                Double, y:        Double): js.Array[Double]         = js.native
+  def on(n:                       String, f:        js.Function): Unit                = js.native
 }
 
 extension (a: JsAladin)
@@ -168,9 +168,9 @@ extension (a: JsAladin)
 @JSImport("/js/A", JSImport.Namespace)
 @nowarn
 object A extends js.Object {
-  def aladin(divSelector: String, options: AladinProps): JsAladin = js.native
-  def catalog(c:          CatalogOptions): AladinCatalog = js.native
-  def graphicOverlay(c:   OverlayOptions): AladinOverlay = js.native
+  def aladin(divSelector: String, options: AladinProps): JsAladin      = js.native
+  def catalog(c:          CatalogOptions): AladinCatalog               = js.native
+  def graphicOverlay(c:   OverlayOptions): AladinOverlay               = js.native
   def polygon(raDecArray: js.Array[js.Array[Double]]): AladinFootprint = js.native
   def polyline(
     raDecArray: js.Array[js.Array[Double]],
