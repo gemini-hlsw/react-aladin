@@ -1,7 +1,7 @@
 import org.scalajs.linker.interface.ModuleSplitStyle
 
 val reactJS            = "18.2.0"
-val scalaJsReact       = "3.0.0-beta6"
+val scalaJsReact       = "3.0.0-beta8"
 val lucumaCoreVersion  = "0.112.1"
 val lucumaUIVersion    = "0.117.0"
 val lucumaReactVersion = "0.71.3"
