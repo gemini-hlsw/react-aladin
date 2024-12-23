@@ -5,7 +5,7 @@ import { defineConfig } from 'vite';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
-  const scalaClassesDir = path.resolve(__dirname, 'demo/target/scala-3.4.1');
+  const scalaClassesDir = path.resolve(__dirname, 'demo/target/scala-3.6.2');
   const sjs =
     mode == 'production'
       ? path.resolve(scalaClassesDir, 'demo-opt')
