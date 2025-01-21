@@ -6,7 +6,7 @@ val lucumaCoreVersion  = "0.112.2"
 val lucumaUIVersion    = "0.126.1"
 val lucumaReactVersion = "0.76.0"
 val aladinLiteVersion  = "0.6.2"
-val munitVersion       = "1.0.4"
+val munitVersion       = "1.1.0"
 
 ThisBuild / tlBaseVersion       := "0.33"
 ThisBuild / tlCiReleaseBranches := Seq("master")
